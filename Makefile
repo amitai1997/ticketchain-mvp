@@ -1,0 +1,139 @@
+.PHONY: help setup install test lint format clean docker-up docker-down chain deploy
+
+# Default target
+help:
+	@echo "TicketChain Development Commands:"
+	@echo "  make setup        - Initial project setup"
+	@echo "  make install      - Install all dependencies"
+	@echo "  make test         - Run all tests"
+	@echo "  make lint         - Run all linters"
+	@echo "  make format       - Auto-format code"
+	@echo "  make clean        - Clean build artifacts"
+	@echo "  make docker-up    - Start Docker services"
+	@echo "  make docker-down  - Stop Docker services"
+	@echo "  make chain        - Start local Hardhat node"
+	@echo "  make deploy       - Deploy contracts to local network"
+
+# Initial setup
+setup: install
+	@echo "Setting up development environment..."
+	cp .env.template .env
+	pre-commit install
+	@echo "Setup complete! Edit .env with your values."
+
+# Install dependencies
+install:
+	@echo "Installing Python dependencies..."
+	poetry install
+	@echo "Installing Node.js dependencies..."
+	npm install
+	@echo "All dependencies installed!"
+
+# Run all tests
+test: test-python test-contracts
+
+test-python:
+	@echo "Running Python tests..."
+	poetry run pytest -v
+
+test-contracts:
+	@echo "Running Solidity tests..."
+	npx hardhat test
+
+# Linting
+lint: lint-python lint-contracts
+
+lint-python:
+	@echo "Linting Python code..."
+	poetry run black --check src/ tests/
+	poetry run isort --check-only src/ tests/
+	poetry run flake8 src/ tests/
+	poetry run bandit -r src/
+
+lint-contracts:
+	@echo "Linting Solidity contracts..."
+	npx solhint 'contracts/**/*.sol'
+
+# Auto-formatting
+format: format-python format-contracts
+
+format-python:
+	@echo "Formatting Python code..."
+	poetry run black src/ tests/
+	poetry run isort src/ tests/
+
+format-contracts:
+	@echo "Formatting Solidity contracts..."
+	npx solhint 'contracts/**/*.sol' --fix
+
+# Clean build artifacts
+clean:
+	@echo "Cleaning build artifacts..."
+	find . -type d -name __pycache__ -exec rm -rf {} +
+	find . -type f -name "*.pyc" -delete
+	rm -rf dist/ build/ *.egg-info
+	rm -rf cache/ artifacts/ typechain/
+	rm -rf coverage/ coverage.json .coverage
+	rm -rf node_modules/
+	@echo "Clean complete!"
+
+# Docker commands
+docker-up:
+	@echo "Starting Docker services..."
+	docker compose up -d
+	@echo "Services started! Waiting for health checks..."
+	@sleep 5
+	docker compose ps
+
+docker-down:
+	@echo "Stopping Docker services..."
+	docker compose down
+	@echo "Services stopped!"
+
+docker-logs:
+	docker compose logs -f
+
+# Blockchain commands
+chain:
+	@echo "Starting local Hardhat node..."
+	npx hardhat node
+
+deploy:
+	@echo "Deploying contracts to local network..."
+	npx hardhat run scripts/deploy.js --network localhost
+
+# Coverage reports
+coverage: coverage-python coverage-contracts
+
+coverage-python:
+	@echo "Generating Python coverage report..."
+	poetry run pytest --cov=src --cov-report=html --cov-report=term
+
+coverage-contracts:
+	@echo "Generating Solidity coverage report..."
+	npx hardhat coverage
+
+# Security checks
+security:
+	@echo "Running security checks..."
+	poetry run safety check
+	poetry run bandit -r src/
+	npm audit
+
+# Database commands
+db-migrate:
+	@echo "Running database migrations..."
+	poetry run alembic upgrade head
+
+db-rollback:
+	@echo "Rolling back last migration..."
+	poetry run alembic downgrade -1
+
+db-reset:
+	@echo "Resetting database..."
+	poetry run alembic downgrade base
+	poetry run alembic upgrade head
+
+# Pre-commit hooks
+pre-commit:
+	pre-commit run --all-files
