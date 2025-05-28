@@ -1,0 +1,53 @@
+# Dependencies
+node_modules/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Build outputs
+dist/
+build/
+artifacts/
+chain/
+typechain/
+coverage/
+coverage.json
+.coverage
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Testing
+test-results/
+allure-results/
+
+# Hardhat
+cache/
+deployments/localhost/
+deployments/hardhat/
+
+# Docker
+.docker/
+
+# Temporary files
+tmp/
+temp/
