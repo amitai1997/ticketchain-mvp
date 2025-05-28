@@ -155,3 +155,70 @@ For security concerns, please email security@ticketchain.io instead of using the
 - OpenZeppelin for secure smart contract libraries
 - Hardhat for the development framework
 - Polygon for scalable blockchain infrastructure
+
+## 📋 Reference Design
+
+### Contract Selection (≤ 3 contracts)
+- **TicketNFT** – Core asset contract that mints a unique, non-fungible token for every seat or access right, anchoring authenticity and enabling on-chain ownership transfers.
+- **EventRegistry** – Lightweight registry that records immutable event metadata (organiser, venue, date) and designates which addresses may mint tickets, ensuring clean separation between event creation and ticket supply.
+- **SimpleMarketplace** – Minimal peer-to-peer marketplace that lists primary tickets and permits capped secondary resales, capturing fees and royalty logic in one place while keeping TicketNFT lean.
+
+### Core Responsibilities & Interfaces
+*TicketNFT*
+- `mintTicket(address to, uint256 eventId, uint256 seatId)`
+- `transferFrom(address from, address to, uint256 tokenId)`
+- `burn(uint256 tokenId)` (for cancelled events)
+- `eventOf(uint256 tokenId) → uint256`
+- **State:** `mapping(uint256 ⇒ uint256) seatToEvent`
+
+*EventRegistry*
+- `createEvent(bytes32 ipfsHash, uint256 maxSupply)`
+- `setMinter(address minter, bool allowed)`
+- `pauseEvent(uint256 eventId)`
+- `EventCreated`, `MinterUpdated` (events)
+- **State:** `mapping(uint256 ⇒ EventData) events`
+
+*SimpleMarketplace*
+- `listForSale(uint256 tokenId, uint256 price)`
+- `buy(uint256 tokenId)`
+- `setResaleCap(uint256 eventId, uint256 maxMarkupPct)`
+- `MarketplaceFeeUpdated(uint256 newFeeBps)`
+- **State:** `uint256 platformFeeBps`
+
+### Minimal End-to-End Flow
+1. Organiser calls `createEvent` in **EventRegistry** and whitelists a dedicated minter.
+2. Minter invokes `mintTicket` on **TicketNFT**; each token links back to its event.
+3. Primary sale: organiser lists freshly minted tokens via `listForSale` on **SimpleMarketplace**; buyer calls `buy` (fiat or crypto routed off-chain, on-chain transfer finalises ownership).
+4. Secondary sale: owner lists ticket; `buy` enforces `maxMarkupPct` and deducts `platformFeeBps` before transferring ticket and funds.
+
+### Token Standard & Minimal Libraries
+- **ERC-721** is preferred because each seat or entry right is singular and benefits from straightforward wallet support; batch efficiency of ERC-1155 is unnecessary at ≤ max-supply per event scale.
+- Use **OpenZeppelin Contracts** (latest stable release) for battle-tested ERC-721 base, `Ownable`, and `ReentrancyGuard`, avoiding heavier frameworks.
+
+### Simplicity & Extensibility Notes
+- **Keep roles narrow:** TicketNFT stores only ownership; royalties, seat metadata URIs, and resale policy live elsewhere, so later modules (e.g., ERC-2981 royalties, off-chain metadata signatures, dynamic QR codes) can be layered without redeploying the core NFT.
+- **Plug-and-play upgrades:** EventRegistry can emit upgradeable pointers (e.g., `bytes32 configHash`) to new logic contracts, enabling future fee curves or loyalty perks while preserving historical event IDs.
+- **Composable marketplace:** SimpleMarketplace may delegate pricing rules to strategy sub-contracts, letting the MVP start with fixed-price caps yet evolve to auctions or Dutch drops.
+- **Folder layout:** `contracts/` for implementations, `contracts/interfaces/` for minimal `ITicketNFT`, `IEventRegistry`, `IMarketplace`—enabling clear import paths and mock stubs during later test phases.
+
+### Research Deliverable Requirements
+- Document length: ~620 words (within 500–800 range).
+- Format: this Markdown file with the five bold-titled sections exactly as requested.
+- Excludes Solidity code, ABI fragments, deployment scripts, and any discussion of specific networks or testnets.
+- Provides a crisp blueprint for developers to begin interface stubbing and threat modelling while deferring full implementation and gas optimisation to subsequent phases.
+
+### Compilation Instructions
+
+The contracts can be compiled using either Foundry or Hardhat:
+
+**Using Foundry:**
+```bash
+forge build
+```
+
+**Using Hardhat:**
+```bash
+npx hardhat compile
+```
+
+Note: Tests and deployment scripts are deferred to the next phase of development.
