@@ -1,0 +1,76 @@
+version: '3.9'
+
+services:
+  # PostgreSQL database
+  postgres:
+    image: postgres:15-alpine
+    container_name: ticketchain-postgres
+    environment:
+      POSTGRES_USER: ticketchain
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-development}
+      POSTGRES_DB: ticketchain_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ticketchain"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis cache
+  redis:
+    image: redis:7-alpine
+    container_name: ticketchain-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Hardhat node for local blockchain development
+  hardhat-node:
+    build:
+      context: .
+      dockerfile: ./infra/docker/hardhat.Dockerfile
+    container_name: ticketchain-hardhat
+    ports:
+      - "8545:8545"
+    volumes:
+      - ./contracts:/app/contracts
+      - ./scripts:/app/scripts
+      - ./chain:/app/chain
+    environment:
+      - HARDHAT_NETWORK=localhost
+    command: npx hardhat node --hostname 0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8545"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MailHog for email testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: ticketchain-mailhog
+    ports:
+      - "1025:1025"  # SMTP port
+      - "8025:8025"  # Web UI port
+    environment:
+      MH_STORAGE: memory
+      MH_SMTP_BIND_ADDR: 0.0.0.0:1025
+      MH_UI_BIND_ADDR: 0.0.0.0:8025
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    name: ticketchain-network
+    driver: bridge
