@@ -2,7 +2,7 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "./interfaces/ISimpleMarketplace.sol";
 import "./interfaces/ITicketNFT.sol";
@@ -27,7 +27,7 @@ contract SimpleMarketplace is Ownable, ReentrancyGuard, ISimpleMarketplace {
     uint256 public constant MAX_PLATFORM_FEE = 1000;
     
     // Mapping from token ID to listing
-    mapping(uint256 => Listing) public override listings;
+    mapping(uint256 => Listing) private _listings;
     
     // Mapping from event ID to maximum resale markup percentage
     mapping(uint256 => uint256) public override resaleCaps;
@@ -48,7 +48,7 @@ contract SimpleMarketplace is Ownable, ReentrancyGuard, ISimpleMarketplace {
         address _ticketNFT,
         address _eventRegistry,
         uint256 _platformFeeBps
-    ) {
+    ) Ownable(msg.sender) {
         require(_ticketNFT != address(0), "Invalid ticket NFT address");
         require(_eventRegistry != address(0), "Invalid registry address");
         require(_platformFeeBps <= MAX_PLATFORM_FEE, "Platform fee too high");
@@ -56,6 +56,15 @@ contract SimpleMarketplace is Ownable, ReentrancyGuard, ISimpleMarketplace {
         ticketNFT = ITicketNFT(_ticketNFT);
         eventRegistry = IEventRegistry(_eventRegistry);
         platformFeeBps = _platformFeeBps;
+    }
+
+    /**
+     * @notice Get listing data
+     * @param tokenId The ID of the token
+     * @return Listing data struct
+     */
+    function listings(uint256 tokenId) external view override returns (Listing memory) {
+        return _listings[tokenId];
     }
 
     /**
@@ -89,7 +98,7 @@ contract SimpleMarketplace is Ownable, ReentrancyGuard, ISimpleMarketplace {
             "Marketplace not approved"
         );
         
-        listings[tokenId] = Listing({
+        _listings[tokenId] = Listing({
             seller: msg.sender,
             price: price,
             isActive: true
@@ -103,7 +112,7 @@ contract SimpleMarketplace is Ownable, ReentrancyGuard, ISimpleMarketplace {
      * @param tokenId The ID of the ticket to buy
      */
     function buy(uint256 tokenId) external payable override nonReentrant {
-        Listing storage listing = listings[tokenId];
+        Listing storage listing = _listings[tokenId];
         require(listing.isActive, "Listing not active");
         require(msg.value == listing.price, "Incorrect payment amount");
         require(ticketNFT.ownerOf(tokenId) == listing.seller, "Seller no longer owns ticket");
@@ -133,7 +142,7 @@ contract SimpleMarketplace is Ownable, ReentrancyGuard, ISimpleMarketplace {
      * @param tokenId The ID of the ticket to delist
      */
     function cancelListing(uint256 tokenId) external override {
-        Listing storage listing = listings[tokenId];
+        Listing storage listing = _listings[tokenId];
         require(listing.isActive, "Listing not active");
         require(listing.seller == msg.sender, "Not the seller");
         

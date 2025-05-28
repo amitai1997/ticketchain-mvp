@@ -31,7 +31,7 @@ contract TicketNFT is ERC721, Ownable, ITicketNFT {
      * @notice Contract constructor
      * @param _eventRegistry Address of the EventRegistry contract
      */
-    constructor(address _eventRegistry) ERC721("TicketNFT", "TICK") {
+    constructor(address _eventRegistry) ERC721("TicketNFT", "TICK") Ownable(msg.sender) {
         require(_eventRegistry != address(0), "Invalid registry address");
         eventRegistry = IEventRegistry(_eventRegistry);
     }
@@ -79,7 +79,7 @@ contract TicketNFT is ERC721, Ownable, ITicketNFT {
      * @param tokenId The ID of the ticket to burn
      */
     function burn(uint256 tokenId) external override {
-        require(_isApprovedOrOwner(msg.sender, tokenId), "Not owner or approved");
+        require(_isAuthorized(msg.sender, address(0), tokenId), "Not owner or approved");
         
         uint256 eventId = _tokenToEvent[tokenId];
         uint256 seatId = _tokenToSeat[tokenId];

@@ -14,10 +14,14 @@ contract EventRegistry is Ownable, IEventRegistry {
     uint256 private _eventIdCounter;
 
     // Mapping from event ID to event data
-    mapping(uint256 => EventData) public override events;
+    mapping(uint256 => EventData) private _events;
 
     // Mapping of authorized minters
     mapping(address => bool) private _minters;
+
+    constructor() Ownable(msg.sender) {
+        // No initialization needed
+    }
 
     /**
      * @notice Create a new event
@@ -34,7 +38,7 @@ contract EventRegistry is Ownable, IEventRegistry {
         eventId = _eventIdCounter;
 
         // Store event data
-        events[eventId] = EventData({
+        _events[eventId] = EventData({
             ipfsHash: ipfsHash,
             maxSupply: maxSupply,
             isPaused: false,
@@ -62,7 +66,7 @@ contract EventRegistry is Ownable, IEventRegistry {
      * @param eventId The ID of the event to pause/unpause
      */
     function pauseEvent(uint256 eventId) external override {
-        EventData storage eventData = events[eventId];
+        EventData storage eventData = _events[eventId];
         require(eventData.ipfsHash != bytes32(0), "Event does not exist");
         require(
             msg.sender == eventData.creator || msg.sender == owner(),
@@ -97,7 +101,7 @@ contract EventRegistry is Ownable, IEventRegistry {
      * @param newIpfsHash New IPFS hash for event metadata
      */
     function updateEventMetadata(uint256 eventId, bytes32 newIpfsHash) external {
-        EventData storage eventData = events[eventId];
+        EventData storage eventData = _events[eventId];
         require(eventData.ipfsHash != bytes32(0), "Event does not exist");
         require(
             msg.sender == eventData.creator || msg.sender == owner(),
@@ -108,6 +112,15 @@ contract EventRegistry is Ownable, IEventRegistry {
         eventData.ipfsHash = newIpfsHash;
         
         // TODO: Emit event for metadata update
+    }
+
+    /**
+     * @notice Get event data
+     * @param eventId The ID of the event
+     * @return Event data struct
+     */
+    function events(uint256 eventId) external view override returns (EventData memory) {
+        return _events[eventId];
     }
 
     // TODO: Future extensions could include:
