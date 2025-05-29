@@ -25,7 +25,17 @@ module.exports = {
         enabled: true,
         runs: 200
       },
-      viaIR: false // Disable IR-based compilation for now
+      viaIR: false, // Disable IR-based compilation for now
+      outputSelection: {
+        "*": {
+          "*": ["abi", "evm.bytecode", "evm.deployedBytecode"],
+          "": ["ast"]
+        }
+      },
+      // Disable source maps which might be causing JSON parsing errors
+      debug: {
+        revertStrings: "default"
+      }
     }
   },
   
@@ -87,5 +97,10 @@ module.exports = {
   
   mocha: {
     timeout: process.env.TEST_TIMEOUT ? parseInt(process.env.TEST_TIMEOUT) : 30000
+  },
+  
+  // Add specific settings to help with source map issues
+  sourcify: {
+    enabled: false
   }
 };

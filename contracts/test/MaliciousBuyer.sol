@@ -27,7 +27,7 @@ contract MaliciousBuyer {
         if (attacking && attackCount < 2) {
             attackCount++;
             // Try to re-enter purchaseListing
-            (bool success,) = marketplace.call{value: 0}(
+            marketplace.call{value: 0}(
                 abi.encodeWithSignature("purchaseListing(uint256)", 1)
             );
             // Don't revert on failure to allow testing
