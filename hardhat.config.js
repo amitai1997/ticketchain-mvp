@@ -14,7 +14,7 @@ const AMOY_RPC_URL = ALCHEMY_AMOY_API_KEY
   ? `https://polygon-amoy.g.alchemy.com/v2/${ALCHEMY_AMOY_API_KEY}`
   : INFURA_PROJECT_ID
     ? `https://polygon-amoy.infura.io/v3/${INFURA_PROJECT_ID}`
-    : process.env.POLYGON_AMOY_RPC_URL;
+    : process.env.POLYGON_AMOY_RPC_URL || "https://rpc-amoy.polygon.technology"; // Default public RPC
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
