@@ -80,17 +80,17 @@ contract TicketNFT is ERC721, Ownable, ITicketNFT {
      */
     function burn(uint256 tokenId) external override {
         require(_isAuthorized(msg.sender, address(0), tokenId), "Not owner or approved");
-        
+
         uint256 eventId = _tokenToEvent[tokenId];
         uint256 seatId = _tokenToSeat[tokenId];
-        
+
         // Clear mappings
         delete _tokenToEvent[tokenId];
         delete _tokenToSeat[tokenId];
         delete _eventSeatToToken[eventId][seatId];
-        
+
         _burn(tokenId);
-        
+
         emit TicketBurned(tokenId);
     }
 

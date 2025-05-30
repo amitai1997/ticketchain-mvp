@@ -1,0 +1,27 @@
+{
+  "network": "localhost",
+  "deployedAt": "2025-05-30T12:54:25.235Z",
+  "deployer": "0x0E0b4F45385598F9Abe7abB18C38b571620b1d7b",
+  "contracts": {
+    "EventRegistry": {
+      "address": "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
+      "transactionHash": "0xcfb05b54dafb29efe43d2d8271155859b01705462fab5c8141622e385ee4d532"
+    },
+    "TicketNFT": {
+      "address": "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
+      "transactionHash": "0x8b5df4615a87f764a06a91e5404f49ca6767e07f973eb80278305f2f45620768",
+      "constructorArgs": [
+        "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e"
+      ]
+    },
+    "SimpleMarketplace": {
+      "address": "0x0DCd1Bf9A1b36cE34237eEaFef220932846BCD82",
+      "transactionHash": "0xd61969515bb4157c5125e162280cc9c0cafefd4279467c5a8a5dec308e1afca4",
+      "constructorArgs": [
+        "0xA51c1fc2f0D1a1b8494Ed1FE312d7C3a78Ed91C0",
+        "0xB7f8BC63BbcaD18155201308C8f3540b07f84F5e",
+        250
+      ]
+    }
+  }
+}

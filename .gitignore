@@ -39,6 +39,7 @@ yarn-error.log*
 # Testing
 test-results/
 allure-results/
+gas-report.txt
 
 # Hardhat
 cache/
@@ -55,3 +56,10 @@ temp/
 # Foundry
 out/
 cache_forge/
+
+# Contract size reports
+contract-sizes.txt
+
+# Package lock files (optional - remove if you want to commit them)
+# package-lock.json
+# yarn.lock

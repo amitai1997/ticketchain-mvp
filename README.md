@@ -10,6 +10,7 @@ White-label NFT backbone for event-ticketing platforms. Prevent fraud, capture s
 ## 🎯 Overview
 
 TicketChain provides a B2B Infrastructure-as-a-Service (IaaS) that enables any ticketing platform to:
+
 - Issue event tickets as NFTs without blockchain expertise
 - Control secondary market rules on-chain
 - Prevent scalping and counterfeit tickets
@@ -42,11 +43,12 @@ make test
 ```
 
 The following services will be available:
-- API Server: http://localhost:3000
-- Hardhat Node: http://localhost:8545
+
+- API Server: <http://localhost:3000>
+- Hardhat Node: <http://localhost:8545>
 - PostgreSQL: localhost:5432
 - Redis: localhost:6379
-- MailHog UI: http://localhost:8025
+- MailHog UI: <http://localhost:8025>
 
 ## 🏗️ Architecture
 
@@ -148,7 +150,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔐 Security
 
-For security concerns, please email security@ticketchain.io instead of using the public issue tracker.
+For security concerns, please email <security@ticketchain.io> instead of using the public issue tracker.
 
 ## 🙏 Acknowledgments
 
@@ -159,12 +161,15 @@ For security concerns, please email security@ticketchain.io instead of using the
 ## 📋 Reference Design
 
 ### Contract Selection (≤ 3 contracts)
+
 - **TicketNFT** – Core asset contract that mints a unique, non-fungible token for every seat or access right, anchoring authenticity and enabling on-chain ownership transfers.
 - **EventRegistry** – Lightweight registry that records immutable event metadata (organiser, venue, date) and designates which addresses may mint tickets, ensuring clean separation between event creation and ticket supply.
 - **SimpleMarketplace** – Minimal peer-to-peer marketplace that lists primary tickets and permits capped secondary resales, capturing fees and royalty logic in one place while keeping TicketNFT lean.
 
 ### Core Responsibilities & Interfaces
+
 *TicketNFT*
+
 - `mintTicket(address to, uint256 eventId, uint256 seatId)`
 - `transferFrom(address from, address to, uint256 tokenId)`
 - `burn(uint256 tokenId)` (for cancelled events)
@@ -172,6 +177,7 @@ For security concerns, please email security@ticketchain.io instead of using the
 - **State:** `mapping(uint256 ⇒ uint256) seatToEvent`
 
 *EventRegistry*
+
 - `createEvent(bytes32 ipfsHash, uint256 maxSupply)`
 - `setMinter(address minter, bool allowed)`
 - `pauseEvent(uint256 eventId)`
@@ -179,6 +185,7 @@ For security concerns, please email security@ticketchain.io instead of using the
 - **State:** `mapping(uint256 ⇒ EventData) events`
 
 *SimpleMarketplace*
+
 - `listForSale(uint256 tokenId, uint256 price)`
 - `buy(uint256 tokenId)`
 - `setResaleCap(uint256 eventId, uint256 maxMarkupPct)`
@@ -186,22 +193,26 @@ For security concerns, please email security@ticketchain.io instead of using the
 - **State:** `uint256 platformFeeBps`
 
 ### Minimal End-to-End Flow
+
 1. Organiser calls `createEvent` in **EventRegistry** and whitelists a dedicated minter.
 2. Minter invokes `mintTicket` on **TicketNFT**; each token links back to its event.
 3. Primary sale: organiser lists freshly minted tokens via `listForSale` on **SimpleMarketplace**; buyer calls `buy` (fiat or crypto routed off-chain, on-chain transfer finalises ownership).
 4. Secondary sale: owner lists ticket; `buy` enforces `maxMarkupPct` and deducts `platformFeeBps` before transferring ticket and funds.
 
 ### Token Standard & Minimal Libraries
+
 - **ERC-721** is preferred because each seat or entry right is singular and benefits from straightforward wallet support; batch efficiency of ERC-1155 is unnecessary at ≤ max-supply per event scale.
 - Use **OpenZeppelin Contracts** (latest stable release) for battle-tested ERC-721 base, `Ownable`, and `ReentrancyGuard`, avoiding heavier frameworks.
 
 ### Simplicity & Extensibility Notes
+
 - **Keep roles narrow:** TicketNFT stores only ownership; royalties, seat metadata URIs, and resale policy live elsewhere, so later modules (e.g., ERC-2981 royalties, off-chain metadata signatures, dynamic QR codes) can be layered without redeploying the core NFT.
 - **Plug-and-play upgrades:** EventRegistry can emit upgradeable pointers (e.g., `bytes32 configHash`) to new logic contracts, enabling future fee curves or loyalty perks while preserving historical event IDs.
 - **Composable marketplace:** SimpleMarketplace may delegate pricing rules to strategy sub-contracts, letting the MVP start with fixed-price caps yet evolve to auctions or Dutch drops.
 - **Folder layout:** `contracts/` for implementations, `contracts/interfaces/` for minimal `ITicketNFT`, `IEventRegistry`, `IMarketplace`—enabling clear import paths and mock stubs during later test phases.
 
 ### Research Deliverable Requirements
+
 - Document length: ~620 words (within 500–800 range).
 - Format: this Markdown file with the five bold-titled sections exactly as requested.
 - Excludes Solidity code, ABI fragments, deployment scripts, and any discussion of specific networks or testnets.
@@ -212,11 +223,13 @@ For security concerns, please email security@ticketchain.io instead of using the
 The contracts can be compiled using either Foundry or Hardhat:
 
 **Using Foundry:**
+
 ```bash
 forge build
 ```
 
 **Using Hardhat:**
+
 ```bash
 npx hardhat compile
 ```

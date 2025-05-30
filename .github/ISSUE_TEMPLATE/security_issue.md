@@ -7,12 +7,13 @@ assignees: ''
 
 ---
 
-⚠️ **IMPORTANT**: If this is a critical security vulnerability, please report it privately to security@ticketchain.io instead of using this public issue tracker.
+⚠️ **IMPORTANT**: If this is a critical security vulnerability, please report it privately to <security@ticketchain.io> instead of using this public issue tracker.
 
 **Describe the security issue**
 A clear and concise description of the security concern.
 
 **Type of vulnerability**
+
 - [ ] Smart Contract vulnerability
 - [ ] API/Backend vulnerability
 - [ ] Frontend vulnerability
@@ -21,6 +22,7 @@ A clear and concise description of the security concern.
 - [ ] Other
 
 **Severity Assessment**
+
 - [ ] Critical - Immediate threat to funds or user data
 - [ ] High - Significant risk requiring urgent attention
 - [ ] Medium - Notable risk that should be addressed soon
@@ -28,9 +30,9 @@ A clear and concise description of the security concern.
 
 **Steps to reproduce**
 If applicable, provide steps to reproduce the vulnerability:
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 **Potential Impact**
 Describe the potential impact if this vulnerability is exploited.

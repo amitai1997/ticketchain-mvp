@@ -6,7 +6,7 @@
   ],
   "service": "devcontainer",
   "workspaceFolder": "/workspace",
-  
+
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
       "installZsh": true,
@@ -76,14 +76,14 @@
 
   "postCreateCommand": "make setup",
   "remoteUser": "vscode",
-  
+
   "mounts": [
     "source=${localWorkspaceFolder},target=/workspace,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,readonly"
   ],
-  
+
   "forwardPorts": [3000, 5432, 6379, 8545, 8025],
-  
+
   "portsAttributes": {
     "3000": {
       "label": "API Server",

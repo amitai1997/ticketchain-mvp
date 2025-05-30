@@ -5,13 +5,44 @@
   "scripts": {
     "compile": "hardhat compile",
     "test": "hardhat test",
-    "clean": "hardhat clean"
+    "test:unit": "hardhat test tests/contracts/unit/*.test.js",
+    "test:integration": "hardhat test tests/contracts/integration/*.test.js",
+    "test:gas": "REPORT_GAS=true hardhat test tests/contracts/gas/*.test.js",
+    "test:all": "./scripts/run-tests.sh",
+    "coverage": "hardhat coverage",
+    "clean": "hardhat clean",
+    "deploy:amoy": "hardhat run scripts/deploy.js --network amoy",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "verify": "hardhat run scripts/verify.js --network amoy",
+    "size": "hardhat size-contracts",
+    "node": "hardhat node",
+    "lint": "eslint . --ext .js,.ts",
+    "lint:fix": "eslint . --ext .js,.ts --fix"
   },
   "devDependencies": {
+    "@eslint/js": "^9.27.0",
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
-    "hardhat": "^2.19.0"
+    "@nomicfoundation/hardhat-verify": "^2.0.0",
+    "@openzeppelin/test-helpers": "^0.5.16",
+    "@types/chai": "^4.3.11",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.10.4",
+    "@typescript-eslint/eslint-plugin": "^8.33.0",
+    "@typescript-eslint/parser": "^8.33.0",
+    "chai": "^4.3.10",
+    "dotenv": "^16.3.1",
+    "eslint": "^8.57.0",
+    "eslint-plugin-node": "^11.1.0",
+    "hardhat": "^2.19.0",
+    "hardhat-contract-sizer": "^2.10.0",
+    "hardhat-gas-reporter": "^1.0.9",
+    "solidity-coverage": "^0.8.5",
+    "ts-node": "^10.9.1",
+    "typescript": "^5.3.3",
+    "typescript-eslint": "^8.33.0"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "5.0.1"
+    "@openzeppelin/contracts": "^5.0.1",
+    "fp-ts": "^2.16.10"
   }
 }

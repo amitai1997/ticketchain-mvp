@@ -110,7 +110,7 @@ contract EventRegistry is Ownable, IEventRegistry {
         require(newIpfsHash != bytes32(0), "Invalid IPFS hash");
 
         eventData.ipfsHash = newIpfsHash;
-        
+
         // TODO: Emit event for metadata update
     }
 
