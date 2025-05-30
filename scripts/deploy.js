@@ -8,40 +8,49 @@ async function main() {
   console.log("--------------------------------------------");
 
   // Get deployer account
-  const [deployer] = await ethers.getSigners();
+  const [deployer] = await hre.ethers.getSigners();
   console.log("Deploying contracts with account:", deployer.address);
   
-  const balance = await deployer.getBalance();
-  console.log("Account balance:", ethers.utils.formatEther(balance), "ETH");
+  const balance = await hre.ethers.provider.getBalance(deployer.address);
+  console.log("Account balance:", hre.ethers.formatEther(balance), "ETH");
   console.log("--------------------------------------------");
 
   // Deploy EventRegistry
   console.log("1. Deploying EventRegistry...");
-  const EventRegistry = await ethers.getContractFactory("EventRegistry");
+  const EventRegistry = await hre.ethers.getContractFactory("EventRegistry");
   const eventRegistry = await EventRegistry.deploy();
-  await eventRegistry.deployed();
-  console.log("✅ EventRegistry deployed to:", eventRegistry.address);
-  console.log("   Gas used:", (await eventRegistry.deployTransaction.wait()).gasUsed.toString());
-
-  // Deploy SimpleMarketplace  
-  console.log("\n2. Deploying SimpleMarketplace...");
-  const SimpleMarketplace = await ethers.getContractFactory("SimpleMarketplace");
-  const marketplace = await SimpleMarketplace.deploy();
-  await marketplace.deployed();
-  console.log("✅ SimpleMarketplace deployed to:", marketplace.address);
-  console.log("   Gas used:", (await marketplace.deployTransaction.wait()).gasUsed.toString());
+  await eventRegistry.waitForDeployment();
+  const eventRegistryAddress = await eventRegistry.getAddress();
+  console.log("✅ EventRegistry deployed to:", eventRegistryAddress);
+  const eventRegistryTx = eventRegistry.deploymentTransaction();
+  console.log("   Gas used:", (await eventRegistryTx.wait()).gasUsed.toString());
 
   // Deploy TicketNFT
-  console.log("\n3. Deploying TicketNFT...");
-  const TicketNFT = await ethers.getContractFactory("TicketNFT");
-  const ticketNFT = await TicketNFT.deploy(
-    "TicketChain Event Tickets",
-    "TCKT",
-    eventRegistry.address
+  console.log("\n2. Deploying TicketNFT...");
+  const TicketNFT = await hre.ethers.getContractFactory("TicketNFT");
+  const ticketNFT = await TicketNFT.deploy(eventRegistryAddress);
+  await ticketNFT.waitForDeployment();
+  const ticketNFTAddress = await ticketNFT.getAddress();
+  console.log("✅ TicketNFT deployed to:", ticketNFTAddress);
+  const ticketNFTTx = ticketNFT.deploymentTransaction();
+  console.log("   Gas used:", (await ticketNFTTx.wait()).gasUsed.toString());
+
+  // Deploy SimpleMarketplace with constructor arguments
+  console.log("\n3. Deploying SimpleMarketplace...");
+  // Set platform fee to 2.5% (250 basis points)
+  const platformFeeBps = 250;
+  const SimpleMarketplace = await hre.ethers.getContractFactory("SimpleMarketplace");
+  const marketplace = await SimpleMarketplace.deploy(
+    ticketNFTAddress,
+    eventRegistryAddress,
+    platformFeeBps
   );
-  await ticketNFT.deployed();
-  console.log("✅ TicketNFT deployed to:", ticketNFT.address);
-  console.log("   Gas used:", (await ticketNFT.deployTransaction.wait()).gasUsed.toString());
+  await marketplace.waitForDeployment();
+  const marketplaceAddress = await marketplace.getAddress();
+  console.log("✅ SimpleMarketplace deployed to:", marketplaceAddress);
+  console.log("   Platform fee set to:", platformFeeBps / 100, "%");
+  const marketplaceTx = marketplace.deploymentTransaction();
+  console.log("   Gas used:", (await marketplaceTx.wait()).gasUsed.toString());
 
   // Save deployment addresses
   const deploymentData = {
@@ -51,20 +60,23 @@ async function main() {
     deployer: deployer.address,
     contracts: {
       EventRegistry: {
-        address: eventRegistry.address,
-        transactionHash: eventRegistry.deployTransaction.hash
-      },
-      SimpleMarketplace: {
-        address: marketplace.address,
-        transactionHash: marketplace.deployTransaction.hash
+        address: eventRegistryAddress,
+        transactionHash: eventRegistryTx.hash
       },
       TicketNFT: {
-        address: ticketNFT.address,
-        transactionHash: ticketNFT.deployTransaction.hash,
+        address: ticketNFTAddress,
+        transactionHash: ticketNFTTx.hash,
         constructorArgs: [
-          "TicketChain Event Tickets",
-          "TCKT",
-          eventRegistry.address
+          eventRegistryAddress
+        ]
+      },
+      SimpleMarketplace: {
+        address: marketplaceAddress,
+        transactionHash: marketplaceTx.hash,
+        constructorArgs: [
+          ticketNFTAddress,
+          eventRegistryAddress,
+          platformFeeBps
         ]
       }
     }
@@ -88,9 +100,9 @@ async function main() {
   console.log("\n--------------------------------------------");
   console.log("📄 Deployment Summary:");
   console.log("--------------------------------------------");
-  console.log("EventRegistry:", eventRegistry.address);
-  console.log("SimpleMarketplace:", marketplace.address);
-  console.log("TicketNFT:", ticketNFT.address);
+  console.log("EventRegistry:", eventRegistryAddress);
+  console.log("TicketNFT:", ticketNFTAddress);
+  console.log("SimpleMarketplace:", marketplaceAddress);
   console.log("\n💾 Deployment data saved to:");
   console.log("  ", filepath);
   console.log("  ", latestPath);
@@ -100,9 +112,9 @@ async function main() {
     const confirmations = hre.network.config.confirmations || 2;
     console.log(`\n⏳ Waiting for ${confirmations} confirmations...`);
     
-    await eventRegistry.deployTransaction.wait(confirmations);
-    await marketplace.deployTransaction.wait(confirmations);
-    await ticketNFT.deployTransaction.wait(confirmations);
+    await eventRegistryTx.wait(confirmations);
+    await ticketNFTTx.wait(confirmations);
+    await marketplaceTx.wait(confirmations);
     
     console.log("✅ All contracts confirmed!");
   }
