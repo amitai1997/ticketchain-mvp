@@ -78,10 +78,10 @@ jobs:
           gas-report.txt
 
   deploy:
-    name: Deploy to Mumbai
+    name: Deploy to Amoy
     runs-on: ubuntu-latest
     needs: test
-    if: github.ref == 'refs/heads/deploy/mumbai'
+    if: github.ref == 'refs/heads/deploy/amoy'
 
     steps:
     - name: Checkout code
@@ -99,11 +99,11 @@ jobs:
     - name: Compile contracts
       run: npm run compile
 
-    - name: Deploy to Mumbai testnet
-      run: npm run deploy:mumbai
+    - name: Deploy to Amoy testnet
+      run: npm run deploy:amoy
       env:
         DEPLOYER_PRIVATE_KEY: ${{ secrets.DEPLOYER_PRIVATE_KEY }}
-        ALCHEMY_MUMBAI_API_KEY: ${{ secrets.ALCHEMY_MUMBAI_API_KEY }}
+        ALCHEMY_AMOY_API_KEY: ${{ secrets.ALCHEMY_AMOY_API_KEY }}
         POLYGONSCAN_API_KEY: ${{ secrets.POLYGONSCAN_API_KEY }}
 
     - name: Verify contracts on Polygonscan
@@ -125,18 +125,18 @@ jobs:
         script: |
           const fs = require('fs');
           const deploymentInfo = JSON.parse(
-            fs.readFileSync('deployments/latest-mumbai.json', 'utf8')
+            fs.readFileSync('deployments/latest-amoy.json', 'utf8')
           );
 
           const comment = `## 🚀 Deployment Successful!
 
-          **Network:** Mumbai Testnet
+          **Network:** Amoy Testnet
           **Deployer:** ${deploymentInfo.deployer}
 
           ### Contract Addresses:
-          - **EventRegistry:** [${deploymentInfo.contracts.EventRegistry.address}](https://mumbai.polygonscan.com/address/${deploymentInfo.contracts.EventRegistry.address})
-          - **SimpleMarketplace:** [${deploymentInfo.contracts.SimpleMarketplace.address}](https://mumbai.polygonscan.com/address/${deploymentInfo.contracts.SimpleMarketplace.address})
-          - **TicketNFT:** [${deploymentInfo.contracts.TicketNFT.address}](https://mumbai.polygonscan.com/address/${deploymentInfo.contracts.TicketNFT.address})
+          - **EventRegistry:** [${deploymentInfo.contracts.EventRegistry.address}](https://amoy.polygonscan.com/address/${deploymentInfo.contracts.EventRegistry.address})
+          - **SimpleMarketplace:** [${deploymentInfo.contracts.SimpleMarketplace.address}](https://amoy.polygonscan.com/address/${deploymentInfo.contracts.SimpleMarketplace.address})
+          - **TicketNFT:** [${deploymentInfo.contracts.TicketNFT.address}](https://amoy.polygonscan.com/address/${deploymentInfo.contracts.TicketNFT.address})
 
           Deployed at: ${deploymentInfo.deployedAt}`;
 

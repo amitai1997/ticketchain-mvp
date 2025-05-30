@@ -10,7 +10,7 @@ This directory contains deployment artifacts for different networks.
 ## Networks
 
 - `localhost` - Local Hardhat network (gitignored)
-- `mumbai` - Polygon Mumbai testnet
+- `amoy` - Polygon Amoy testnet
 - `mainnet` - Polygon mainnet (future)
 
 ## Usage

@@ -12,7 +12,7 @@ async function main() {
 
   if (!fs.existsSync(deploymentPath)) {
     console.error("❌ No deployment data found for network:", hre.network.name);
-    console.error("   Please run 'npm run deploy:mumbai' first");
+    console.error("   Please run 'npm run deploy:amoy' first");
     process.exit(1);
   }
 
@@ -41,7 +41,7 @@ async function main() {
   try {
     await hre.run("verify:verify", {
       address: deployment.contracts.SimpleMarketplace.address,
-      constructorArguments: []
+      constructorArguments: deployment.contracts.SimpleMarketplace.constructorArgs
     });
     console.log("✅ SimpleMarketplace verified!");
   } catch (error) {
@@ -70,9 +70,9 @@ async function main() {
 
   console.log("\n🎉 Verification process completed!");
   console.log("\n📍 View contracts on Polygonscan:");
-  console.log(`   EventRegistry: https://mumbai.polygonscan.com/address/${deployment.contracts.EventRegistry.address}`);
-  console.log(`   SimpleMarketplace: https://mumbai.polygonscan.com/address/${deployment.contracts.SimpleMarketplace.address}`);
-  console.log(`   TicketNFT: https://mumbai.polygonscan.com/address/${deployment.contracts.TicketNFT.address}`);
+  console.log(`   EventRegistry: https://amoy.polygonscan.com/address/${deployment.contracts.EventRegistry.address}`);
+  console.log(`   SimpleMarketplace: https://amoy.polygonscan.com/address/${deployment.contracts.SimpleMarketplace.address}`);
+  console.log(`   TicketNFT: https://amoy.polygonscan.com/address/${deployment.contracts.TicketNFT.address}`);
 }
 
 main()

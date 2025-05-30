@@ -2,14 +2,14 @@
 
 ## Overview
 
-This guide walks you through deploying and testing the TicketChain MVP smart contracts on the Polygon Mumbai testnet.
+This guide walks you through deploying and testing the TicketChain MVP smart contracts on the Polygon Amoy testnet.
 
 ## Prerequisites
 
 1. **Node.js 18.x or higher** installed
 2. **Git** for version control
 3. **MetaMask** or similar wallet for testnet transactions
-4. **Test MATIC** tokens (get from [Mumbai Faucet](https://faucet.polygon.technology/))
+4. **Test MATIC** tokens (get from [Amoy Faucet](https://amoy.polygonscan.com/faucet))
 
 ## Initial Setup
 
@@ -32,7 +32,7 @@ cp .env.example .env
 **Required Environment Variables:**
 
 - `DEPLOYER_PRIVATE_KEY`: Private key of the deploying account (with test MATIC)
-- `ALCHEMY_MUMBAI_API_KEY`: Get from [Alchemy Dashboard](https://dashboard.alchemy.com/)
+- `ALCHEMY_AMOY_API_KEY`: Get from [Alchemy Dashboard](https://dashboard.alchemy.com/)
 - `POLYGONSCAN_API_KEY`: Get from [Polygonscan](https://polygonscan.com/apis)
 
 **⚠️ Security Warning:** Never commit your `.env` file or share your private keys!
@@ -88,17 +88,17 @@ npm run node
 npm run deploy:local
 ```
 
-### 2. Deploy to Mumbai Testnet
+### 2. Deploy to Amoy Testnet
 
 ```bash
-npm run deploy:mumbai
+npm run deploy:amoy
 ```
 
 **Expected Output:**
 
 ```
 🚀 Starting TicketChain MVP deployment...
-Network: mumbai
+Network: amoy
 --------------------------------------------
 Deploying contracts with account: 0x...
 Account balance: X.XX ETH
@@ -117,8 +117,8 @@ Account balance: X.XX ETH
    Gas used: ~XXXXX
 
 💾 Deployment data saved to:
-   deployments/deployment-mumbai-[timestamp].json
-   deployments/latest-mumbai.json
+   deployments/deployment-amoy-[timestamp].json
+   deployments/latest-amoy.json
 
 🎉 Deployment completed successfully!
 ```
@@ -137,7 +137,7 @@ This verifies the source code on Polygonscan, allowing users to interact with co
 
 ```javascript
 // Using Hardhat console
-npx hardhat console --network mumbai
+npx hardhat console --network amoy
 
 const TicketNFT = await ethers.getContractFactory("TicketNFT");
 const ticketNFT = await TicketNFT.attach("DEPLOYED_TICKET_NFT_ADDRESS");
@@ -244,7 +244,7 @@ npm run size
 npx hardhat test tests/contracts/unit/EventRegistry.test.js
 
 # Get account balance
-npx hardhat console --network mumbai
+npx hardhat console --network amoy
 > const [signer] = await ethers.getSigners()
 > await signer.getBalance()
 ```
@@ -255,14 +255,14 @@ The project includes GitHub Actions workflows that automatically:
 
 1. Run tests on every push
 2. Generate coverage reports
-3. Deploy to Mumbai on push to `deploy/mumbai` branch
+3. Deploy to Amoy on push to `deploy/amoy` branch
 4. Verify contracts post-deployment
 
 To trigger automatic deployment:
 
 ```bash
-git checkout -b deploy/mumbai
-git push origin deploy/mumbai
+git checkout -b deploy/amoy
+git push origin deploy/amoy
 ```
 
 ## Next Steps

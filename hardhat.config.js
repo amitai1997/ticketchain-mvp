@@ -6,14 +6,14 @@ require("dotenv").config();
 // Ensure we have required environment variables
 const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY || "0x0000000000000000000000000000000000000000000000000000000000000000";
 const POLYGONSCAN_API_KEY = process.env.POLYGONSCAN_API_KEY || "";
-const ALCHEMY_MUMBAI_API_KEY = process.env.ALCHEMY_MUMBAI_API_KEY || "";
+const ALCHEMY_AMOY_API_KEY = process.env.ALCHEMY_AMOY_API_KEY || "";
 const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID || "";
 
 // Choose RPC provider
-const MUMBAI_RPC_URL = ALCHEMY_MUMBAI_API_KEY
-  ? `https://polygon-mumbai.g.alchemy.com/v2/${ALCHEMY_MUMBAI_API_KEY}`
+const AMOY_RPC_URL = ALCHEMY_AMOY_API_KEY
+  ? `https://polygon-amoy.g.alchemy.com/v2/${ALCHEMY_AMOY_API_KEY}`
   : INFURA_PROJECT_ID
-    ? `https://polygon-mumbai.infura.io/v3/${INFURA_PROJECT_ID}`
+    ? `https://polygon-amoy.infura.io/v3/${INFURA_PROJECT_ID}`
     : process.env.POLYGON_AMOY_RPC_URL;
 
 /** @type import('hardhat/config').HardhatUserConfig */
@@ -59,9 +59,9 @@ module.exports = {
       timeout: 60000
     },
 
-    mumbai: {
-      url: MUMBAI_RPC_URL,
-      chainId: 80001,
+    amoy: {
+      url: AMOY_RPC_URL,
+      chainId: 80002, // Polygon Amoy chainId
       accounts: [DEPLOYER_PRIVATE_KEY],
       gasPrice: 35000000000, // 35 gwei
       gas: 6000000,
@@ -91,7 +91,7 @@ module.exports = {
   etherscan: {
     apiKey: {
       polygon: POLYGONSCAN_API_KEY,
-      polygonMumbai: POLYGONSCAN_API_KEY
+      polygonAmoy: POLYGONSCAN_API_KEY
     }
   },
 

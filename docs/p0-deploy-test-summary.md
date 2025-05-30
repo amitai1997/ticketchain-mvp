@@ -8,7 +8,7 @@ We've successfully implemented the complete Deploy & Test infrastructure for the
 
 #### 1. **Enhanced Configuration** (`hardhat.config.js`)
 
-- Multi-network support (Hardhat, Localhost, Mumbai)
+- Multi-network support (Hardhat, Localhost, Amoy)
 - Gas reporting with MATIC pricing
 - Contract size checking
 - Etherscan verification setup
@@ -43,7 +43,7 @@ We've successfully implemented the complete Deploy & Test infrastructure for the
 
 - Automated testing on every push
 - Coverage reporting with Codecov
-- Automated deployment on `deploy/mumbai` branch
+- Automated deployment on `deploy/amoy` branch
 - Security scanning with Slither
 - Contract verification post-deployment
 
@@ -108,10 +108,10 @@ The following functionality will be tested in future phases as they are implemen
    npm run test:all
    ```
 
-3. **Deploy to Mumbai**
+3. **Deploy to Amoy**
 
    ```bash
-   npm run deploy:mumbai
+   npm run deploy:amoy
    ```
 
 4. **Verify Contracts**
@@ -155,7 +155,7 @@ npm run size                # Check contract sizes
 # Deployment
 npm run node                # Start local node
 npm run deploy:local        # Deploy locally
-npm run deploy:mumbai       # Deploy to Mumbai
+npm run deploy:amoy        # Deploy to Amoy
 npm run verify              # Verify on Polygonscan
 
 # Testing
