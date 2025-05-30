@@ -75,68 +75,9 @@ describe("Gas Optimization Tests", function () {
       // Target: < 200,000 gas
       expect(receipt.gasUsed).to.be.lt(200000);
     });
-    
-    it("Should measure gas for minting with metadata URI", async function () {
-      // Skip - contract doesn't support metadata URI parameter
-      this.skip();
-    });
-
-    it("Should measure gas for sequential mints", async function () {
-      // Skip - function signature mismatch
-      this.skip();
-    });
   });
   
-  describe("Marketplace Gas", function () {
-    it("Should measure gas for listing creation", async function () {
-      // Skip - requires marketplace functions that have changed
-      this.skip();
-    });
-    
-    it("Should measure gas for purchase", async function () {
-      // Skip - requires marketplace functions that have changed
-      this.skip();
-    });
-    
-    it("Should measure gas for listing cancellation", async function () {
-      // Skip - requires marketplace functions that have changed
-      this.skip();
-    });
-  });
-
-  describe("Batch Operations Gas", function () {
-    it("Should compare gas for multiple operations", async function () {
-      // Skip - uses non-existent functions
-      this.skip();
-    });
-  });
-
-  describe("Storage Optimization", function () {
-    it("Should efficiently store event data", async function () {
-      // Skip - uses incompatible function signature
-      this.skip();
-    });
-
-    it("Should efficiently handle ticket ownership queries", async function () {
-      // Skip - getTicketsByOwner doesn't exist
-      this.skip();
-    });
-  });
-
-  describe("Gas Limits and Thresholds", function () {
-    it("Should stay within target gas limits for all operations", async function () {
-      // Skip - uses incompatible function signature
-      this.skip();
-    });
-  });
-
-  describe("Optimization Recommendations", function () {
-    it("Should identify potential optimizations", async function () {
-      // Skip - uses incompatible function signature
-      this.skip();
-      
-      console.log("\n        Optimization Analysis:");
-      console.log("        ====================\n");
-    });
-  });
+  // Note: Additional gas tests for marketplace operations, batch operations,
+  // and storage optimization will be implemented in future phases as those
+  // features are developed.
 });

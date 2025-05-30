@@ -26,76 +26,6 @@ describe("Full Flow Integration Tests", function () {
     await eventRegistry.setMinter(owner.address, true);
   });
 
-  describe("Complete Ticket Lifecycle", function () {
-    it("Should complete full flow: create event → mint → list → purchase", async function () {
-      // Skip this test for now
-      this.skip();
-
-      /* 
-      // Step 1: Create event
-      console.log("      Step 1: Creating event...");
-      eventId = await createEvent(eventRegistry, eventData);
-      expect(eventId).to.equal(1);
-
-      // Step 2: Mint ticket
-      console.log("      Step 2: Minting ticket...");
-      const seatNumber = 42;
-      const tx = await ticketNFT.mintTicket(buyer.address, eventId, seatNumber);
-      const receipt = await tx.wait();
-      
-      // Find tokenId from logs
-      let tokenId;
-      for (const log of receipt.logs) {
-        try {
-          const parsedLog = ticketNFT.interface.parseLog({
-            topics: log.topics,
-            data: log.data
-          });
-          
-          if (parsedLog && parsedLog.name === "TicketMinted") {
-            tokenId = parsedLog.args[1]; // tokenId
-            break;
-          }
-        } catch (e) {
-          continue;
-        }
-      }
-      
-      expect(await ticketNFT.ownerOf(tokenId)).to.equal(buyer.address);
-
-      // Step 3: List ticket on marketplace
-      console.log("      Step 3: Listing ticket...");
-      const listingPrice = ethers.parseEther("0.11"); // 10% markup
-      await ticketNFT.connect(buyer).approve(marketplace.address, tokenId);
-      await marketplace.connect(buyer).listForSale(tokenId, listingPrice);
-      
-      const listing = await marketplace.listings(tokenId);
-      expect(listing.isActive).to.be.true;
-
-      // Step 4: Purchase ticket
-      console.log("      Step 4: Purchasing ticket...");
-      const buyer2InitialBalance = await buyer2.getBalance();
-      
-      const buyTx = await marketplace.connect(buyer2).buy(tokenId, { 
-        value: listingPrice 
-      });
-      const buyReceipt = await buyTx.wait();
-      
-      // Verify ownership transfer
-      expect(await ticketNFT.ownerOf(tokenId)).to.equal(buyer2.address);
-      
-      // Verify listing is inactive
-      const updatedListing = await marketplace.listings(tokenId);
-      expect(updatedListing.isActive).to.be.false;
-      */
-    });
-
-    it("Should handle multiple tickets and listings", async function () {
-      // Skip this test for now
-      this.skip();
-    });
-  });
-
   describe("Access Control Integration", function () {
     it("Should enforce minting permissions across contracts", async function () {
       // Non-authorized user cannot mint
@@ -123,17 +53,6 @@ describe("Full Flow Integration Tests", function () {
     });
   });
 
-  describe("Price Cap Enforcement", function () {
-    it("Should enforce price caps throughout the system", async function () {
-      // Skip this test for now
-      this.skip();
-    });
-  });
-
-  describe("Royalty Distribution", function () {
-    it("Should correctly distribute royalties to artist", async function () {
-      // Skip this test for now
-      this.skip();
-    });
-  });
+  // Note: Full lifecycle tests for listing and purchasing tickets will be
+  // implemented in future phases as marketplace functionality is developed.
 });

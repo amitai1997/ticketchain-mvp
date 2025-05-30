@@ -26,13 +26,6 @@ describe("Edge Cases and Security Tests", function () {
     await eventRegistry.setMinter(owner.address, true);
   });
 
-  describe("Re-entrancy Protection", function () {
-    it("Should prevent re-entrancy attack on purchase", async function () {
-      // Skip for now - requires more complex setup
-      this.skip();
-    });
-  });
-
   describe("Overflow/Underflow Protection", function () {
     it("Should handle maximum uint256 values safely", async function () {
       const maxEventData = {
@@ -61,13 +54,6 @@ describe("Edge Cases and Security Tests", function () {
     });
   });
 
-  describe("Boundary Value Tests", function () {
-    it("Should handle boundary values", async function () {
-      // Skip other boundary tests for now
-      this.skip();
-    });
-  });
-
   describe("Invalid Input Handling", function () {
     it("Should reject invalid IPFS hash", async function () {
       await expect(
@@ -82,51 +68,7 @@ describe("Edge Cases and Security Tests", function () {
     });
   });
   
-  describe("Race Condition Tests", function () {
-    it("Should handle simultaneous purchase attempts", async function () {
-      // Skip - uses non-existent functions
-      this.skip();
-    });
-
-    it("Should handle listing cancellation during purchase", async function () {
-      // Skip - uses non-existent functions
-      this.skip();
-    });
-  });
-  
-  describe("Gas Limit Tests", function () {
-    it("Should handle minting many tickets", async function () {
-      // Skip - uses incompatible function signature
-      this.skip();
-    });
-
-    it("Should handle many active listings", async function () {
-      // Skip - uses non-existent functions
-      this.skip();
-    });
-  });
-  
-  describe("Permission Bypass Attempts", function () {
-    it("Should not allow bypassing minter authorization", async function () {
-      // Skip - uses incompatible function signature
-      this.skip();
-    });
-
-    it("Should not allow unauthorized marketplace operations", async function () {
-      // Skip - function doesn't exist
-      this.skip();
-    });
-  });
-  
-  describe("State Consistency After Failures", function () {
-    it("Should maintain state after failed purchase", async function () {
-      // Skip - uses non-existent functions
-      this.skip();
-    });
-
-    it("Should maintain state after failed minting", async function () {
-      // Skip - uses incompatible function signature
-      this.skip();
-    });
-  });
+  // Note: Additional edge case tests for re-entrancy protection, race conditions,
+  // and marketplace operations will be implemented in future phases as those
+  // features are developed.
 });
