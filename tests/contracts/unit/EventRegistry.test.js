@@ -32,11 +32,11 @@ describe("EventRegistry", function () {
       // Create IPFS hash (mock)
       const ipfsHash = ethers.keccak256(ethers.toUtf8Bytes(eventData.name));
       const maxSupply = eventData.totalTickets;
-      
+
       const tx = await eventRegistry.createEvent(ipfsHash, maxSupply);
       const receipt = await tx.wait();
       const eventId = 1; // First event has ID 1
-      
+
       const eventRecord = await eventRegistry.events(eventId);
       expect(eventRecord.ipfsHash).to.equal(ipfsHash);
       expect(eventRecord.maxSupply).to.equal(maxSupply);
@@ -47,7 +47,7 @@ describe("EventRegistry", function () {
     it("Should emit EventCreated event", async function () {
       const ipfsHash = ethers.keccak256(ethers.toUtf8Bytes(eventData.name));
       const maxSupply = eventData.totalTickets;
-      
+
       await expect(eventRegistry.createEvent(ipfsHash, maxSupply))
         .to.emit(eventRegistry, "EventCreated")
         .withArgs(1, owner.address, ipfsHash, maxSupply);
@@ -58,7 +58,7 @@ describe("EventRegistry", function () {
       const ipfsHash = ethers.keccak256(ethers.toUtf8Bytes(eventData.name));
       await eventRegistry.createEvent(ipfsHash, eventData.totalTickets);
       expect(await eventRegistry.eventCount()).to.equal(1);
-      
+
       // Create another event
       await eventRegistry.createEvent(ipfsHash, eventData.totalTickets);
       expect(await eventRegistry.eventCount()).to.equal(2);
@@ -66,7 +66,7 @@ describe("EventRegistry", function () {
 
     it("Should revert if IPFS hash is empty", async function () {
       const emptyHash = ethers.ZeroHash;
-      
+
       await expect(
         eventRegistry.createEvent(emptyHash, eventData.totalTickets)
       ).to.be.revertedWith("Invalid IPFS hash");
@@ -74,7 +74,7 @@ describe("EventRegistry", function () {
 
     it("Should revert if max supply is zero", async function () {
       const ipfsHash = ethers.keccak256(ethers.toUtf8Bytes(eventData.name));
-      
+
       await expect(
         eventRegistry.createEvent(ipfsHash, 0)
       ).to.be.revertedWith("Max supply must be greater than 0");
@@ -142,7 +142,7 @@ describe("EventRegistry", function () {
     it("Should return correct event details", async function () {
       const ipfsHash = ethers.keccak256(ethers.toUtf8Bytes(eventData.name));
       await eventRegistry.createEvent(ipfsHash, eventData.totalTickets);
-      
+
       const event = await eventRegistry.events(1);
       expect(event.ipfsHash).to.equal(ipfsHash);
       expect(event.maxSupply).to.equal(eventData.totalTickets);
@@ -151,7 +151,7 @@ describe("EventRegistry", function () {
 
     it("Should check if caller is authorized minter", async function () {
       expect(await eventRegistry.isMinter(user1.address)).to.be.false;
-      
+
       await eventRegistry.setMinter(user1.address, true);
       expect(await eventRegistry.isMinter(user1.address)).to.be.true;
     });

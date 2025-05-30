@@ -18,10 +18,10 @@ describe("Edge Cases and Security Tests", function () {
     buyer2 = fixture.buyer2;
     attacker = fixture.platform; // Reusing platform signer as attacker
     eventData = fixture.eventData;
-    
+
     // Create event
     eventId = await createEvent(eventRegistry, eventData);
-    
+
     // Make the owner a minter
     await eventRegistry.setMinter(owner.address, true);
   });
@@ -32,7 +32,7 @@ describe("Edge Cases and Security Tests", function () {
         ...eventData,
         totalTickets: ethers.MaxUint256
       };
-      
+
       // Should not overflow
       await expect(
         createEvent(eventRegistry, maxEventData)
@@ -46,10 +46,10 @@ describe("Edge Cases and Security Tests", function () {
         maxResalePrice: 0,
         royaltyPercentage: 0
       };
-      
+
       const newEventId = await createEvent(eventRegistry, zeroEventData);
       const event = await eventRegistry.events(newEventId);
-      
+
       expect(event.maxSupply).to.equal(zeroEventData.totalTickets);
     });
   });
@@ -67,7 +67,7 @@ describe("Edge Cases and Security Tests", function () {
       ).to.be.revertedWith("Max supply must be greater than 0");
     });
   });
-  
+
   // Note: Additional edge case tests for re-entrancy protection, race conditions,
   // and marketplace operations will be implemented in future phases as those
   // features are developed.

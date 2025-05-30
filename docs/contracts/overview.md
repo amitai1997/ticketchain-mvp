@@ -7,19 +7,25 @@ The TicketChain smart contract suite consists of three main contracts:
 ### Core Contracts
 
 #### EventRegistry.sol
+
 Central registry for all events in the system.
+
 - Stores event metadata (name, date, venue, organizer)
 - Manages fee splits and royalty configurations
 - Controls event lifecycle (active, paused, completed)
 
 #### TicketNFT.sol
+
 ERC-721A implementation for gas-efficient batch minting.
+
 - Immutable ticket metadata (seat, tier, event reference)
 - Ownership tracking and transfer logic
 - Integration with marketplace for controlled resales
 
 #### Marketplace.sol
+
 Decentralized marketplace with programmable rules.
+
 - Price cap enforcement (prevents scalping)
 - Automatic royalty distribution
 - Escrow and atomic swaps
@@ -28,9 +34,11 @@ Decentralized marketplace with programmable rules.
 ### Supporting Libraries
 
 #### FeeCalculator.sol
+
 Handles complex fee calculations and distributions.
 
 #### AccessControl.sol
+
 Role-based permissions for contract administration.
 
 ## Contract Interactions

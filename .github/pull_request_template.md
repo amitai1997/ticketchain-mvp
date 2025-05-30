@@ -6,9 +6,9 @@ Closes #<!-- issue number -->
 ## Changes
 <!-- List the key changes made in this PR -->
 
-- 
-- 
-- 
+-
+-
+-
 
 ## Type of Change
 <!-- Mark relevant options with an 'x' -->
@@ -23,9 +23,9 @@ Closes #<!-- issue number -->
 ## Test Steps
 <!-- Provide detailed steps to test this PR -->
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ## Checklist
 <!-- Mark completed items with an 'x' -->

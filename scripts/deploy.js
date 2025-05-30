@@ -10,7 +10,7 @@ async function main() {
   // Get deployer account
   const [deployer] = await hre.ethers.getSigners();
   console.log("Deploying contracts with account:", deployer.address);
-  
+
   const balance = await hre.ethers.provider.getBalance(deployer.address);
   console.log("Account balance:", hre.ethers.formatEther(balance), "ETH");
   console.log("--------------------------------------------");
@@ -92,7 +92,7 @@ async function main() {
   const filename = `deployment-${hre.network.name}-${Date.now()}.json`;
   const filepath = path.join(deploymentDir, filename);
   fs.writeFileSync(filepath, JSON.stringify(deploymentData, null, 2));
-  
+
   // Also save as latest
   const latestPath = path.join(deploymentDir, `latest-${hre.network.name}.json`);
   fs.writeFileSync(latestPath, JSON.stringify(deploymentData, null, 2));
@@ -111,11 +111,11 @@ async function main() {
   if (hre.network.name !== "localhost" && hre.network.name !== "hardhat") {
     const confirmations = hre.network.config.confirmations || 2;
     console.log(`\n⏳ Waiting for ${confirmations} confirmations...`);
-    
+
     await eventRegistryTx.wait(confirmations);
     await ticketNFTTx.wait(confirmations);
     await marketplaceTx.wait(confirmations);
-    
+
     console.log("✅ All contracts confirmed!");
   }
 

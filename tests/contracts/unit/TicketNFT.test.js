@@ -16,7 +16,7 @@ describe("TicketNFT", function () {
     buyer = fixture.buyer;
     buyer2 = fixture.buyer2;
     eventData = fixture.eventData;
-    
+
     // Create a test event
     eventId = await createEvent(eventRegistry, eventData);
   });
@@ -36,12 +36,12 @@ describe("TicketNFT", function () {
     it("Should mint ticket with correct metadata", async function () {
       // Make owner a minter
       await eventRegistry.setMinter(owner.address, true);
-      
+
       const seatNumber = 42;
       // Use the correct parameter order: to, eventId, seatId
       const tx = await ticketNFT.mintTicket(buyer.address, eventId, seatNumber);
       const receipt = await tx.wait();
-      
+
       // Find tokenId from logs
       let tokenId;
       for (const log of receipt.logs) {
@@ -50,7 +50,7 @@ describe("TicketNFT", function () {
             topics: log.topics,
             data: log.data
           });
-          
+
           if (parsedLog && parsedLog.name === "TicketMinted") {
             tokenId = parsedLog.args[1]; // tokenId
             break;
@@ -59,9 +59,9 @@ describe("TicketNFT", function () {
           continue;
         }
       }
-      
+
       expect(await ticketNFT.ownerOf(tokenId)).to.equal(buyer.address);
-      
+
       // Check ticket data - using different methods than in the test since the contract implementation is different
       expect(await ticketNFT.eventOf(tokenId)).to.equal(eventId);
       expect(await ticketNFT.seatOf(tokenId)).to.equal(seatNumber);
@@ -69,7 +69,7 @@ describe("TicketNFT", function () {
 
     it("Should emit TicketMinted event", async function () {
       await eventRegistry.setMinter(owner.address, true);
-      
+
       const seatNumber = 1;
       // Just verify the event is emitted without checking specific arguments
       await expect(ticketNFT.mintTicket(buyer.address, eventId, seatNumber))
@@ -84,7 +84,7 @@ describe("TicketNFT", function () {
 
     it("Should allow authorized minter to mint", async function () {
       await eventRegistry.setMinter(buyer.address, true);
-      
+
       await expect(
         ticketNFT.connect(buyer).mintTicket(buyer2.address, eventId, 1)
       ).to.not.be.reverted;
@@ -92,7 +92,7 @@ describe("TicketNFT", function () {
 
     it("Should revert if minting for non-existent event", async function () {
       await eventRegistry.setMinter(owner.address, true);
-      
+
       await expect(
         ticketNFT.mintTicket(buyer.address, 999, 1)
       ).to.be.revertedWith("Event does not exist");
@@ -100,10 +100,10 @@ describe("TicketNFT", function () {
 
     it("Should revert if minting duplicate seat for same event", async function () {
       await eventRegistry.setMinter(owner.address, true);
-      
+
       const seatNumber = 1;
       await ticketNFT.mintTicket(buyer.address, eventId, seatNumber);
-      
+
       await expect(
         ticketNFT.mintTicket(buyer2.address, eventId, seatNumber)
       ).to.be.revertedWith("Seat already minted");
@@ -111,13 +111,13 @@ describe("TicketNFT", function () {
 
     it("Should allow same seat number for different events", async function () {
       await eventRegistry.setMinter(owner.address, true);
-      
+
       const seatNumber = 1;
       await ticketNFT.mintTicket(buyer.address, eventId, seatNumber);
-      
+
       // Create another event
       const eventId2 = await createEvent(eventRegistry, { ...eventData, name: "Test Concert 2" });
-      
+
       // Should not revert
       await expect(
         ticketNFT.mintTicket(buyer2.address, eventId2, seatNumber)
@@ -133,7 +133,7 @@ describe("TicketNFT", function () {
       await eventRegistry.setMinter(owner.address, true);
       const tx = await ticketNFT.mintTicket(buyer.address, eventId, 1);
       const receipt = await tx.wait();
-      
+
       // Find tokenId from logs
       for (const log of receipt.logs) {
         try {
@@ -141,7 +141,7 @@ describe("TicketNFT", function () {
             topics: log.topics,
             data: log.data
           });
-          
+
           if (parsedLog && parsedLog.name === "TicketMinted") {
             tokenId = parsedLog.args[1]; // tokenId
             break;
@@ -166,7 +166,7 @@ describe("TicketNFT", function () {
       await eventRegistry.setMinter(owner.address, true);
       const tx = await ticketNFT.mintTicket(buyer.address, eventId, 1);
       const receipt = await tx.wait();
-      
+
       // Find tokenId from logs
       for (const log of receipt.logs) {
         try {
@@ -174,7 +174,7 @@ describe("TicketNFT", function () {
             topics: log.topics,
             data: log.data
           });
-          
+
           if (parsedLog && parsedLog.name === "TicketMinted") {
             tokenId = parsedLog.args[1]; // tokenId
             break;
@@ -184,7 +184,7 @@ describe("TicketNFT", function () {
         }
       }
     });
-    
+
     it("Should check for interface support", async function() {
       // ERC721 interface ID: 0x80ac58cd
       expect(await ticketNFT.supportsInterface("0x80ac58cd")).to.be.true;
@@ -194,12 +194,12 @@ describe("TicketNFT", function () {
       expect(await ticketNFT.eventOf(tokenId)).to.equal(eventId);
       expect(await ticketNFT.seatOf(tokenId)).to.equal(1);
     });
-    
+
     it("Should test basic ERC721 functions", async function() {
       // Test approve and transfer
       await ticketNFT.connect(buyer).approve(buyer2.address, tokenId);
       expect(await ticketNFT.getApproved(tokenId)).to.equal(buyer2.address);
-      
+
       // Test transfer
       await ticketNFT.connect(buyer2).transferFrom(buyer.address, buyer2.address, tokenId);
       expect(await ticketNFT.ownerOf(tokenId)).to.equal(buyer2.address);

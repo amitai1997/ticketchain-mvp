@@ -19,10 +19,10 @@ describe("SimpleMarketplace", function () {
     buyer2 = fixture.buyer2;
     platform = fixture.platform;
     eventData = fixture.eventData;
-    
-    // Create event 
+
+    // Create event
     eventId = await createEvent(eventRegistry, eventData);
-    
+
     // Make the owner a minter to prepare for tests
     await eventRegistry.setMinter(owner.address, true);
   });

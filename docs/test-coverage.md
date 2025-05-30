@@ -9,6 +9,7 @@ This document details the current test coverage for the TicketChain MVP project 
 ### Unit Tests
 
 #### EventRegistry.test.js
+
 - **Deployment**: Owner verification, initial state validation
 - **Event Creation**: Parameter validation, event emission, counter incrementation
 - **Access Control**: Minter authorization, permission checks
@@ -17,6 +18,7 @@ This document details the current test coverage for the TicketChain MVP project 
 - **Error Handling**: Invalid IPFS hash, zero supply, non-existent events
 
 #### TicketNFT.test.js
+
 - **Deployment**: Name, symbol, and registry address verification
 - **Minting**: Metadata validation, event emission, ownership verification
 - **Authorization**: Minter permission checks, event pause enforcement
@@ -25,22 +27,26 @@ This document details the current test coverage for the TicketChain MVP project 
 - **Event/Seat Associations**: Event and seat ID mapping to tokens
 
 #### SimpleMarketplace.test.js
+
 - **Deployment**: Owner, platform fee, contract address verifications
 - *Note: Limited to basic deployment checks as marketplace functionality will be expanded in future phases*
 
 ### Integration Tests
 
 #### FullFlow.test.js
+
 - **Access Control Integration**: Cross-contract minter authorization
 - **Event Pause Enforcement**: Blocked minting for paused events
 
 #### EdgeCases.test.js
+
 - **Overflow/Underflow Protection**: MaxUint256 values, zero values
 - **Invalid Input Handling**: Zero hash, zero supply rejection
 
 ### Gas Optimization Tests
 
 #### GasOptimization.test.js
+
 - **Event Creation Gas**: Measurement and threshold validation
 - **Ticket Minting Gas**: Measurement and threshold validation
 
@@ -49,16 +55,19 @@ This document details the current test coverage for the TicketChain MVP project 
 The following tests have been removed or postponed as they target functionality not yet implemented in the current P-0 contracts:
 
 ### Marketplace Functionality
+
 - Full ticket lifecycle (mint → list → buy)
 - Royalty distribution
 - Price cap enforcement
 - Listing management
 
 ### Advanced Security Features
+
 - Re-entrancy protection
 - Race condition handling
 
 ### Extended Features
+
 - Batch operations
 - Metadata URI handling
 - Advanced ticket ownership queries

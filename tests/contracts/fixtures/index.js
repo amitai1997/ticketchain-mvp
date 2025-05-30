@@ -60,13 +60,13 @@ async function deployFixture() {
 async function createEvent(eventRegistry, eventData, signer = null) {
   // Create IPFS hash (mock)
   const ipfsHash = ethers.keccak256(ethers.toUtf8Bytes(eventData.name));
-  
+
   const tx = await (signer ? eventRegistry.connect(signer) : eventRegistry).createEvent(
     ipfsHash,
     eventData.totalTickets
   );
   const receipt = await tx.wait();
-  
+
   // Get the event ID from the logs
   // The eventId is the first parameter in the EventCreated event
   for (const log of receipt.logs) {
@@ -75,7 +75,7 @@ async function createEvent(eventRegistry, eventData, signer = null) {
         topics: log.topics,
         data: log.data
       });
-      
+
       if (parsedLog && parsedLog.name === "EventCreated") {
         return parsedLog.args[0]; // eventId
       }
@@ -84,7 +84,7 @@ async function createEvent(eventRegistry, eventData, signer = null) {
       continue;
     }
   }
-  
+
   // Fallback: if we can't find the event, just return 1 (first event)
   return 1;
 }
@@ -94,23 +94,23 @@ async function mintTickets(ticketNFT, eventId, seatNumbers, to, signer = null) {
   const defaultSigner = await ethers.getSigners().then(signers => signers[0]);
   const contract = signer ? ticketNFT.connect(signer) : ticketNFT.connect(defaultSigner);
   const tokenIds = [];
-  
+
   // Make sure the signer is a minter
   const eventRegistry = await ethers.getContractAt(
-    "EventRegistry", 
+    "EventRegistry",
     await ticketNFT.eventRegistry()
   );
   await eventRegistry.connect(defaultSigner).setMinter(
-    await (signer || defaultSigner).getAddress(), 
+    await (signer || defaultSigner).getAddress(),
     true
   );
-  
+
   // Mint tickets
   for (const seatNumber of seatNumbers) {
     // Use updated contract method signature: mintTicket(to, eventId, seatId)
     const tx = await contract.mintTicket(to, eventId, seatNumber);
     const receipt = await tx.wait();
-    
+
     // Find tokenId
     for (const log of receipt.logs) {
       try {
@@ -118,7 +118,7 @@ async function mintTickets(ticketNFT, eventId, seatNumbers, to, signer = null) {
           topics: log.topics,
           data: log.data
         });
-        
+
         if (parsedLog && parsedLog.name === "TicketMinted") {
           tokenIds.push(parsedLog.args[1]); // tokenId is the second argument
           break;
@@ -129,7 +129,7 @@ async function mintTickets(ticketNFT, eventId, seatNumbers, to, signer = null) {
       }
     }
   }
-  
+
   return tokenIds;
 }
 

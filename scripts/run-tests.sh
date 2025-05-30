@@ -21,9 +21,9 @@ run_test_suite() {
     local suite_name=$1
     local test_command=$2
     local output_file="test-results/${suite_name}-results.txt"
-    
+
     echo -e "${YELLOW}Running ${suite_name} tests...${NC}"
-    
+
     if $test_command > "$output_file" 2>&1; then
         echo -e "${GREEN}✅ ${suite_name} tests passed${NC}"
         return 0
@@ -45,7 +45,7 @@ run_test_suite "Gas" "npm run test:gas" || all_passed=false
 echo -e "\n${YELLOW}Generating coverage report...${NC}"
 if npm run coverage > test-results/coverage-results.txt 2>&1; then
     echo -e "${GREEN}✅ Coverage report generated${NC}"
-    
+
     # Extract coverage summary
     if [ -f coverage/lcov-report/index.html ]; then
         echo -e "\n📊 Coverage Summary:"
@@ -83,19 +83,19 @@ summary_file="test-results/test-summary-$(date +%Y%m%d-%H%M%S).md"
     echo ""
     echo "## Test Results"
     echo ""
-    
+
     if [ "$all_passed" = true ]; then
         echo "✅ **All tests passed!**"
     else
         echo "❌ **Some tests failed**"
     fi
-    
+
     echo ""
     echo "### Test Suites"
     echo "- Unit Tests: $(grep -c "passing" test-results/Unit-results.txt 2>/dev/null || echo "See details") tests"
     echo "- Integration Tests: $(grep -c "passing" test-results/Integration-results.txt 2>/dev/null || echo "See details") tests"
     echo "- Gas Tests: $(grep -c "passing" test-results/Gas-results.txt 2>/dev/null || echo "See details") tests"
-    
+
     echo ""
     echo "### Gas Usage Summary"
     if [ -f test-results/Gas-results.txt ]; then
@@ -103,7 +103,7 @@ summary_file="test-results/test-summary-$(date +%Y%m%d-%H%M%S).md"
         grep -A 20 "Gas Usage Summary" test-results/Gas-results.txt || echo "No gas summary found"
         echo '```'
     fi
-    
+
     echo ""
     echo "## Detailed Results"
     echo "See individual test result files in the \`test-results/\` directory:"

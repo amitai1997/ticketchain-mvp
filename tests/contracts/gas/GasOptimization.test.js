@@ -17,7 +17,7 @@ describe("Gas Optimization Tests", function () {
     buyer = fixture.buyer;
     buyer2 = fixture.buyer2;
     eventData = fixture.eventData;
-    
+
     // Make the owner a minter
     await eventRegistry.setMinter(owner.address, true);
   });
@@ -27,12 +27,12 @@ describe("Gas Optimization Tests", function () {
       // Create a simple event with a hash and supply
       const ipfsHash = ethers.keccak256(ethers.toUtf8Bytes("Test Event"));
       const totalTickets = 100;
-      
+
       const tx = await eventRegistry.createEvent(ipfsHash, totalTickets);
       const receipt = await tx.wait();
-      
+
       console.log("        Gas used for event creation:", receipt.gasUsed.toString());
-      
+
       // Target: < 150,000 gas
       expect(receipt.gasUsed).to.be.lt(150000);
     });
@@ -43,11 +43,11 @@ describe("Gas Optimization Tests", function () {
       // Create an event for testing
       const ipfsHash = ethers.keccak256(ethers.toUtf8Bytes("Test Event"));
       const totalTickets = 100;
-      
+
       const tx = await eventRegistry.createEvent(ipfsHash, totalTickets);
       const receipt = await tx.wait();
       const logs = receipt.logs;
-      
+
       // Extract eventId from logs
       for (const log of logs) {
         try {
@@ -55,7 +55,7 @@ describe("Gas Optimization Tests", function () {
             topics: log.topics,
             data: log.data
           });
-          
+
           if (parsedLog && parsedLog.name === "EventCreated") {
             eventId = parsedLog.args[0]; // eventId
             break;
@@ -69,14 +69,14 @@ describe("Gas Optimization Tests", function () {
     it("Should measure gas for single ticket mint", async function () {
       const tx = await ticketNFT.mintTicket(buyer.address, eventId, 1);
       const receipt = await tx.wait();
-      
+
       console.log("        Gas used for single mint:", receipt.gasUsed.toString());
-      
+
       // Target: < 200,000 gas
       expect(receipt.gasUsed).to.be.lt(200000);
     });
   });
-  
+
   // Note: Additional gas tests for marketplace operations, batch operations,
   // and storage optimization will be implemented in future phases as those
   // features are developed.

@@ -9,7 +9,7 @@ async function main() {
 
   // Load latest deployment data
   const deploymentPath = path.join(__dirname, "..", "deployments", `latest-${hre.network.name}.json`);
-  
+
   if (!fs.existsSync(deploymentPath)) {
     console.error("❌ No deployment data found for network:", hre.network.name);
     console.error("   Please run 'npm run deploy:mumbai' first");

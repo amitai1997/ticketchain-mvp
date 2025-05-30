@@ -95,6 +95,7 @@ npm run deploy:mumbai
 ```
 
 **Expected Output:**
+
 ```
 🚀 Starting TicketChain MVP deployment...
 Network: mumbai
@@ -207,16 +208,19 @@ await ticketNFT.mintTicket(
 ### Emergency Procedures
 
 1. **Pause Marketplace**:
+
 ```javascript
 await marketplace.pause();
 ```
 
 2. **Pause Transfers**:
+
 ```javascript
 await ticketNFT.setTransfersPaused(true);
 ```
 
 3. **Update Authorized Minters**:
+
 ```javascript
 await eventRegistry.setAuthorizedMinter("ADDRESS", true/false);
 ```
@@ -255,6 +259,7 @@ The project includes GitHub Actions workflows that automatically:
 4. Verify contracts post-deployment
 
 To trigger automatic deployment:
+
 ```bash
 git checkout -b deploy/mumbai
 git push origin deploy/mumbai
@@ -271,6 +276,7 @@ git push origin deploy/mumbai
 ## Support
 
 For issues or questions:
+
 - Check the [test results](./test-results/) directory
 - Review deployment artifacts in `deployments/`
 - Consult the technical documentation in `docs/`

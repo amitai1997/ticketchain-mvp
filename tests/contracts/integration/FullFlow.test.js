@@ -18,10 +18,10 @@ describe("Full Flow Integration Tests", function () {
     buyer2 = fixture.buyer2;
     platform = fixture.platform;
     eventData = fixture.eventData;
-    
+
     // Create event
     eventId = await createEvent(eventRegistry, eventData);
-    
+
     // Make the owner a minter
     await eventRegistry.setMinter(owner.address, true);
   });
@@ -32,10 +32,10 @@ describe("Full Flow Integration Tests", function () {
       await expect(
         ticketNFT.connect(buyer).mintTicket(buyer.address, eventId, 1)
       ).to.be.revertedWith("Not authorized minter");
-      
+
       // Authorize user
       await eventRegistry.setMinter(buyer.address, true);
-      
+
       // Now they can mint
       await expect(
         ticketNFT.connect(buyer).mintTicket(buyer.address, eventId, 1)
@@ -45,7 +45,7 @@ describe("Full Flow Integration Tests", function () {
     it("Should respect event pause status", async function () {
       // Pause event
       await eventRegistry.pauseEvent(eventId);
-      
+
       // Cannot mint for paused event
       await expect(
         ticketNFT.mintTicket(buyer.address, eventId, 1)
