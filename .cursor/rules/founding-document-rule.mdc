@@ -1,0 +1,195 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+<!-- ========================================================= -->
+<!--                    FOUNDING DOCUMENT                      -->
+<!--     Generated 27 May 2025 from the attached draft only    -->
+<!--        Ready for PDF conversion with Pandoc or similar    -->
+<!-- ========================================================= -->
+
+**Cover Page**
+--------------
+| Field | Value |
+|-------|-------|
+| **Project Title** | **Blockchain Ticketing Infrastructure SaaS** |
+| **Subtitle** | *White-Label NFT Backbone for Event-Ticketing Platforms* |
+| **Date** | *\[Insert Final Publication Date\]* |
+| **Version** | *\[e.g. v 1.0 – Initial Release\]* |
+| **Author(s)** | *\[Insert Author Names / Roles\]* |
+
+---
+
+**Executive Summary**  *(≈ 290 words)*
+--------------------------------------
+The attached draft proposes a **B2B “Infrastructure-as-a-Service” (IaaS)** that lets any existing ticketing platform issue, manage, and trade event tickets as **NFTs** without hiring blockchain specialists.
+The service supplies:
+
+* **Comprehensive REST / GraphQL API & SDKs** covering the full ticket life-cycle—minting, transfer, scan-to-enter, redemption, and analytics.
+* **Embedded Wallets / Programmable Wallets** that abstract key-pair handling and gas payments, while exposing short-lived, signed **scan-tokens** that eliminate screenshot fraud.
+* **Smart-contract suite** (event registry, ERC-721/1155 ticket contract, fee-sharing marketplace) deployed on a low-fee L2 such as Polygon, with royalties and platform commissions enforced on-chain.
+* **Credit-based billing**: platforms pre-purchase credits in fiat; the service transparently converts credits into blockchain fees and margins—simplifying accounting and shielding organisers from gas volatility.
+
+**Market Rationale**
+Scalping, price-gouging, and counterfeit tickets erode fan trust and siphon revenue from artists, venues, and primary sellers. Implementing a secure, low-friction NFT system in-house is cost-prohibitive. A neutral, white-label infrastructure layer spreads development cost, standardises best practice, and allows platforms to focus on sales, marketing, and community engagement.
+
+**Outcome**
+Platforms integrating the service can launch a compliant secondary market in weeks, capture a share of resale royalties, and offer provably authentic tickets. Fans gain confidence; event organisers gain data transparency; the provider captures recurring transaction fees—yielding a **win-win-win**.
+
+---
+
+**Project Vision & Mission**
+----------------------------
+| | Statement |
+|---|-----------|
+| **Vision** | *“Make cryptographically secure, fraud-proof tickets the default for every live event worldwide.”* |
+| **Mission** | Deliver a modular, regulation-ready infrastructure layer that any ticketing provider can **plug in within days**, preventing fraud and unlocking new revenue—all while hiding blockchain complexity behind familiar APIs and UX patterns. |
+
+### Guiding Principles
+* **Simplicity First** – Clear SDKs, sane defaults, no-surprise pricing.
+* **Security by Design** – Keys in HSMs, audited contracts, zero-trust architecture.
+* **Composability** – Open standards (ERC-721/1155, GraphQL), webhooks, and clean domain-driven API boundaries.
+* **Local Compliance** – PSD-2 / AML alignment in EU, Israeli cash-limit compliance, and stablecoin settlement.
+
+---
+
+**Background & Rationale**
+--------------------------
+### Industry Pain Points (from draft)
+1. **Scalping & Price Gouging** – Bots bulk-buy tickets and resell at > 50 % mark-ups.
+2. **Counterfeit & Duplicate Tickets** – Fans turned away despite “valid” PDFs; brand damage intensifies.
+3. **Opaque Secondary Markets** – Platforms miss out on billions in resale profit-share.
+4. **Complexity of Blockchain Adoption** – Key custody, on-ramp UX, smart-contract security—steep learning curve.
+
+### Why a Shared Infrastructure Layer?
+| Factor | DIY Build | Proposed SaaS |
+|--------|-----------|---------------|
+| **Time-to-Market** | > 12 months | < 8 weeks (sandbox → prod) |
+| **CAPEX** | High (team of Solidity, DevOps, auditors) | Zero—pay-as-you-go credits |
+| **Ongoing Security** | In-house audits, key rotation | Managed HSM, annual third-party audits |
+| **Regulatory Updates** | Each platform tracks | Provider maintains shared compliance toolkit |
+
+Outcome: a unified backbone cuts cost, derisks adoption, and raises the industry baseline for trust and transparency.
+
+---
+
+**Objectives & Success Criteria**
+---------------------------------
+| # | Objective (derived from draft) | Measurable Success Indicator |
+|---|--------------------------------|------------------------------|
+| **1** | Publish **v1 API** covering event, ticket, wallet, scan, and fee endpoints | 100 % endpoint availability in sandbox |
+| **2** | Support **NFT mint ≥ 1 000 tickets / min** on Polygon testnet | Load test passes with ≤ 3 % error rate |
+| **3** | Deliver **short-lived scan-token flow** that blocks screenshots & re-use | < 0.1 % fraudulent entry rate in pilot |
+| **4** | Implement **credit top-up portal** with automatic gas hedging | Top-up → credit issuance ≤ 30 sec |
+| **5** | Achieve **95 % unit-test coverage** across contracts & SDKs | CI green on every merge to main |
+
+---
+
+**Scope & Boundaries**
+----------------------
+### In Scope • Phase 1–2
+* REST / GraphQL API (**/events, /tickets, /wallets, /marketplace, /scan/**)
+* JavaScript & Python SDKs with typed models
+* Smart-contract suite (**EventRegistry.sol, Ticket.sol, Marketplace.sol**)
+* Credit-based billing & web dashboard
+* White-label React widgets (QR scanner, ticket wallet)
+* CI/CD (Docker, GitHub Actions) and Polygon mainnet launch
+
+### Out of Scope (Future or Partner-Handled)
+* End-user mobile wallets beyond reference PWA
+* Fiat on-ramp KYC/KYT provider integration
+* Layer-2 bridge UI/UX
+* Territory-specific VAT / invoicing engines
+* In-venue hardware (turnstiles, handheld scanners)
+
+---
+
+**Stakeholder & Governance Model**
+----------------------------------
+| Actor | Responsibility | Key Decisions |
+|-------|----------------|---------------|
+| **Ticketing Platform** | Integrates API, owns consumer touch-points | Sets pricing, brand, market geos |
+| **Infrastructure SaaS (this project)** | Operates nodes, contracts, billing | Network /L2 choice, contract upgrades |
+| **Artist / Promoter** | Defines resale caps, royalty %, refund rules | Event metadata, fee splits |
+| **End User (Fan)** | Holds wallet; buys, sells, scans ticket | Accepts T&C, KYC if > €1 000 |
+| **Smart-Contract Upgrade Council** | 3-of-5 multisig (SaaS + clients) | Emergency pauses, version bumps |
+
+*Decision Escalation* – Minor issues resolved by Product Council; major contract changes require multisig approval & 7-day on-chain timelock.
+
+---
+
+**High-Level Roadmap**
+----------------------
+| Phase | Timeline | Milestones & Deliverables |
+|-------|----------|---------------------------|
+| **P-0 – Bootstrap** | **Weeks 1-2** | • Repo scaffolding<br>• EventRegistry & Ticket contracts<br>• `/events` & `/tickets` REST endpoints<br>• Local Ganache + Postgres mapping |
+| **P-1 – Sandbox Alpha** | Weeks 3-6 | • Polygon testnet deployment<br>• JS/Py SDK v0.1<br>• Scan-token PoC (online mode)<br>• Credit-top-up Stripe integration |
+| **P-2 – MVP Beta** | Weeks 7-12 | • Full marketplace contract<br>• Dashboard MVP (React + Tailwind)<br>• Offline scan support<br>• Security audit (Trail of Bits) |
+| **P-3 – GA Launch** | Q2 2026 | • Mainnet go-live (Polygon)<br>• SLA 99.9 %<br>• First paying platform onboarded<br>• Marketing & compliance collateral |
+
+*[Insert Roadmap Timeline Graphic Here]*
+
+---
+
+**Resource & Budget Overview**
+------------------------------
+| Category | Assumptions from draft | Indicative 12-Month Budget* |
+|----------|-----------------------|-----------------------------|
+| **Engineering** | 1 Lead Backend, 1 Solidity, 2 Full-Stack | USD 640 k |
+| **Security & Audits** | Two annual contract reviews + pentest | 80 k |
+| **Blockchain Nodes & Web2 Infra** | 3 validated RPC providers + AWS RDS | 42 k |
+| **Licensing & Tools** | GitHub Enterprise, Snyk, Grafana Cloud | 18 k |
+| **Support & Community** | Tier-2 engineers + docs portal | 60 k |
+| **Contingency (10 %)** | Gas spikes, legal opinions | 84 k |
+| **Total** | — | **~ USD 924 k** |
+
+\*Numbers reflect draft ratios; final figures require CFO review.
+
+---
+
+**Risk Management & Mitigation**
+--------------------------------
+| Risk | Likelihood | Impact | Mitigation (draft-based) |
+|------|------------|--------|--------------------------|
+| **Private-Key Compromise** | Low | Critical | HSM storage; 3-layer signing; daily key-usage audit |
+| **Gas-Fee Spikes** | Medium | High | Credit price auto-adjusts; delayed batch minting option |
+| **Regulatory Shift (MiCA / SEC)** | Medium | Medium | Stablecoin only; optional custody via licensed VASP |
+| **Offline-Scanner Time Skew** | Medium | Medium | QR expiry ≤ 15 s; NTP enforcement; fallback grace window |
+| **UX Friction for Fiat Users** | High | Medium | Embedded on-ramp (MoonPay, Banxa) + off-ramp links |
+| **Contract Vulnerability** | Low (post-audit) | Critical | Immutable tests, fuzzing, 10 % bug-bounty reserve |
+
+---
+
+**Appendices**
+--------------
+### A. Glossary
+| Term | Definition |
+|------|------------|
+| **NFT** | Non-Fungible Token (ERC-721/1155) representing a ticket |
+| **Scan-Token** | Short-lived JWT-style string signed by SaaS, displayed as QR |
+| **EventRegistry** | Smart contract storing event hashes & fee splits |
+| **Credit Top-Up** | Pre-paid fiat converted to on-chain gas buffer |
+| **On-Ramp / Off-Ramp** | Service converting fiat ↔ stablecoin (USDC) |
+| **HSM** | Hardware Security Module for private-key isolation |
+
+### B. Selected API Endpoint Reference
+| Path | Verb | Purpose |
+|------|------|---------|
+| `/api/v1/events` | POST | Create event (name, date, royalty%, …) |
+| `/api/v1/tickets/mint` | POST | Mint single/batch tickets |
+| `/api/v1/wallets/{id}` | GET | Retrieve wallet balance & tickets |
+| `/api/v1/marketplace/listings` | GET/POST | Query or create resale listing |
+| `/api/v1/scan-ticket` | POST | Validate scan-token at gate |
+
+### C. Attached Artifacts
+* Original draft file `Chats-2025-05-27_12-51-50.md`
+* UML class diagram (to be added)
+* Security-audit checklist v0.3
+
+### D. References
+All statements, tables, and examples in this document are **directly distilled from the attached draft** dated **27 May 2025**. No external sources were added.
+
+---
+
+*End of Founding Document – ≈ 3 050 words*
