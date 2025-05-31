@@ -1,0 +1,208 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+===================================
+1. Purpose & Scope
+===================================
+•	Local Project Reference: Consult the local ~/Documents/TicketChainMVP directory for the latest working code and context when applying these guidelines.
+
+===================================
+2. File Editing
+===================================
+When editing files, please follow this workflow:
+
+1. First, use get_text_file_contents to read ONLY the relevant line ranges
+2. Analyze what specific changes are needed
+3. Use edit_text_file_contents with specific line_start and line_end parameters
+4. Include the proper range_hash from the initial read
+5. Only modify the exact lines that need changing
+6. Verify the changes after editing
+
+===================================
+3. Documentation
+===================================
+•	Audit: Identify specific sections in existing docs that require update. Supply diff snippets showing only added/modified lines.
+•	Avoid Full File Replacement: Reference file paths explicitly and annotate changes inline rather than rewriting entire documents.
+•	Templates: Maintain reusable markdown fragments for common sections (installation, usage, changelog).
+•	Include inline code comments explaining complex logic
+•	Maintain up-to-date README with:
+  - Project setup instructions
+  - Dependency requirements
+  - Environment configuration
+  - Troubleshooting guide
+• Version documentation alongside code changes
+
+===================================
+4. Testing & Quality Gates
+===================================
+•	New Code: Include tests specific to the new feature or bugfix; show only new test files or test cases.
+•	Verification: Run tests locally and in CI; confirm pass status.
+•	Aim for >80% test coverage
+•	Include both unit and integration tests
+•	Use mutation testing to validate test effectiveness
+•	Automated testing in CI pipeline
+•	Performance and load testing for critical paths
+
+===================================
+5. Commit Hygiene
+===================================
+•	Format: Use imperative present tense, ≤ 72 char subject, blank line then body.
+•	Granularity: Break large changes into focused commits; refer to only the diffs relevant to each commit.
+
+===================================
+6. CI/CD & Hooks
+===================================
+•	Pipeline Edits: When adjusting workflows, provide only the modified job or step definitions as a diff.
+•	Pre‑commit Hooks: If adding new hooks, show the patch to .pre-commit-config.yaml instead of full file.
+
+===================================
+7. Versioning & Releases
+===================================
+•	Changelog Entries: Append new sections to CHANGELOG.md via diff snippets.
+•	Version Bumps: Indicate modified lines in package.json or equivalent version files.
+
+===================================
+8. Security Practices
+===================================
+•	Sensitive Information: Never commit sensitive data (API keys, passwords, tokens)
+•	Use environment variables or secure secret management
+•	Implement and review .gitignore to prevent accidental sensitive data exposure
+•	Conduct regular dependency security audits
+•	Implement input validation and sanitization
+•	Use HTTPS and secure communication protocols
+•	Regularly update dependencies to patch known vulnerabilities
+
+8.1 Configuration Management
+•	Eliminate Hardcoded Data:
+  - Separate configuration from code
+  - Use external configuration mechanisms:
+    a) Environment variables for sensitive or environment-specific data
+    b) Configuration files for non-sensitive, static configurations
+  - Ensure all configurable parameters can be modified without changing source code
+  - Implement a clear, consistent approach to managing application settings across all environments
+
+•	Configuration Principles:
+  - Never hardcode:
+    * Connection strings
+    * API endpoints
+    * Credentials
+    * Environment-specific values
+  - Make configuration externally controllable
+  - Support easy configuration changes without code modifications
+  - Maintain clear separation between code logic and configuration
+
+===================================
+9. Code Review Standards
+===================================
+•	Mandatory peer review for all non-trivial changes
+•	Use pull request templates
+•	Ensure at least one approving review before merge
+•	Check for:
+  - Code quality
+  - Test coverage
+  - Performance implications
+  - Potential security vulnerabilities
+•	Encourage constructive feedback
+•	Maintain a respectful and collaborative review process
+
+===================================
+10. Branching & Collaboration (Medium-Scale Workflow)
+===================================
+• **Main (protected):** Always deployable; merges only via reviewed PRs with passing CI.
+• **Develop (integration):** Aggregates completed features; CI-tested; branch off for each feature.
+• **Feature Branches:**
+  - Naming: `feature/<ticket-ID>-<short-desc>`
+  - Lifespan: ≤ 2 weeks; rebase or merge from develop at least daily
+  - Workflow: branch from develop → implement → open PR → merge back into develop
+• **Release Branches:**
+  - Naming: `release/vX.Y`
+  - Purpose: finalize version bump, documentation, tests
+  - Merge back into main (tag) and develop
+• **Hotfix Branches:**
+  - Naming: `hotfix/<ticket-ID>-<short-desc>`
+  - Workflow: branch from main → fix → PR → merge into main (tag) and develop
+• **Pull Requests:** Require at least one approving review, linked ticket, clear description, and successful CI
+• **Naming Conventions:** `<type>/<ticket-ID>-<short-desc>` for all non-main branches (feature, release, hotfix)
+• **Merge Strategy:**
+  - Prefer merge commits on develop/main for traceability
+  - Squash within feature branches if granular history isn’t needed
+• **Branch Hygiene:** Delete merged branches promptly; enforce cleanup via branch policies
+• **Integration Cadence:** Keep merges small and frequent; resolve conflicts early to minimize drift
+
+===================================
+11. Performance & Optimization
+===================================
+•	Profile code regularly to identify bottlenecks
+•	Use appropriate data structures and algorithms
+•	Minimize database queries and optimize database interactions
+•	Implement caching strategies where appropriate
+•	Conduct periodic performance audits
+
+===================================
+13. Code Design & Modularity
+===================================
+•	Modularity Principles:
+  - Design code with clear, single responsibilities
+  - Create loosely coupled, highly cohesive components
+  - Prioritize simplicity over complexity
+  - Follow SOLID principles with pragmatic approach:
+    a) Single Responsibility Principle (SRP):
+       - Each module or class should have one, and only one, reason to change
+       - Keep functions and classes focused and concise
+
+    b) Open/Closed Principle:
+      - Design modules to be open for extension, closed for modification
+      - Use abstraction and interfaces to allow easy feature additions
+      - Minimize changes to existing code when adding new functionality
+
+    c) Liskov Substitution Principle:
+      - Ensure derived classes can fully replace base classes
+      - Maintain consistent behavior across inheritance hierarchies
+      - Avoid forcing unnecessary inheritance
+
+    d) Interface Segregation:
+      - Create smaller, more focused interfaces
+      - Avoid monolithic interfaces that force unnecessary dependencies
+      - Clients should not depend on interfaces they do not use
+
+    e) Dependency Inversion:
+      - Depend on abstractions, not concrete implementations
+      - Use dependency injection to manage component dependencies
+      - Decouple high-level modules from low-level module details
+
+•	Simplicity Guidelines:
+  - Avoid over-engineering solutions
+  - Prefer composition over complex inheritance
+  - Keep function and method lengths short (aim for <20 lines)
+  - Use meaningful, descriptive naming
+  - Remove dead or unused code regularly
+  - Refactor complex logic into smaller, comprehensible parts
+
+•	Modular Design Practices:
+  - Create clear separation of concerns
+  - Design for testability
+  - Use consistent architectural patterns
+  - Minimize cross-module dependencies
+  - Implement clear, well-defined interfaces between modules
+
+•	Complexity Warning Signs:
+  - Deep inheritance hierarchies
+  - Excessive method parameters
+  - Large classes with multiple responsibilities
+  - Circular dependencies
+  - Repeated code blocks
+  - Overly generic or overly specific implementations
+
+•	Refactoring Principles:
+  - Continuously improve code structure
+  - Address technical debt proactively
+  - Conduct regular code reviews
+  - Prioritize code readability over clever solutions
+  - Optimize for understanding, not just performance
+
+Guiding Philosophy:
+"Make everything as simple as possible, but not simpler." - Albert Einstein
+
+Note: These principles are guidelines, not strict rules. Always apply critical thinking and adapt to specific project needs.

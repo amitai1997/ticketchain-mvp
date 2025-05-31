@@ -1,0 +1,63 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+**Claude MCP Coding Guidelines**
+*Actionable playbook for productive, low-risk chatbot-driven coding.*
+
+AI pair-programming is most powerful when work is broken into tiny, well-scoped steps, every interaction is token-budgeted, and each change is instantly verified in Git and CI. The rules below distill proven practices from Git experts, agile literature, and LLM research so teams can ship faster without context-window crashes or silent regressions.
+
+# **Task Decomposition**
+- **Slice epics → features → ≤ 150-line sub-tasks.** Fine-grained scopes reduce merge conflicts and keep model prompts comfortably below 6 k tokens. :contentReference[oaicite:0]{index=0}
+- **Decision tree:**
+  1. *New idea?* Draft a “user story” card.
+  2. *Story > 150 lines diff?* Split again.
+  3. *Story < 30 lines & clear?* Continue in current turn.
+  4. *Ambiguity or edge-cases?* Start a clarification turn. :contentReference[oaicite:1]{index=1}
+- **Trunk-based mindset.** All sub-tasks branch from `main` (short-lived feature toggles allowed) to keep integration frequent. :contentReference[oaicite:2]{index=2}
+- **Time box discussions.** Limit architectural debates to 10 min; record outcomes in an ADR (see §7). :contentReference[oaicite:3]{index=3}
+
+# **Context-Window Management**
+- **Rolling summaries.** After each turn, append a 3-line summary atop the chat to shrink history while preserving intent. :contentReference[oaicite:4]{index=4}
+- **Checkpoint comments.** Insert `// ⬇ GENERATED UNTIL HERE` markers so Claude re-reads only the delta. :contentReference[oaicite:5]{index=5}
+- **YAML state files.** Persist variable names, paths, and open TODOs in `state/mcp_progress.yaml`; reload instead of re-describing. :contentReference[oaicite:6]{index=6}
+- **Budget rule.** Keep *(prompt + diff + assistant)* ≤ 6 k tokens; emit a warning banner at 5 k. :contentReference[oaicite:7]{index=7}
+- **Overflow alarm.** If Claude flags truncation or hallucination risk, truncate history to the latest summary or split the task. :contentReference[oaicite:8]{index=8}
+
+# **Clarification & Confirmation Loops**
+- **Prompt templates:**
+  • “What error states should we handle?”
+  • “List edge-cases for input X.”
+  • “Confirm success criteria in one sentence.” :contentReference[oaicite:9]{index=9}
+- **Stop signals.** If Claude proposes > 3 TODOs marked “uncertain,” pause and ask the human for specs. :contentReference[oaicite:10]{index=10}
+- **Reflective questions.** Encourage Claude to rephrase requirements in its own words before coding to expose misunderstandings. :contentReference[oaicite:11]{index=11}
+
+# **Incremental Coding Workflow**
+1. `mcp.open path/to/file` – read only relevant lines.
+2. `mcp.write` small patch (≤ 150 lines).
+3. `npm|pytest|go test` – run fast tests locally; fix red before moving on. :contentReference[oaicite:12]{index=12}
+4. `git add -p` → `git diff --staged` for visual self-review. :contentReference[oaicite:13]{index=13}
+5. `git commit -m "feat: do X"` (Conventional Commits). :contentReference[oaicite:14]{index=14}
+6. GitHub Actions runs lint + unit tests; block merge on failure. :contentReference[oaicite:15]{index=15}
+
+# **Error Prevention**
+- **Auto-diff review.** Claude must output `git diff --staged` and ask “LGTM?” before finalizing. :contentReference[oaicite:16]{index=16}
+- **Code-review checklist** (functionality, readability, performance, security, tests) applied to every patch. :contentReference[oaicite:17]{index=17}
+- **Work-in-progress branches.** Prefix `wip/2025-05-28-issue-123` for backup; squash or delete after merge. :contentReference[oaicite:18]{index=18}
+- **Pre-commit hooks.** Run static analysis and formatting to catch trivial issues offline. :contentReference[oaicite:19]{index=19}
+
+# **Web-Research Integration**
+- **Authoritative first.** Search OpenAI, Anthropic, AWS, or language maintainers before blogs. :contentReference[oaicite:20]{index=20}
+- **Citation rule.** Quote insight → parenthetical `(Source Name)` in chat; store full reference list in `docs/research_notes.md`. :contentReference[oaicite:21]{index=21}
+- **One-paragraph digests.** Copy only the key bullet points—never full articles—to save tokens. :contentReference[oaicite:22]{index=22}
+
+# **Documentation & Knowledge Capture**
+- **Dev log.** After each sub-task, append a bullet to `docs/dev_log.md` (“Implemented feature A; tests green”). :contentReference[oaicite:23]{index=23}
+- **ADRs.** Record significant choices using the Nygard template (`docs/adr/NNN-title.md`). :contentReference[oaicite:24]{index=24}
+- **Commit quality.** Follow Conventional Commits for clear history and automated changelog generation. :contentReference[oaicite:25]{index=25}
+
+# **Escalation Policy**
+- **Split again.** If token budget still blows up after summarization, carve out another micro-task and loop. :contentReference[oaicite:26]{index=26}
+- **Human review.** Escalate when business logic is ambiguous, security-sensitive, or production migrations are involved. :contentReference[oaicite:27]{index=27}
+- **Final safety net.** Mandatory peer code review on pull requests > 300 LOC or touching infra. :contentReference[oaicite:28]{index=28}
