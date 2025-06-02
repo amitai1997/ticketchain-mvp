@@ -1,0 +1,27 @@
+# CODEOWNERS for TicketChain
+# These owners will be the default owners for everything in the repo.
+# Unless a later match takes precedence, they will be requested for
+# review when someone opens a pull request.
+
+# Global owners
+* @ticketchain/core-team
+
+# Smart contracts require blockchain team review
+/contracts/ @ticketchain/blockchain-team
+/scripts/ @ticketchain/blockchain-team
+
+# Backend code
+/src/ @ticketchain/backend-team
+
+# Infrastructure
+/infra/ @ticketchain/devops-team
+/.github/ @ticketchain/devops-team
+/docker-compose.yml @ticketchain/devops-team
+
+# Documentation
+/docs/ @ticketchain/core-team
+*.md @ticketchain/core-team
+
+# Security-sensitive files
+.env* @ticketchain/security-team
+**/secrets/ @ticketchain/security-team

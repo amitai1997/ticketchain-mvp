@@ -1,0 +1,82 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# TicketChain MVP Implementation Plan
+
+## 1. MVP Objective & Scope
+
+| | Description                                                                                                                                                                                                                                              |
+|---|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Primary objective** | Deliver a production‑ready *infrastructure layer* that lets any existing ticketing platform mint tickets as NFTs, control secondary‑market rules on‑chain, and run a live pilot with one Israeli event organizer.                                        |
+| **In scope** | • NFT mint / transfer / redeem flows • Fee‑splitting smart contracts • REST + GraphQL API gateway • Embedded/Programmable wallets • Dynamic QR verification SDK • Compliance hooks (KYC / AML webhooks, audit log) • Sandbox dashboard & basic reporting |
+| **Out of scope (MVP)** | • Consumer mobile app • Full‑featured secondary‑market UI • Non‑Israeli compliance modules • Fiat on-/off‑ramp • Advanced loyalty / analytics engines                                                                                                    |
+
+## 2. Core Functionalities
+
+1. **NFT ticket minting** – ERC‑721A contract; batch mint ≥ 1 000 tix/min on Polygon PoS test‑net.
+2. **Secure transfers** – on‑chain ownership + off‑chain signed permit for gas‑less transfers.
+3. **Scalping prevention** – max‑price‑cap param (≤ 10 % above face); dynamic QR that refreshes every 15 s and is invalid outside the venue’s geo‑fence.
+4. **Revenue sharing** – programmable royalty split (organiser / artist / platform / TicketChain).
+5. **Reg‑compliant hooks** – KYC status checked before first purchase; transaction log retained 7 yrs to meet Israeli bookkeeping rules.
+
+## 3. High‑Level Technical Architecture
+
+| Layer                             | Key design decisions |
+|-----------------------------------|----------------------|
+| **Blockchain**                    | *Polygon PoS → Polygon zkEVM* once fees/throughput validated; low gas & EVM‑compatibility recommended in research PDF. |
+| **Smart‑contracts**               | • *TicketNFT* (ERC‑721A) – immutable seat metadata; • *Marketplace* – resale logic, price‑cap, royalty splitter; • *EventRegistry* – event‑level config. |
+| **API Gateway**                   | REST + GraphQL behind AWS API Gateway; JWT auth; rate‑limits tied to prepaid credit balance. |
+| **Embedded/Programmable wallets** | Fireblocks/MPC or self‑hosted Web3Auth node; keys stored in HSM; wallet abstracted behind `/wallets` API. |
+| **Backend & DB**                  | NodeJS/TypeScript services in Docker; Postgres for business data; Redis for QR‑token TTL; SQS for async mint queue; Grafana/Loki for logs. |
+
+## 4. User Experience Overview
+
+1. **Onboarding** – user books ticket on partner platform; embedded widget opens Embedded/Programmable wallet silently after email + OTP.
+2. **Purchase flow** – API mints NFT → wallet; confirmation email with deep‑link to web‑wallet.
+3. **Manage ticket** – wallet UI shows countdown to gate‑open; transfer button enforces price‑cap.
+4. **Entry verification** – venue scanner calls `/qr/fresh` → gets 15‑s QR; scanner verifies signature + chain proof; on success marks `redeemed=true`.
+
+## 5. Regulatory & Compliance Strategy (Israel‑first)
+
+| Area | Strategy / Control |
+|------|-------------------|
+| **Anti‑scalping law** | Contract‑level hard cap ≤ face value (or regulator‑set %). Section 194a of the Israeli Penal Code forbids unlicensed resale above face value; cap is enforced on‑chain. |
+| **Tax/VAT** | All secondary sales emit webhook to partner ERP with price & VAT flag. |
+| **AML/KYC** | Israeli Money Services Law → require ID verification for cumulative spend > NIS 5 000; integrate with AU10TIX API. |
+| **Consumer protection** | 14‑day cancellation window handled off‑chain; refund burns NFT and auto‑reissues. |
+
+## 6. Risk Management (Top 5)
+
+| Risk | Mitigation |
+|------|------------|
+| Private‑key theft | HSM + MPC, periodic rotation, anomaly alerts. |
+| Gas spike | Pre‑paid credit includes 20 % buffer; pause mint when buffer exhausted. |
+| Off‑platform screenshots | Dynamic QR expires in 15 s; binding to device ID. |
+| User lock‑out of Embedded/Programmable wallet | Social‑recovery email + ID check flow. |
+| Regulatory change | Configurable price‑cap & KYC tiers; legal review each quarter. |
+
+## 7. MVP Implementation Roadmap
+
+| Phase | Duration | Milestones |
+|-------|----------|------------|
+| **P0 – Setup & Smart Contracts** | Weeks 1‑2 | Repo scaffold, CI, TicketNFT & Marketplace on Polygon test‑net; 90 % unit‑test cover. |
+| **P1 – API & Wallet Integration** | Weeks 3‑6 | REST/GraphQL endpoints, Embedded/Programmable wallet, credit billing, basic dashboard. |
+| **P2 – Testing & Feedback** | Weeks 7‑9 | Load test (≥1 000 tickets/min), venue scanner pilot, security audit, UX tweaks. |
+| **P3 – Pilot Launch** | Weeks 10‑12 | One live event (≤5 000 tickets), post‑mortem, go/no‑go for GA. |
+
+## 8. Success Metrics (MVP)
+
+| KPI | Target |
+|-----|--------|
+| **Mint throughput** | ≥ 1 000 tickets/min sustained |
+| **QR validation latency** | ≤ 300 ms P95 |
+| **Resale compliance** | 100 % sales ≤ price‑cap |
+| **Contract test coverage** | ≥ 95 % lines/branches |
+| **Pilot user NPS** | ≥ 60 |
+| **Audit findings** | No critical / high issues open at launch |
+
+---
+
+**This blueprint provides a single source of truth for the MVP, aligning business goals, regulatory demands, and technical deliverables. All later sprint plans should expand each section without altering its high‑level boundaries.**

@@ -1,0 +1,24 @@
+# Auto detect text files and perform LF normalization
+* text=auto eol=lf
+
+# Exclude from git attributes processing
+node_modules/* -diff -merge -text
+.git/* -diff -merge -text
+artifacts/* -diff -merge -text
+cache/* -diff -merge -text
+
+# Denote all files that are truly binary and should not be modified.
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.mp4 binary
+*.webm binary
+*.node binary
+*.so binary
+*.dll binary

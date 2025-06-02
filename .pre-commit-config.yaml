@@ -1,0 +1,44 @@
+# Pre-commit hooks configuration
+# Install: pre-commit install
+# Run manually: pre-commit run --all-files
+#
+# This configuration skips hooks that cause issues with node_modules and large files
+
+repos:
+  # General hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: ^(node_modules/|\.git/|artifacts/|cache/|\.idea/)
+      - id: end-of-file-fixer
+        exclude: ^(node_modules/|\.git/|artifacts/|cache/|\.idea/)
+      # Skip check-yaml and check-added-large-files as they cause issues with node_modules
+      - id: check-merge-conflict
+        exclude: ^(node_modules/|\.git/|artifacts/|cache/|\.idea/)
+
+  # Solidity specific
+  - repo: local
+    hooks:
+      - id: solhint
+        name: Solhint
+        entry: npx solhint
+        language: system
+        files: \.sol$
+        args: ['--config', 'config/solhint.json', '--fix']
+        exclude: ^(node_modules/|\.git/|artifacts/|cache/|\.idea/)
+
+  # Markdown
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.45.0
+    hooks:
+      - id: markdownlint
+        args: ['--fix']
+        exclude: ^(node_modules/|\.git/|artifacts/|cache/|\.idea/)
+
+  # Commit message
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v4.8.2
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]

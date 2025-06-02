@@ -1,0 +1,28 @@
+{
+  "network": "amoy",
+  "chainId": 80002,
+  "deployedAt": "2025-05-30T13:31:01.860Z",
+  "deployer": "0x0E0b4F45385598F9Abe7abB18C38b571620b1d7b",
+  "contracts": {
+    "EventRegistry": {
+      "address": "0x9F3e77F6A6e0dF51fC233763426D65De38C2bA24",
+      "transactionHash": "0xfd7b3deb2382e130cfe6bb7582cacef8abb7f66ad0234d24f9d78e28493d8fe7"
+    },
+    "TicketNFT": {
+      "address": "0x587F360C0e1CDBb22E27E9Eadc4D0307023cc12e",
+      "transactionHash": "0xb79e31d54e09c2389b6281b815f556936e2c71ad73596d9bceea8ba6d7cd45eb",
+      "constructorArgs": [
+        "0x9F3e77F6A6e0dF51fC233763426D65De38C2bA24"
+      ]
+    },
+    "SimpleMarketplace": {
+      "address": "0xa91a3844D607240624763FBD6eCFC4B471DFAE61",
+      "transactionHash": "0x4873bb671dc0c89049d84776c3621700fd49bc8e4ad02123a923fa8d7b1bf881",
+      "constructorArgs": [
+        "0x587F360C0e1CDBb22E27E9Eadc4D0307023cc12e",
+        "0x9F3e77F6A6e0dF51fC233763426D65De38C2bA24",
+        250
+      ]
+    }
+  }
+}

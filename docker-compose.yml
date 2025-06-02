@@ -1,0 +1,147 @@
+# Docker Compose configuration for TicketChain MVP
+
+services:
+  # PostgreSQL database
+  postgres:
+    image: postgres:15-alpine
+    container_name: ticketchain-postgres
+    environment:
+      POSTGRES_USER: ticketchain
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-development}
+      POSTGRES_DB: ticketchain_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ticketchain -d ticketchain_dev"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  # Redis cache
+  redis:
+    image: redis:7-alpine
+    container_name: ticketchain-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  # Hardhat node for local blockchain development
+  hardhat-node:
+    build:
+      context: .
+      dockerfile: ./infra/docker/hardhat.Dockerfile
+    container_name: ticketchain-hardhat
+    ports:
+      - "8545:8545"
+    volumes:
+      - ./contracts:/app/contracts
+      - ./scripts:/app/scripts
+      - ./chain:/app/chain
+    environment:
+      - HARDHAT_NETWORK=hardhat
+    command: npx hardhat node --hostname 0.0.0.0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8545"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+  # Auto-miner service to ensure blocks are regularly mined
+  auto-miner:
+    build:
+      context: .
+      dockerfile: ./infra/docker/hardhat.Dockerfile
+    container_name: ticketchain-miner
+    depends_on:
+      hardhat-node:
+        condition: service_healthy
+    volumes:
+      - ./scripts:/app/scripts
+    command: sh -c "sleep 5 && npx hardhat run scripts/auto-mine.js --network dockerLocalhost"
+    restart: unless-stopped
+
+  # Contract deployment service
+  deploy-contracts:
+    build:
+      context: .
+      dockerfile: ./infra/docker/hardhat.Dockerfile
+    container_name: ticketchain-deploy
+    depends_on:
+      hardhat-node:
+        condition: service_healthy
+    environment:
+      - DISABLE_CONFIRMATIONS=true
+    volumes:
+      - ./contracts:/app/contracts
+      - ./scripts:/app/scripts
+      - ./artifacts:/app/artifacts
+    command: sh -c "timeout 30s npx hardhat run scripts/deploy.js --network dockerLocalhost || echo 'Deployment completed or timed out'"
+    restart: no
+
+  # MailHog for email testing
+  mailhog:
+    image: mailhog/mailhog:latest
+    platform: linux/amd64
+    container_name: ticketchain-mailhog
+    ports:
+      - "1025:1025"  # SMTP port
+      - "8025:8025"  # Web UI port
+    environment:
+      MH_STORAGE: memory
+      MH_SMTP_BIND_ADDR: 0.0.0.0:1025
+      MH_UI_BIND_ADDR: 0.0.0.0:8025
+
+  # NestJS API application
+  api:
+    build:
+      context: .
+      dockerfile: ./infra/docker/app.Dockerfile
+    container_name: ticketchain-api
+    ports:
+      - "${API_PORT:-3000}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      hardhat-node:
+        condition: service_healthy
+      auto-miner:
+        condition: service_started
+      deploy-contracts:
+        condition: service_completed_successfully
+    env_file:
+      - .env.docker
+    volumes:
+      - ./src:/app/src
+      - ./test:/app/test
+      - ./node_modules:/app/node_modules
+      - ./artifacts:/app/artifacts
+    restart: unless-stopped
+    command: sh -c "sh /app/scripts/update-abis.sh && npm run start:dev"
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    name: ticketchain-network
+    driver: bridge
