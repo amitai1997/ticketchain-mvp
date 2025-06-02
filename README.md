@@ -127,30 +127,34 @@ make test-python
 make test-contracts
 ```
 
-### Setting Up Secure Test Environment
+### Environment Configuration
 
-To avoid security issues with credentials in test code:
-
-1. Copy the test environment template:
+1. **Development Setup:**
 ```bash
+# Copy the comprehensive template
+cp .env.example .env
+
+# Edit .env and fill in your actual values
+# Look for YOUR_*_HERE placeholders
+```
+
+2. **Testing Setup:**
+```bash
+# Copy test-specific configuration
 cp .env.test .env.test.local
-```
 
-2. Add your test database password in `.env.test.local`:
-```
-TEST_DB_PASSWORD=your_secure_test_password
-```
+# Add your test database password in .env.test.local:
+echo "TEST_DB_PASSWORD=your_secure_test_password" >> .env.test.local
 
-3. Make sure `.env.test.local` is in your `.gitignore` file to prevent accidental commits.
-
-4. Run tests with the test environment:
-```bash
-# For all tests
+# Run tests with test environment
 NODE_ENV=test make test
-
-# For specific test files
-NODE_ENV=test npx jest test/integration/events/events.integration.spec.ts
 ```
+
+3. **File Structure:**
+   - `.env.example` - Complete documentation of all environment variables
+   - `.env.test` - Test-specific configuration (safe to commit)
+   - `.env` - Your local development environment (never commit)
+   - `.env.test.local` - Your local test credentials (never commit)
 
 > **IMPORTANT:** Never hardcode credentials in test files. Always use environment variables for sensitive information.
 
