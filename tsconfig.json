@@ -13,9 +13,13 @@
     "emitDecoratorMetadata": true,
     "declaration": true,
     "outDir": "./dist",
-    "rootDir": "./src",
+    "rootDir": ".",
     "resolveJsonModule": true,
-    "typeRoots": ["./node_modules/@types"]
+    "typeRoots": ["./node_modules/@types"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": [
     "src/**/*",
@@ -26,6 +30,8 @@
     "dist",
     "artifacts",
     "cache",
-    "coverage"
+    "coverage",
+    "**/*.config.js",
+    "hardhat.config.js"
   ]
 }
