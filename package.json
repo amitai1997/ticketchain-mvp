@@ -8,6 +8,7 @@
     "test:unit": "hardhat test tests/contracts/unit/*.test.js",
     "test:integration": "hardhat test tests/contracts/integration/*.test.js",
     "test:gas": "REPORT_GAS=true hardhat test tests/contracts/gas/*.test.js",
+    "test:contracts": "hardhat test",
     "test:all": "./scripts/run-tests.sh",
     "coverage": "hardhat coverage",
     "clean": "hardhat clean",
@@ -16,8 +17,9 @@
     "verify": "hardhat run scripts/verify.js --network amoy",
     "size": "hardhat size-contracts",
     "node": "hardhat node",
-    "lint": "eslint . --ext .js,.ts",
-    "lint:fix": "eslint . --ext .js,.ts --fix"
+    "lint": "eslint . --ext .js,.ts --max-warnings 0",
+    "lint:fix": "eslint . --ext .js,.ts --fix",
+    "type-check": "tsc --noEmit"
   },
   "devDependencies": {
     "@eslint/js": "^9.27.0",
