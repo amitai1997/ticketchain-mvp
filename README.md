@@ -127,6 +127,33 @@ make test-python
 make test-contracts
 ```
 
+### Setting Up Secure Test Environment
+
+To avoid security issues with credentials in test code:
+
+1. Copy the test environment template:
+```bash
+cp .env.test .env.test.local
+```
+
+2. Add your test database password in `.env.test.local`:
+```
+TEST_DB_PASSWORD=your_secure_test_password
+```
+
+3. Make sure `.env.test.local` is in your `.gitignore` file to prevent accidental commits.
+
+4. Run tests with the test environment:
+```bash
+# For all tests
+NODE_ENV=test make test
+
+# For specific test files
+NODE_ENV=test npx jest test/integration/events/events.integration.spec.ts
+```
+
+> **IMPORTANT:** Never hardcode credentials in test files. Always use environment variables for sensitive information.
+
 ## 📚 Documentation
 
 - [Architecture Overview](docs/architecture.md)
@@ -151,6 +178,19 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🔐 Security
 
 For security concerns, please email <security@ticketchain.io> instead of using the public issue tracker.
+
+### Security Best Practices
+
+- [Credentials Management](docs/security/credentials_best_practices.md) - Guidelines for handling sensitive information
+- Pre-commit hooks include security scanners to detect hardcoded credentials
+- CI pipelines include security checks to prevent credential exposure
+
+### Security Measures
+
+- All credentials are managed via environment variables
+- Separate credentials for development, testing, and production environments
+- Regular security audits of dependencies and code
+- Protected branches require passing security checks before merging
 
 ## 🙏 Acknowledgments
 
