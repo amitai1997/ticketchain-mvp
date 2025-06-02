@@ -26,11 +26,11 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
+        # Temporarily disable caching until package-lock.json is regenerated
+        # cache: 'npm'
 
     - name: Install dependencies
-      run: npm ci
-
+      run: npm install  # Use npm install to generate lock file
     - name: ESLint Check
       run: |
         # Fast ESLint run on changed files only
@@ -70,10 +70,11 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
+        # Temporarily disable caching until package-lock.json is regenerated
+        # cache: 'npm'
 
     - name: Install dependencies
-      run: npm ci
+      run: npm install  # Use npm install to generate lock file
 
     - name: Compile contracts
       run: npx hardhat compile
