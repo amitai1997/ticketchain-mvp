@@ -5,26 +5,20 @@ import { DatabaseService } from '../../modules/database/database.service';
 import { CacheService } from '../../modules/cache/cache.service';
 import { BlockchainService } from '../../modules/blockchain/blockchain.service';
 
+interface HealthServiceStatus {
+  status: 'healthy' | 'unhealthy';
+  responseTime: number;
+  details?: Record<string, unknown>;
+}
+
 interface HealthCheckResponse {
   status: 'healthy' | 'unhealthy';
   timestamp: string;
   version: string;
   services: {
-    database: {
-      status: 'healthy' | 'unhealthy';
-      responseTime: number;
-      details?: any;
-    };
-    cache: {
-      status: 'healthy' | 'unhealthy';
-      responseTime: number;
-      details?: any;
-    };
-    blockchain: {
-      status: 'healthy' | 'unhealthy';
-      responseTime: number;
-      details?: any;
-    };
+    database: HealthServiceStatus;
+    cache: HealthServiceStatus;
+    blockchain: HealthServiceStatus;
   };
 }
 
@@ -62,7 +56,7 @@ export class HealthController {
       databaseHealth = {
         status: 'unhealthy' as const,
         responseTime: Date.now() - databaseStart,
-        details: { error: error.message },
+        details: { error: (error as Error).message },
       };
     }
 
@@ -81,7 +75,7 @@ export class HealthController {
       cacheHealth = {
         status: 'unhealthy' as const,
         responseTime: Date.now() - cacheStart,
-        details: { error: error.message },
+        details: { error: (error as Error).message },
       };
     }
 
@@ -103,7 +97,7 @@ export class HealthController {
       blockchainHealth = {
         status: 'unhealthy' as const,
         responseTime: Date.now() - blockchainStart,
-        details: { error: error.message },
+        details: { error: (error as Error).message },
       };
     }
 

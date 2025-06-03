@@ -34,7 +34,7 @@ export class DatabaseService {
    * @param parameters Query parameters
    * @returns Query result
    */
-  async query(query: string, parameters?: any[]): Promise<any> {
+  async query(query: string, parameters?: unknown[]): Promise<unknown> {
     try {
       this.logger.debug(`Executing query: ${query}`);
       return await this.dataSource.query(query, parameters);

@@ -210,9 +210,10 @@ export class BlockchainService {
         const result = await operation();
 
         // If it's a transaction, wait for confirmation
-        if (result && typeof (result as any).wait === 'function') {
+        // Check if result has a wait method (transaction response)
+        if (result && typeof result === 'object' && 'wait' in result && typeof result.wait === 'function') {
           this.logger.log(`Waiting for transaction confirmation for ${operationName}`);
-          await (result as any).wait(1); // Wait for 1 confirmation
+          await (result as { wait: (confirmations: number) => Promise<unknown> }).wait(1); // Wait for 1 confirmation
           this.logger.log(`Transaction confirmed for ${operationName}`);
         }
 

@@ -7,7 +7,7 @@ export class BlockchainException extends Error {
     public readonly code: string,
     message: string,
     public readonly status: number = HttpStatus.BAD_REQUEST,
-    public readonly details?: any,
+    public readonly details?: Record<string, unknown>,
   ) {
     super(message);
     this.name = 'BlockchainException';

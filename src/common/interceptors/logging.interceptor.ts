@@ -8,13 +8,13 @@ import { v4 as uuidv4 } from 'uuid';
 export class LoggingInterceptor implements NestInterceptor {
   private readonly logger = new Logger('HTTP');
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const request = context.switchToHttp().getRequest<Request>();
     const { method, originalUrl, ip } = request;
 
     // Generate a unique request ID for tracing
     const requestId = uuidv4();
-    (request as any)['requestId'] = requestId;
+    (request as Request & { requestId: string })['requestId'] = requestId;
 
     const startTime = Date.now();
     const userAgent = request.get('user-agent') || 'unknown';

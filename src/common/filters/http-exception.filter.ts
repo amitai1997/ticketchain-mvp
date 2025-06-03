@@ -10,13 +10,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
     const status = exception.getStatus();
-    const exceptionResponse = exception.getResponse() as any;
+    const exceptionResponse = exception.getResponse() as string | Record<string, unknown>;
 
     const errorResponse = {
       error: {
-        code: exceptionResponse.code || this.mapStatusToErrorCode(status),
-        message: exceptionResponse.message || exception.message,
-        details: exceptionResponse.details || null,
+        code: (typeof exceptionResponse === 'object' && exceptionResponse && 'code' in exceptionResponse) ? (exceptionResponse.code as string) : this.mapStatusToErrorCode(status),
+        message: (typeof exceptionResponse === 'object' && exceptionResponse && 'message' in exceptionResponse) ? (exceptionResponse.message as string) : exception.message,
+        details: (typeof exceptionResponse === 'object' && exceptionResponse && 'details' in exceptionResponse) ? exceptionResponse.details : null,
       },
       timestamp: new Date().toISOString(),
       path: request.url,

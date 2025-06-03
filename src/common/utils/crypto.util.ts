@@ -73,7 +73,7 @@ export function verifyScanToken(token: string, secret: string, ttlSeconds = 15):
     }
 
     return ticketId;
-  } catch (err) {
+  } catch {
     return null;
   }
 }
