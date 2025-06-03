@@ -14,7 +14,7 @@ export class LoggingInterceptor implements NestInterceptor {
 
     // Generate a unique request ID for tracing
     const requestId = uuidv4();
-    request['requestId'] = requestId;
+    (request as any)['requestId'] = requestId;
 
     const startTime = Date.now();
     const userAgent = request.get('user-agent') || 'unknown';

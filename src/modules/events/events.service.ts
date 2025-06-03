@@ -103,10 +103,10 @@ export class EventsService {
     return {
       items: result.items.map(event => this.mapEventToResponse(event)),
       pagination: {
-        total: result.meta.totalItems,
-        limit: result.meta.itemsPerPage,
-        offset: (result.meta.currentPage - 1) * result.meta.itemsPerPage,
-        hasMore: (result.meta.currentPage * result.meta.itemsPerPage) < result.meta.totalItems,
+        total: result.meta?.totalItems || 0,
+        limit: result.meta?.itemsPerPage || limit,
+        offset: (result.meta?.currentPage || 1 - 1) * (result.meta?.itemsPerPage || limit),
+        hasMore: ((result.meta?.currentPage || 1) * (result.meta?.itemsPerPage || limit)) < (result.meta?.totalItems || 0),
       },
     };
   }

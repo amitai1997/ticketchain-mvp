@@ -37,8 +37,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
       [HttpStatus.NOT_FOUND]: 'NOT_FOUND',
       [HttpStatus.TOO_MANY_REQUESTS]: 'RATE_LIMITED',
       [HttpStatus.INTERNAL_SERVER_ERROR]: 'INTERNAL_SERVER_ERROR',
-    };
+    } as const;
 
-    return statusMap[status] || 'UNKNOWN_ERROR';
+    return statusMap[status as keyof typeof statusMap] || 'UNKNOWN_ERROR';
   }
 }

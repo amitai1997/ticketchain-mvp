@@ -44,13 +44,13 @@ interface TicketData {
 @Injectable()
 export class BlockchainService {
   private readonly logger = new Logger(BlockchainService.name);
-  private provider: ethers.JsonRpcProvider;
-  private signer: ethers.Wallet;
+  private provider!: ethers.JsonRpcProvider;
+  private signer!: ethers.Wallet;
 
   // Contract instances
-  private eventRegistry: ethers.Contract;
-  private ticketNFT: ethers.Contract;
-  private marketplace: ethers.Contract;
+  private eventRegistry!: ethers.Contract;
+  private ticketNFT!: ethers.Contract;
+  private marketplace!: ethers.Contract;
 
   // Retry configuration
   private retryConfig: RetryConfig;

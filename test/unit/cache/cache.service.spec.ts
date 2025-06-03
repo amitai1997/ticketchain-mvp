@@ -28,7 +28,7 @@ describe('CacheService', () => {
 
   const mockConfigService = {
     get: jest.fn((key: string) => {
-      const config = {
+      const config: Record<string, any> = {
         'redis.host': 'localhost',
         'redis.port': 6379,
       };
