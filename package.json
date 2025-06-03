@@ -27,6 +27,7 @@
     "node": "hardhat node",
     "lint": "eslint . --ext .js,.ts --max-warnings 0",
     "lint:fix": "eslint . --ext .js,.ts --fix",
+    "lint:sol": "solhint 'contracts/**/*.sol'",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
@@ -38,6 +39,7 @@
     "@openzeppelin/test-helpers": "^0.5.16",
     "@types/chai": "^4.3.11",
     "@types/mocha": "^10.0.6",
+    "solhint": "^5.1.0",
     "@types/express": "^4.17.22",
     "@types/jest": "^29.5.14",
     "@types/node": "^20.10.4",
