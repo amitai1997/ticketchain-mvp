@@ -105,8 +105,8 @@ export class EventsService {
       pagination: {
         total: result.meta?.totalItems || 0,
         limit: result.meta?.itemsPerPage || limit,
-        offset: Math.max(0, ((result.meta?.currentPage || 1) - 1) * (result.meta?.itemsPerPage || limit)),
-        hasMore: ((result.meta?.currentPage || 1) * (result.meta?.itemsPerPage || limit)) < (result.meta?.totalItems || 0),
+        offset: Math.max(0, (Number(result.meta?.currentPage || 1) - 1) * Number(result.meta?.itemsPerPage || limit)),
+        hasMore: (Number(result.meta?.currentPage || 1) * Number(result.meta?.itemsPerPage || limit)) < Number(result.meta?.totalItems || 0),
       },
     };
   }
