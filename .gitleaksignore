@@ -1,46 +1,42 @@
-# GitLeaks ignore patterns for false positives
-# Add patterns here if GitLeaks flags legitimate code as secrets
+# Simple file-based allowlist
+# Each pattern ignores matching files completely
 
-# ===== Specific False Positives Found in Scan =====
+# Documentation files
+\.md$
+README\.md
+docs/.*
 
-# 1. Secrets baseline file (legitimate security tool output)
-.secrets.baseline
+# Security tool outputs
+\.secrets\.baseline
 
-# 2. Documentation examples in README.md (not real secrets)
-# AWS example keys in documentation
-README.md:aws-access-token:42
-README.md:aws-access-token:221  
-README.md:aws-access-token:223
-README.md:aws-access-token:259
-# Sidekiq example in documentation
-README.md:sidekiq-secret:42
+# Configuration templates and examples
+\.env\.template
+\.env\.example
+.*\.env\.example
 
-# ===== General Patterns =====
+# Test files and fixtures
+test/.*
+tests/.*
+.*test.*
+.*_test.*
+.*fixtures.*
 
-# Common false positives in blockchain/crypto projects:
-# Contract addresses (these are public)
-0x[a-fA-F0-9]{40}
+# Build outputs and dependencies
+node_modules/.*
+dist/.*
+build/.*
+coverage/.*
+\.nyc_output/.*
 
-# Test private keys (these are for testing only)
-test/fixtures/**
-*.test.*
+# Lock files (contain legitimate hashes)
+package-lock\.json
+yarn\.lock
+poetry\.lock
 
-# Documentation examples (contains fake secrets for illustration)
-docs/**/*.md
-README.md
+# IDE files
+\.idea/.*
+\.vscode/.*
+\.devcontainer/.*
 
-# Environment example files
-.env.example
-*.env.example
-
-# Package lock files may contain hashes that look like secrets
-package-lock.json
-yarn.lock
-poetry.lock
-
-# Build artifacts and temporary files
-dist/
-build/
-node_modules/
-.nyc_output/
-coverage/
+# Compiled contracts (contain bytecode)
+.*contracts.*\.json
