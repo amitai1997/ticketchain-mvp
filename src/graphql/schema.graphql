@@ -1,0 +1,157 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+"""Create event input"""
+input CreateEventInput {
+  """Optional artist address for royalties"""
+  artistAddress: String
+
+  """Maximum event capacity"""
+  capacity: Int! = 100
+
+  """Event date in ISO 8601 format"""
+  date: String!
+
+  """Maximum resale price increase in basis points"""
+  maxResalePriceBps: Int! = 500
+
+  """Optional event metadata"""
+  metadata: EventMetadataInput
+
+  """Event name"""
+  name: String!
+
+  """Royalty basis points (0-1000 = 0-10%)"""
+  royaltyBps: Int! = 250
+
+  """Event venue"""
+  venue: String!
+}
+
+"""Event creation response"""
+type CreateEventResponseType {
+  """Contract address on the blockchain"""
+  contractAddress: String!
+
+  """Creation timestamp in ISO 8601 format"""
+  createdAt: String!
+
+  """Event ID (UUID)"""
+  eventId: ID!
+
+  """Transaction status"""
+  status: String!
+
+  """Transaction hash"""
+  txHash: String!
+}
+
+"""Event metadata input"""
+input EventMetadataInput {
+  """Event category"""
+  category: String
+
+  """Event description"""
+  description: String
+
+  """Event image URL"""
+  imageUrl: String
+}
+
+"""Event metadata"""
+type EventMetadataType {
+  """Event category"""
+  category: String
+
+  """Event description"""
+  description: String
+
+  """Event image URL"""
+  imageUrl: String
+}
+
+"""Paginated events response"""
+type EventPaginationType {
+  """List of events"""
+  items: [EventType!]!
+
+  """Pagination information"""
+  pagination: PaginationInfoType!
+}
+
+"""Event information"""
+type EventType {
+  """Number of tickets available"""
+  availableCount: Int!
+
+  """Maximum event capacity"""
+  capacity: Int!
+
+  """Contract address on the blockchain"""
+  contractAddress: String!
+
+  """Creation timestamp in ISO 8601 format"""
+  createdAt: String!
+
+  """Event date in ISO 8601 format"""
+  date: String!
+
+  """Event ID (UUID)"""
+  eventId: ID!
+
+  """Maximum resale price increase in basis points"""
+  maxResalePriceBps: Int!
+
+  """Event metadata"""
+  metadata: EventMetadataType
+
+  """Event name"""
+  name: String!
+
+  """Royalty basis points (0-1000 = 0-10%)"""
+  royaltyBps: Int!
+
+  """Number of tickets sold"""
+  soldCount: Int!
+
+  """Event status (pending, active, cancelled)"""
+  status: String!
+
+  """Last update timestamp in ISO 8601 format"""
+  updatedAt: String!
+
+  """Event venue"""
+  venue: String!
+}
+
+type Mutation {
+  """Create a new event"""
+  createEvent(input: CreateEventInput!): CreateEventResponseType!
+
+  """Update event status"""
+  updateEventStatus(id: ID!, status: String!): EventType!
+}
+
+"""Pagination information"""
+type PaginationInfoType {
+  """Whether there are more items"""
+  hasMore: Boolean!
+
+  """Number of items per page"""
+  limit: Int!
+
+  """Starting offset"""
+  offset: Int!
+
+  """Total number of items"""
+  total: Int!
+}
+
+type Query {
+  """Get event by ID"""
+  event(id: ID!): EventType!
+
+  """Get events with pagination"""
+  events(limit: Int = 10, page: Int = 1): EventPaginationType!
+}

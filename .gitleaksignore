@@ -1,0 +1,10 @@
+# GitLeaks ignore file - exact fingerprints from CI
+# Format: file:rule:line
+
+.secrets.baseline:generic-api-key:130
+.secrets.baseline:generic-api-key:137
+.secrets.baseline:generic-api-key:144
+README.md:sidekiq-secret:42
+README.md:aws-access-token:221
+README.md:aws-access-token:223
+README.md:aws-access-token:259

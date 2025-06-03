@@ -19,6 +19,8 @@ repos:
       - id: debug-statements
       - id: mixed-line-ending
         args: ['--fix=lf']
+      - id: no-commit-to-branch
+        args: ['--branch', 'main', '--branch', 'master']
 
   # Python specific
   - repo: https://github.com/psf/black
@@ -66,13 +68,32 @@ repos:
       - id: markdownlint
         args: ['--fix']
 
-  # Secrets detection
+  # Enhanced secrets detection
   - repo: https://github.com/Yelp/detect-secrets
     rev: v1.5.0
     hooks:
       - id: detect-secrets
         args: ['--baseline', '.secrets.baseline']
         exclude: package\.lock\.json
+
+  # Additional secrets detection with GitLeaks
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.2
+    hooks:
+      - id: gitleaks
+        name: GitLeaks
+        description: Detect hardcoded secrets and credentials
+        entry: gitleaks protect --verbose --redact --staged
+        pass_filenames: false
+
+  # Credential scanner focused on test files
+  - repo: local
+    hooks:
+      - id: test-credentials-check
+        name: Test Credentials Check
+        entry: bash -c 'grep -r "password.*=.*['\''\\"]" --include="*.spec.ts" --include="*.test.ts" --include="*.spec.js" --include="*.test.js" . || true | grep -v "process.env" && echo "ERROR: Hardcoded credentials found in test files" && exit 1 || exit 0'
+        language: system
+        pass_filenames: false
 
   # Commit message
   - repo: https://github.com/commitizen-tools/commitizen

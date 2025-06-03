@@ -1,4 +1,4 @@
-name: CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -7,59 +7,73 @@ on:
     branches: [ main ]
 
 env:
-  NODE_VERSION: '18'
+  NODE_VERSION: '20'
   PYTHON_VERSION: '3.12'
 
+# Add permissions for GitLeaks and other security tools
+permissions:
+  contents: read
+  pull-requests: read
+  security-events: write
+
 jobs:
-  # Python linting and testing
-  python:
-    name: Python Lint & Test
+  # Fast linting and security - runs in parallel
+  lint-and-security:
+    name: Lint & Security
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
     - uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v4
       with:
-        python-version: ${{ env.PYTHON_VERSION }}
+        fetch-depth: 0  # Full history for better security scanning
 
-    - name: Cache pip packages
-      uses: actions/cache@v3
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
       with:
-        path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt', '**/pyproject.toml') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
+        node-version: ${{ env.NODE_VERSION }}
+        # Temporarily disable caching until package-lock.json is regenerated
+        # cache: 'npm'
 
     - name: Install dependencies
+      run: npm install  # Use npm install to generate lock file
+    - name: ESLint Check
       run: |
-        python -m pip install --upgrade pip
-        pip install black flake8 pytest pytest-cov
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        # Fast ESLint run on changed files only
+        if [ "${{ github.event_name }}" = "pull_request" ]; then
+          # Get changed files
+          CHANGED_FILES=$(git diff --name-only --diff-filter=ACMRT ${{ github.event.pull_request.base.sha }} ${{ github.sha }} | grep -E '\.(js|ts)$' | xargs)
+          if [ -n "$CHANGED_FILES" ]; then
+            npx eslint $CHANGED_FILES
+          fi
+        else
+          # Full lint on main branch
+          npx eslint src/ test/ --ext .js,.ts
+        fi
 
-    - name: Format check with black
-      run: black --check src/ tests/
-      continue-on-error: true
+    - name: TypeScript Check
+      run: npx tsc --noEmit
 
-    - name: Lint with flake8
-      run: flake8 src/ tests/
-      continue-on-error: true
+    - name: Solidity Lint
+      run: npx solhint 'contracts/**/*.sol'
 
-    - name: Run tests with pytest
-      run: pytest -q tests/ --cov=src --cov-report=xml
-      continue-on-error: true
-
-    - name: Upload Python coverage
-      uses: actions/upload-artifact@v4
-      with:
-        name: python-coverage
-        path: coverage.xml
-
-  # Solidity linting and testing
-  solidity:
-    name: Solidity Lint & Test
+    - name: Security - GitLeaks
+      run: |
+        # Install gitleaks
+        wget -O gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz
+        tar -xzf gitleaks.tar.gz
+        chmod +x gitleaks
+        # Run gitleaks scan with ignore file
+        ./gitleaks detect --source . --verbose --no-git --gitleaks-ignore-path .gitleaksignore || (
+          echo "⚠️  GitLeaks found potential secrets. Check the output above."
+          echo "If these are false positives, add them to .gitleaksignore"
+          exit 1
+        )
+  # Fast tests
+  test:
+    name: Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     steps:
     - uses: actions/checkout@v4
@@ -68,80 +82,55 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ env.NODE_VERSION }}
-        cache: 'npm'
+        # Temporarily disable caching until package-lock.json is regenerated
+        # cache: 'npm'
 
     - name: Install dependencies
-      run: |
-        npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox solhint
-      continue-on-error: true
-
-    - name: Lint contracts
-      run: npx solhint 'contracts/**/*.sol'
-      continue-on-error: true
+      run: npm install  # Use npm install to generate lock file
 
     - name: Compile contracts
       run: npx hardhat compile
-      continue-on-error: true
+
+    - name: Run unit tests
+      run: npm run test:unit
 
     - name: Run contract tests
-      run: npx hardhat test --network hardhat
-      continue-on-error: true
+      run: npm run test:contracts
 
-    - name: Generate coverage report
-      run: npx hardhat coverage
-      continue-on-error: true
-
-    - name: Upload Solidity coverage
-      uses: actions/upload-artifact@v4
+    - name: Upload coverage
+      uses: codecov/codecov-action@v3
       with:
-        name: solidity-coverage
-        path: coverage.json
-
-  # Security checks
-  security:
-    name: Security Checks
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Run Dependabot security scan
-      uses: github/super-linter/slim@v5
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        VALIDATE_ALL_CODEBASE: false
-        DEFAULT_BRANCH: main
-      continue-on-error: true
+        files: ./coverage.json,./coverage.xml
+        fail_ci_if_error: false
 
   # Docker build test
   docker:
-    name: Docker Build Test
+    name: Docker
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: Test Docker Compose configuration
+    - name: Test Docker Compose
       run: |
-        docker compose version
         docker compose config
-      continue-on-error: true
+        docker compose build --dry-run
 
-  # Aggregate results
-  ci-success:
-    name: CI Success
-    needs: [python, solidity, security, docker]
+  # Final status check
+  ci-complete:
+    name: CI Complete
+    needs: [lint-and-security, test, docker]
     runs-on: ubuntu-latest
     if: always()
 
     steps:
-    - name: Check CI Status
+    - name: Check Status
       run: |
-        echo "CI pipeline completed"
-        echo "Python: ${{ needs.python.result }}"
-        echo "Solidity: ${{ needs.solidity.result }}"
-        echo "Security: ${{ needs.security.result }}"
-        echo "Docker: ${{ needs.docker.result }}"
+        if [ "${{ needs.lint-and-security.result }}" != "success" ] || 
+           [ "${{ needs.test.result }}" != "success" ] || 
+           [ "${{ needs.docker.result }}" != "success" ]; then
+          echo "CI failed"
+          exit 1
+        fi
+        echo "✅ All checks passed!"

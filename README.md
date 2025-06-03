@@ -127,6 +127,37 @@ make test-python
 make test-contracts
 ```
 
+### Environment Configuration
+
+1. **Development Setup:**
+```bash
+# Copy the comprehensive template
+cp .env.example .env
+
+# Edit .env and fill in your actual values
+# Look for YOUR_*_HERE placeholders
+```
+
+2. **Testing Setup:**
+```bash
+# Copy test-specific configuration
+cp .env.test .env.test.local
+
+# Add your test database password in .env.test.local:
+echo "TEST_DB_PASSWORD=your_secure_test_password" >> .env.test.local
+
+# Run tests with test environment
+NODE_ENV=test make test
+```
+
+3. **File Structure:**
+   - `.env.example` - Complete documentation of all environment variables
+   - `.env.test` - Test-specific configuration (safe to commit)
+   - `.env` - Your local development environment (never commit)
+   - `.env.test.local` - Your local test credentials (never commit)
+
+> **IMPORTANT:** Never hardcode credentials in test files. Always use environment variables for sensitive information.
+
 ## 📚 Documentation
 
 - [Architecture Overview](docs/architecture.md)
@@ -151,6 +182,19 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🔐 Security
 
 For security concerns, please email <security@ticketchain.io> instead of using the public issue tracker.
+
+### Security Best Practices
+
+- [Credentials Management](docs/security/credentials_best_practices.md) - Guidelines for handling sensitive information
+- Pre-commit hooks include security scanners to detect hardcoded credentials
+- CI pipelines include security checks to prevent credential exposure
+
+### Security Measures
+
+- All credentials are managed via environment variables
+- Separate credentials for development, testing, and production environments
+- Regular security audits of dependencies and code
+- Protected branches require passing security checks before merging
 
 ## 🙏 Acknowledgments
 
