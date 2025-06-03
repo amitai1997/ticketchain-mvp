@@ -1,42 +1,10 @@
-# Simple file-based allowlist
-# Each pattern ignores matching files completely
+# GitLeaks ignore file - exact fingerprints from CI
+# Format: file:rule:line
 
-# Documentation files
-\.md$
-README\.md
-docs/.*
-
-# Security tool outputs
-\.secrets\.baseline
-
-# Configuration templates and examples
-\.env\.template
-\.env\.example
-.*\.env\.example
-
-# Test files and fixtures
-test/.*
-tests/.*
-.*test.*
-.*_test.*
-.*fixtures.*
-
-# Build outputs and dependencies
-node_modules/.*
-dist/.*
-build/.*
-coverage/.*
-\.nyc_output/.*
-
-# Lock files (contain legitimate hashes)
-package-lock\.json
-yarn\.lock
-poetry\.lock
-
-# IDE files
-\.idea/.*
-\.vscode/.*
-\.devcontainer/.*
-
-# Compiled contracts (contain bytecode)
-.*contracts.*\.json
+.secrets.baseline:generic-api-key:130
+.secrets.baseline:generic-api-key:137
+.secrets.baseline:generic-api-key:144
+README.md:sidekiq-secret:42
+README.md:aws-access-token:221
+README.md:aws-access-token:223
+README.md:aws-access-token:259
