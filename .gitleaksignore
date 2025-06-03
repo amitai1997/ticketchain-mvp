@@ -1,0 +1,26 @@
+# GitLeaks ignore patterns for false positives
+# Add patterns here if GitLeaks flags legitimate code as secrets
+
+# Example patterns:
+# false-positive-pattern
+# test-data-that-looks-like-secrets
+
+# Common false positives in blockchain/crypto projects:
+# Contract addresses (these are public)
+0x[a-fA-F0-9]{40}
+
+# Test private keys (these are for testing only)
+# test/fixtures/**
+# *.test.*
+
+# Documentation examples
+# docs/**/*.md
+
+# Environment example files
+.env.example
+*.env.example
+
+# Package lock files may contain hashes that look like secrets
+package-lock.json
+yarn.lock
+poetry.lock
