@@ -28,8 +28,8 @@ npm install --no-fund --progress=false
 print_status "Dependency Installation"
 
 echo -e "${YELLOW}🔍 Running ESLint...${NC}"
-# Run ESLint on all relevant files
-npx eslint src/ --ext .js,.ts --max-warnings 0 || echo "ESLint found issues"
+# Match GitHub Actions: scan all files with zero warnings allowed
+npx eslint . --ext .js,.ts --max-warnings 0
 print_status "ESLint Check"
 
 echo -e "${YELLOW}📝 Running TypeScript Check...${NC}"

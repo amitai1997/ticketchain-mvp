@@ -35,12 +35,11 @@ module.exports = [
       '@typescript-eslint/interface-name-prefix': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
-      '@typescript-eslint/no-explicit-any': 'warn',
       'no-console': 'warn',
     },
   },
   {
-    // JavaScript files configuration
+    // JavaScript files configuration (includes scripts)
     files: ['**/*.js', '**/*.mjs', '**/*.cjs'],
     languageOptions: {
       ecmaVersion: 2022,
@@ -59,16 +58,50 @@ module.exports = [
     },
     rules: {
       ...js.configs.recommended.rules,
-      'no-console': 'warn',
+      'no-console': 'off', // Allow console in scripts
       'no-unused-vars': 'warn',
     },
   },
   {
     // Test files - more lenient rules
-    files: ['**/*.test.js', '**/*.test.ts', '**/*.spec.js', '**/*.spec.ts', 'test/**/*'],
+    files: ['**/*.test.js', '**/*.test.ts', '**/*.spec.js', '**/*.spec.ts', 'test/**/*', 'tests/**/*'],
+    languageOptions: {
+      globals: {
+        describe: 'readonly',
+        it: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        before: 'readonly',
+        after: 'readonly',
+        expect: 'readonly',
+        assert: 'readonly',
+        ethers: 'readonly',
+        network: 'readonly',
+        console: 'readonly',
+        process: 'readonly',
+        Buffer: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+        module: 'readonly',
+        require: 'readonly',
+        exports: 'readonly',
+        global: 'readonly',
+      },
+    },
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
       'no-console': 'off',
+      'no-unused-vars': 'off',
+      'no-undef': 'off',
+    },
+  },
+  {
+    // Scripts - allow console and relaxed rules
+    files: ['scripts/**/*.js', 'hardhat.config.js'],
+    rules: {
+      'no-console': 'off',
+      'no-unused-vars': 'warn',
     },
   },
   {
@@ -84,8 +117,9 @@ module.exports = [
       'cache/**',
       'typechain-types/**',
       '.eslintrc.js', // Old config file
-      'hardhat.config.js',
       'deployments/**/*.json',
+      'gitleaks', // Binary file
+      'package-lock.json.backup',
     ],
   },
 ];
