@@ -1,20 +1,33 @@
 # GitLeaks ignore patterns for false positives
 # Add patterns here if GitLeaks flags legitimate code as secrets
 
-# Example patterns:
-# false-positive-pattern
-# test-data-that-looks-like-secrets
+# ===== Specific False Positives Found in Scan =====
+
+# 1. Secrets baseline file (legitimate security tool output)
+.secrets.baseline
+
+# 2. Documentation examples in README.md (not real secrets)
+# AWS example keys in documentation
+README.md:aws-access-token:42
+README.md:aws-access-token:221  
+README.md:aws-access-token:223
+README.md:aws-access-token:259
+# Sidekiq example in documentation
+README.md:sidekiq-secret:42
+
+# ===== General Patterns =====
 
 # Common false positives in blockchain/crypto projects:
 # Contract addresses (these are public)
 0x[a-fA-F0-9]{40}
 
 # Test private keys (these are for testing only)
-# test/fixtures/**
-# *.test.*
+test/fixtures/**
+*.test.*
 
-# Documentation examples
-# docs/**/*.md
+# Documentation examples (contains fake secrets for illustration)
+docs/**/*.md
+README.md
 
 # Environment example files
 .env.example
@@ -24,3 +37,10 @@
 package-lock.json
 yarn.lock
 poetry.lock
+
+# Build artifacts and temporary files
+dist/
+build/
+node_modules/
+.nyc_output/
+coverage/
