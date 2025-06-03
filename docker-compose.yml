@@ -14,7 +14,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ticketchain"]
+      test: ["CMD-SHELL", "pg_isready -U ticketchain -d ticketchain_dev"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -46,7 +46,7 @@ services:
       - ./scripts:/app/scripts
       - ./chain:/app/chain
     environment:
-      - HARDHAT_NETWORK=localhost
+      - HARDHAT_NETWORK=hardhat
     command: npx hardhat node --hostname 0.0.0.0
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8545"]
