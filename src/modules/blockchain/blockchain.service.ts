@@ -149,7 +149,7 @@ export class BlockchainService {
 
       // Check if all addresses are available
       if (!addresses.eventRegistry || !addresses.ticketNFT || !addresses.marketplace) {
-        const missingAddresses = [];
+        const missingAddresses: string[] = [];
         if (!addresses.eventRegistry) missingAddresses.push('EventRegistry');
         if (!addresses.ticketNFT) missingAddresses.push('TicketNFT');
         if (!addresses.marketplace) missingAddresses.push('SimpleMarketplace');
@@ -199,7 +199,7 @@ export class BlockchainService {
   ): Promise<T> {
     let attempt = 0;
     let backoff = this.retryConfig.initialBackoff;
-    let lastError: Error;
+    let lastError: Error = new Error('No error occurred');
 
     while (attempt < this.retryConfig.maxAttempts) {
       try {
