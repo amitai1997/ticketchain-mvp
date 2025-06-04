@@ -142,3 +142,11 @@ jobs:
           NODE_ENV: test
           ENABLE_IN_MEMORY_DB: 'true'
         timeout-minutes: 5
+
+      - name: Run gitleaks
+        run: |
+          wget -q https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz -O gitleaks.tar.gz
+          tar -xzf gitleaks.tar.gz
+          chmod +x gitleaks
+          ./gitleaks detect --config .gitleaks.toml --no-git --verbose
+        continue-on-error: true

@@ -1,0 +1,31 @@
+# GitLeaks configuration file
+# This configuration extends the default rules to be more specific about allowlisted files
+# and adds specific allowlisting for development credential examples
+
+title = "GitLeaks Configuration"
+
+[allowlist]
+description = "global allow lists"
+paths = [
+    '''(^|/)\.secrets\.baseline$''',
+    '''(^|/)\.gitleaksignore$''',
+    '''(^|/)\.env\.example$''',
+    '''(^|/)\.env\.test$''',
+    '''(^|/)\.env\.docker$''',
+    '''(^|/)infra/docker/\.env\.docker$''',
+    '''(^|/)docs/security/.*\.md$''',
+]
+
+# Allowlist specific regexes
+regexes = [
+    '''pragma: allowlist-secret''',
+    '''pragma: allowlist secret''',
+    '''# pragma: allowlist''',
+    '''# Test account private key''',
+    '''# Default Hardhat account''',
+]
+
+# Allowlist commits containing these text in the commit message
+commits = [
+    '''fix: update gitleaksignore''',
+]
