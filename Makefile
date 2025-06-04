@@ -1,4 +1,4 @@
-.PHONY: help setup install test lint format clean docker-up docker-down chain deploy compile
+.PHONY: help setup install test lint format clean docker-up docker-down chain deploy compile api-health api-status
 
 # Default target
 help:
@@ -14,6 +14,8 @@ help:
 	@echo "  make chain        - Start local Hardhat node"
 	@echo "  make deploy       - Deploy contracts to local network"
 	@echo "  make compile      - Compile smart contracts"
+	@echo "  make api-health   - Check API health status"
+	@echo "  make api-status   - Check API service status"
 
 # Initial setup
 setup: install
@@ -98,13 +100,20 @@ docker-up:
 	@echo "Starting Docker services..."
 	docker compose up -d
 	@echo "Services started! Waiting for health checks..."
-	@sleep 5
 	docker compose ps
+	@echo "Services running:"
+	@echo "  - PostgreSQL: localhost:5432"
+	@echo "  - Redis: localhost:6379"
+	@echo "  - Hardhat Node: localhost:8545"
+	@echo "  - MailHog: localhost:1025 (SMTP) / localhost:8025 (Web UI)"
+	@echo "  - API Server: localhost:3000"
 
 docker-down:
 	@echo "Stopping Docker services..."
 	docker compose down
 	@echo "Services stopped!"
+
+docker-restart: docker-down docker-up
 
 docker-logs:
 	docker compose logs -f
@@ -174,3 +183,12 @@ db-test-setup:
 # Pre-commit hooks
 pre-commit:
 	pre-commit run --all-files
+
+# API commands
+api-health:
+	@echo "Checking API health status..."
+	curl -H "X-API-KEY: development" http://localhost:3000/health
+
+api-status:
+	@echo "Checking API service status..."
+	curl -H "X-API-KEY: development" http://localhost:3000/health/live
