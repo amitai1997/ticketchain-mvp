@@ -51,7 +51,7 @@ npx hardhat run scripts/deploy.js --network localhost
 # CONTRACT_TICKET_NFT_ADDRESS=0x...
 # CONTRACT_MARKETPLACE_ADDRESS=0x...
 
-# Run unit tests (skips integration tests that require database setup)
+# Run unit tests
 npm run test:unit
 ```
 
@@ -140,6 +140,9 @@ make format
 
 # Run security checks
 make security
+
+# Run pre-commit hooks manually
+pre-commit run --all-files
 ```
 
 ### Project Testing
