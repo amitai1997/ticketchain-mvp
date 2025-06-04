@@ -132,7 +132,12 @@ export class EventsService {
    * @param status New status
    * @returns Updated event
    */
-  async updateStatus(id: string, status: 'active' | 'cancelled') {
+  async updateStatus(id: string, status: string) {
+    // Validate status
+    if (!['active', 'cancelled', 'pending'].includes(status)) {
+      throw new BadRequestException(`Invalid status: ${status}. Must be one of: active, cancelled, pending`);
+    }
+
     const event = await this.eventRepository.findOne({ where: { id } });
 
     if (!event) {
@@ -172,6 +177,7 @@ export class EventsService {
       maxResalePriceBps: event.maxResalePriceBps,
       contractAddress: event.contractAddress,
       status: event.status,
+      artistAddress: event.artistAddress,
       metadata: event.metadata,
       createdAt: event.createdAt.toISOString(),
       updatedAt: event.updatedAt.toISOString(),

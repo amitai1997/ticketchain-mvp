@@ -27,7 +27,8 @@ export class ListingEntity {
   price: number;
 
   @Column({
-    type: 'enum',
+    // Use string type for SQLite compatibility in tests
+    type: process.env.NODE_ENV === 'test' ? 'varchar' : 'enum',
     enum: ListingStatus,
     default: ListingStatus.ACTIVE,
   })

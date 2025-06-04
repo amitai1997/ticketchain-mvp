@@ -30,7 +30,8 @@ export class TicketEntity {
   seatNumber: string;
 
   @Column({
-    type: 'enum',
+    // Use string type for SQLite compatibility in tests
+    type: process.env.NODE_ENV === 'test' ? 'varchar' : 'enum',
     enum: TicketStatus,
     default: TicketStatus.OWNED,
   })
@@ -42,7 +43,12 @@ export class TicketEntity {
   @Column({ name: 'token_uri', nullable: true })
   tokenUri: string;
 
-  @Column({ name: 'minted_at', nullable: true, type: 'timestamp' })
+  @Column({
+    name: 'minted_at',
+    nullable: true,
+    // Use datetime type for SQLite compatibility in tests
+    type: process.env.NODE_ENV === 'test' ? 'datetime' : 'timestamp'
+  })
   mintedAt: Date;
 
   @CreateDateColumn({ name: 'created_at' })
