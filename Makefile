@@ -1,4 +1,4 @@
-.PHONY: help setup install test lint format clean docker-up docker-down chain deploy
+.PHONY: help setup install test lint format clean docker-up docker-down chain deploy compile
 
 # Default target
 help:
@@ -13,6 +13,7 @@ help:
 	@echo "  make docker-down  - Stop Docker services"
 	@echo "  make chain        - Start local Hardhat node"
 	@echo "  make deploy       - Deploy contracts to local network"
+	@echo "  make compile      - Compile smart contracts"
 
 # Initial setup
 setup: install
@@ -45,11 +46,11 @@ test: test-nodejs test-contracts
 
 test-nodejs:
 	@echo "Running Node.js tests..."
-	npm test
+	npm test -- --testPathIgnorePatterns=integration
 
 test-contracts:
 	@echo "Running Solidity tests..."
-	npm run test:contracts
+	npx hardhat test
 
 # Linting
 lint: lint-python lint-contracts
@@ -112,6 +113,11 @@ chain:
 deploy:
 	@echo "Deploying contracts to local network..."
 	npx hardhat run scripts/deploy.js --network localhost
+
+# Compile contracts
+compile:
+	@echo "Compiling smart contracts..."
+	npx hardhat compile
 
 # Coverage reports
 coverage: coverage-python coverage-contracts

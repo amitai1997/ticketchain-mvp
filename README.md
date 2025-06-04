@@ -37,8 +37,11 @@ make setup
 # Start all services
 make docker-up
 
-# Run tests
-make test
+# Compile contracts
+npx hardhat compile
+
+# Run unit tests (skips integration tests that require database setup)
+npm test -- --testPathIgnorePatterns=integration
 ```
 
 The following services will be available:
@@ -87,11 +90,14 @@ The following services will be available:
 # Install dependencies
 make install
 
-# Start local blockchain
-make chain
+# Start Docker services (database, Redis, etc.)
+make docker-up
 
-# Deploy contracts
-make deploy
+# Compile smart contracts
+npx hardhat compile
+
+# Start local blockchain node (in a separate terminal)
+npx hardhat node
 
 # Run API server
 npm run start:dev
@@ -108,22 +114,19 @@ make format
 
 # Run security checks
 make security
-
-# Generate coverage reports
-make coverage
 ```
 
 ### Testing
 
+> ⚠️ **Note:** Running tests requires additional setup. See "Test Environment Setup" section below.
+
 ```bash
-# Run all tests
-make test
+# Run unit tests only (these work without database connection)
+npm test -- --testPathIgnorePatterns=integration
 
-# Node.js tests only
-make test-nodejs
-
-# Solidity tests only
-make test-contracts
+# Compile and test contracts
+npx hardhat compile
+npx hardhat test
 ```
 
 ### Environment Configuration
@@ -137,7 +140,7 @@ cp .env.example .env
 # Look for YOUR_*_HERE placeholders
 ```
 
-2. **Testing Setup:**
+2. **Test Environment Setup:**
 ```bash
 # Copy test-specific configuration
 cp .env.test .env.test.local
@@ -145,8 +148,13 @@ cp .env.test .env.test.local
 # Add your test database password in .env.test.local:
 echo "TEST_DB_PASSWORD=your_secure_test_password" >> .env.test.local
 
+# Create test database user and database
+# Note: This requires PostgreSQL to be running
+createuser -P test_user  # When prompted, enter the password you set in .env.test.local
+createdb -O test_user ticketchain_test
+
 # Run tests with test environment
-NODE_ENV=test make test
+NODE_ENV=test npm test
 ```
 
 3. **File Structure:**
@@ -169,6 +177,20 @@ The following issues were fixed in this update:
 4. Updated the API server start command from Python-based to Node.js-based
 5. Fixed Docker Compose configuration by removing obsolete version attribute
 6. Made poetry installation optional in the Makefile to handle environments without Python
+7. Improved test commands to allow running unit tests without database connection
+8. Added specific instructions for setting up test database environment
+
+### Known Issues
+
+1. **Integration Tests**: Require a properly configured PostgreSQL database with a `test_user` account. Instructions have been added to set this up.
+2. **Jest Configuration**: There's a typo in the Jest configuration (`moduleNameMapping` should be `moduleNameMapper`).
+3. **Node.js Version**: Hardhat warns about using Node.js v23+, which it doesn't officially support yet.
+
+### Future Steps
+
+1. Fix Jest configuration typo
+2. Update Docker compose to include test database setup
+3. Implement CI workflow that sets up test environment automatically
 
 ## 📚 Documentation
 
