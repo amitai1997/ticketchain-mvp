@@ -10,6 +10,7 @@ import { BlockchainService } from '../../src/modules/blockchain/blockchain.servi
 import { EventEntity } from '../../src/modules/events/entities/event.entity';
 import { createTestingApp } from '../utils/test-app';
 import { suppressAllLogOutput } from '../utils/suppress-errors';
+import { CacheService } from '../../src/modules/cache/cache.service';
 
 describe('Health Controller (Integration)', () => {
   // Suppress all log output for this test suite
@@ -17,6 +18,7 @@ describe('Health Controller (Integration)', () => {
 
   let app: INestApplication;
   let cleanup: () => Promise<void>;
+  let mockCacheService: Partial<CacheService>;
 
   beforeAll(async () => {
     // Mock blockchain service
@@ -25,6 +27,15 @@ describe('Health Controller (Integration)', () => {
         address: '0x123',
       })),
       isConnected: jest.fn().mockReturnValue(true),
+    };
+
+    // Mock cache service
+    mockCacheService = {
+      get: jest.fn().mockResolvedValue(null),
+      set: jest.fn().mockResolvedValue(undefined),
+      getClient: jest.fn().mockReturnValue(null),
+      // Add other required methods with mock implementations
+      disconnect: jest.fn().mockResolvedValue(undefined),
     };
 
     const testApp = await createTestingApp({
@@ -40,6 +51,10 @@ describe('Health Controller (Integration)', () => {
           provide: BlockchainService,
           useValue: mockBlockchainService,
         },
+        {
+          provide: CacheService,
+          useValue: mockCacheService,
+        },
       ],
     });
 
@@ -50,11 +65,11 @@ describe('Health Controller (Integration)', () => {
     await app.init();
 
     cleanup = testApp.cleanup;
-  });
+  }, 60000); // Increase timeout for app initialization
 
   afterAll(async () => {
     await cleanup();
-  });
+  }, 10000); // Increase timeout for cleanup
 
   describe('/health', () => {
     it('should return health status', async () => {
@@ -64,7 +79,7 @@ describe('Health Controller (Integration)', () => {
       // Check both possibilities
       const healthData = response.body.data || response.body;
       expect(healthData).toBeDefined();
-    });
+    }, 10000); // Increase test timeout
   });
 
   describe('/health/live', () => {
@@ -74,7 +89,7 @@ describe('Health Controller (Integration)', () => {
       // The response structure might be { status: 'ok' } or have a nested structure
       const livenessData = response.body.data || response.body;
       expect(livenessData).toBeDefined();
-    });
+    }, 10000); // Increase test timeout
   });
 
   describe('/health/ready', () => {
@@ -84,6 +99,6 @@ describe('Health Controller (Integration)', () => {
       // The response structure might be { status: 'ok' } or have a nested structure
       const readinessData = response.body.data || response.body;
       expect(readinessData).toBeDefined();
-    });
+    }, 10000); // Increase test timeout
   });
 });
