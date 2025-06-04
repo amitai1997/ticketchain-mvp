@@ -37,9 +37,6 @@ export class EventResponseDto {
   @ApiProperty({ description: 'Event status (pending, active, cancelled)' })
   status: string;
 
-  @ApiProperty({ description: 'Artist blockchain address' })
-  artistAddress: string;
-
   @ApiPropertyOptional({ description: 'Event metadata' })
   metadata: {
     description?: string;
