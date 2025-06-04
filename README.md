@@ -138,11 +138,14 @@ make security
 
 ### Testing
 
-> ⚠️ **Note:** Running tests requires additional setup. See "Test Environment Setup" section below.
+> ⚠️ **Note:** Test environment is automatically setup when running `make setup`.
 
 ```bash
-# Run unit tests only (these work without database connection)
+# Run unit tests (work without database connection)
 npm test -- --testPathIgnorePatterns=integration
+
+# Run integration tests (require test database)
+NODE_ENV=test npm test
 
 # Compile and test contracts
 npx hardhat compile
@@ -162,16 +165,14 @@ cp .env.example .env
 
 2. **Test Environment Setup:**
 ```bash
-# Copy test-specific configuration
-cp .env.test .env.test.local
+# The test environment is automatically set up when running `make setup`
+# If you need to set it up manually, run:
+make db-test-setup
 
-# Add your test database password in .env.test.local:
-echo "TEST_DB_PASSWORD=your_secure_test_password" >> .env.test.local
-
-# Create test database user and database
-# Note: This requires PostgreSQL to be running
-createuser -P test_user  # When prompted, enter the password you set in .env.test.local
-createdb -O test_user ticketchain_test
+# This will:
+# - Create .env.test.local from .env.test with a default test password
+# - Create the test_user and ticketchain_test database in PostgreSQL
+# - Set the necessary permissions
 
 # Run tests with test environment
 NODE_ENV=test npm test
@@ -199,20 +200,20 @@ The following issues were fixed in this update:
 6. Made poetry installation optional in the Makefile to handle environments without Python
 7. Improved test commands to allow running unit tests without database connection
 8. Added specific instructions for setting up test database environment
+9. Automated test database setup with new `db-test-setup` Makefile target
 
 ### Known Issues
 
-1. **Integration Tests**: Require a properly configured PostgreSQL database with a `test_user` account. Instructions have been added to set this up.
-2. **Jest Configuration**: There's a typo in the Jest configuration (`moduleNameMapping` should be `moduleNameMapper`).
-3. **Node.js Version**: Hardhat warns about using Node.js v23+, which it doesn't officially support yet.
-4. **API Server Startup**: Requires deployed contract addresses in the `.env` file. The server will fail to start without the following environment variables set:
+1. **Jest Configuration**: There's a typo in the Jest configuration (`moduleNameMapping` should be `moduleNameMapper`).
+2. **Node.js Version**: Hardhat warns about using Node.js v23+, which it doesn't officially support yet.
+3. **API Server Startup**: Requires deployed contract addresses in the `.env` file. The server will fail to start without the following environment variables set:
    ```
    CONTRACT_EVENT_REGISTRY_ADDRESS=0x...
    CONTRACT_TICKET_NFT_ADDRESS=0x...
    CONTRACT_MARKETPLACE_ADDRESS=0x...
    ```
    These addresses are obtained after deploying contracts to the local blockchain.
-5. **Environment Variable Names**: The application expects specific environment variable names that may differ from what's documented in older versions. The key mappings are:
+4. **Environment Variable Names**: The application expects specific environment variable names that may differ from what's documented in older versions. The key mappings are:
    ```
    # Blockchain
    HARDHAT_RPC_URL → BLOCKCHAIN_PROVIDER_URL
@@ -232,8 +233,7 @@ The following issues were fixed in this update:
 ### Future Steps
 
 1. Fix Jest configuration typo
-2. Update Docker compose to include test database setup
-3. Implement CI workflow that sets up test environment automatically
+2. Implement CI workflow that sets up test environment automatically
 
 ## 📚 Documentation
 

@@ -26,6 +26,10 @@ setup: install
 		echo "Created .env file. Edit it with your values."; \
 	fi
 	pre-commit install
+	@echo "Starting Docker services for database setup..."
+	make docker-up
+	@echo "Setting up test database..."
+	make db-test-setup
 	@echo "Setup complete!"
 
 # Install dependencies
@@ -150,6 +154,22 @@ db-reset:
 	@echo "Resetting database..."
 	poetry run alembic downgrade base
 	poetry run alembic upgrade head
+
+# Test database setup
+db-test-setup:
+	@echo "Setting up test database..."
+	@if [ -f .env.test.local ]; then \
+		echo "Warning: .env.test.local file already exists. Will not overwrite."; \
+	else \
+		echo "Creating .env.test.local file from template..."; \
+		cp .env.test .env.test.local; \
+		echo "TEST_DB_PASSWORD=test_password" >> .env.test.local; \
+		echo "Created .env.test.local file with default test password."; \
+	fi
+	@echo "Creating test database user and database..."
+	docker exec -it ticketchain-postgres psql -U ticketchain -d ticketchain_dev -c "CREATE USER test_user WITH PASSWORD 'test_password';" || echo "User may already exist"
+	docker exec -it ticketchain-postgres psql -U ticketchain -d ticketchain_dev -c "CREATE DATABASE ticketchain_test OWNER test_user;" || echo "Database may already exist"
+	@echo "Test database setup complete!"
 
 # Pre-commit hooks
 pre-commit:
