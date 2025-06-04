@@ -6,6 +6,7 @@
     "build": "nest build",
     "start": "nest start",
     "start:dev": "nest start --watch",
+    "start:local": "docker stop ticketchain-api 2>/dev/null || true && npm run start:dev",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "compile": "hardhat compile",

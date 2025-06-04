@@ -101,15 +101,8 @@ The following services will be available:
 # Install dependencies
 make install
 
-# IMPORTANT: Start Docker services first (database, Redis, etc.)
+# Start Docker services (database, Redis, etc.)
 make docker-up
-
-# Option 1: Run API server in Docker (RECOMMENDED)
-# This is already included in 'make docker-up' command above
-
-# Option 2: Run API server manually (for development with hot reload)
-# Only use this if you need to debug the API outside of Docker
-npm run start:dev  # Requires Docker services to be running
 
 # Compile smart contracts
 npx hardhat compile
@@ -125,6 +118,15 @@ npx hardhat run scripts/deploy.js --network localhost
 # CONTRACT_EVENT_REGISTRY_ADDRESS=0x...
 # CONTRACT_TICKET_NFT_ADDRESS=0x...
 # CONTRACT_MARKETPLACE_ADDRESS=0x...
+
+# Option 1: Run API server in Docker (production-like environment)
+make docker-up  # Starts all services including the API server
+
+# Option 2: Run API server locally (development with auto-reload)
+make local-dev  # Stops Docker API container and runs API locally
+
+# Option 3: Run API server manually
+npm run start:local  # Same as make local-dev
 ```
 
 ### Code Quality
@@ -205,14 +207,13 @@ The following issues were fixed in this update:
 7. Improved test commands to allow running unit tests without database connection
 8. Added specific instructions for setting up test database environment
 9. Automated test database setup with new `db-test-setup` Makefile target
+10. Added improved local development workflow with `make local-dev` and `npm run start:local` commands that automatically stop the Docker API container to prevent port conflicts
 
 ### Known Issues
 
 1. **Jest Configuration**: There's a typo in the Jest configuration (`moduleNameMapping` should be `moduleNameMapper`).
 2. **Node.js Version**: Hardhat warns about using Node.js v23+, which it doesn't officially support yet.
-3. **API Server Startup**: Requires Docker services and deployed contract addresses in the `.env` file.
-   - Docker services (PostgreSQL, Redis) must be running via `make docker-up` before starting the API server
-   - The following environment variables must be set after contract deployment:
+3. **API Server Startup**: Requires deployed contract addresses in the `.env` file. The server will fail to start without the following environment variables set:
    ```
    CONTRACT_EVENT_REGISTRY_ADDRESS=0x...
    CONTRACT_TICKET_NFT_ADDRESS=0x...
@@ -235,6 +236,7 @@ The following issues were fixed in this update:
    POSTGRES_PASSWORD → DB_PASSWORD
    POSTGRES_DB → DB_NAME
    ```
+5. **API Port Conflict**: Fixed in this update - If you want to run the API server locally while using Docker for other services, use `make local-dev` or `npm run start:local` which automatically stops the Docker API container to avoid port conflicts.
 
 ### Future Steps
 
