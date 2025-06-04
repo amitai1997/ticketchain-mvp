@@ -28,6 +28,9 @@ export class EventResponseDto {
   @ApiProperty({ description: 'Maximum resale price increase in basis points' })
   maxResalePriceBps: number;
 
+  @ApiProperty({ description: 'Artist wallet address for royalties' })
+  artistAddress: string;
+
   @ApiProperty({ description: 'Contract address on the blockchain' })
   contractAddress: string;
 

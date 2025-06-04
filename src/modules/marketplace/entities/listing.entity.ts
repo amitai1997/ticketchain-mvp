@@ -27,7 +27,7 @@ export class ListingEntity {
   price: number;
 
   @Column({
-    type: 'enum',
+    type: process.env.ENABLE_IN_MEMORY_DB === 'true' ? 'simple-enum' : 'enum',
     enum: ListingStatus,
     default: ListingStatus.ACTIVE,
   })
@@ -36,9 +36,15 @@ export class ListingEntity {
   @Column({ name: 'transaction_hash', nullable: true })
   transactionHash: string;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({
+    name: 'created_at',
+    type: process.env.ENABLE_IN_MEMORY_DB === 'true' ? 'datetime' : 'timestamp'
+  })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({
+    name: 'updated_at',
+    type: process.env.ENABLE_IN_MEMORY_DB === 'true' ? 'datetime' : 'timestamp'
+  })
   updatedAt: Date;
 }

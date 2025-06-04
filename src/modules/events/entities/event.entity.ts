@@ -49,9 +49,13 @@ export class EventEntity {
     category?: string;
   };
 
-  @CreateDateColumn()
+  @CreateDateColumn({
+    type: process.env.ENABLE_IN_MEMORY_DB === 'true' ? 'datetime' : 'timestamp'
+  })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({
+    type: process.env.ENABLE_IN_MEMORY_DB === 'true' ? 'datetime' : 'timestamp'
+  })
   updatedAt: Date;
 }
