@@ -18,6 +18,7 @@
     "test:contracts:integration": "hardhat test tests/contracts/integration/*.test.js",
     "test:contracts:gas": "REPORT_GAS=true hardhat test tests/contracts/gas/*.test.js",
     "test:contracts": "hardhat test",
+    "test:gas": "npm run test:contracts:gas",
     "test:all": "./scripts/run-tests.sh",
     "test:cov": "jest --coverage",
     "test:e2e": "jest --config ./test/jest-e2e.json",

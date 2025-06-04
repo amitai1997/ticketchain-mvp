@@ -38,27 +38,39 @@ jobs:
           --health-retries 5
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Set up Node.js
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '18.20.8'
           cache: 'npm'
+        timeout-minutes: 5
+        continue-on-error: false
 
       - name: Install dependencies
         run: npm ci
+        timeout-minutes: 5
+        retries: 2
+
+      - name: TypeScript type check
+        run: npx tsc --noEmit
+        timeout-minutes: 2
 
       - name: Compile TypeScript
         run: npm run build
+        timeout-minutes: 3
+        retries: 2
 
       - name: Compile contracts
         run: npx hardhat compile
+        timeout-minutes: 3
 
       - name: Start local blockchain
         run: npx hardhat node &
         env:
           HARDHAT_NETWORK: localhost
+        timeout-minutes: 2
 
       - name: Deploy contracts
         run: |
@@ -72,6 +84,7 @@ jobs:
           echo "CONTRACT_MARKETPLACE_ADDRESS=$CONTRACT_MARKETPLACE_ADDRESS" >> $GITHUB_ENV
         env:
           HARDHAT_NETWORK: localhost
+        timeout-minutes: 3
 
       - name: Create test environment file
         run: |
@@ -99,20 +112,33 @@ jobs:
         env:
           NODE_ENV: test
           ENABLE_IN_MEMORY_DB: 'true'
+        timeout-minutes: 5
 
       - name: Run Jest integration tests
         run: npm run test:integration
         env:
           NODE_ENV: test
           ENABLE_IN_MEMORY_DB: 'true'
+        timeout-minutes: 5
 
       - name: Run contract tests
         run: npm run test:contracts
         env:
           NODE_ENV: test
+        timeout-minutes: 5
+
+      # Use test:contracts:gas instead of test:gas
+      - name: Run gas reports
+        run: npm run test:contracts:gas
+        env:
+          NODE_ENV: test
+          REPORT_GAS: true
+        continue-on-error: true
+        timeout-minutes: 5
 
       - name: Generate test coverage
         run: npm run test:cov
         env:
           NODE_ENV: test
           ENABLE_IN_MEMORY_DB: 'true'
+        timeout-minutes: 5
