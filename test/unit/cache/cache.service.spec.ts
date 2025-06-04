@@ -29,6 +29,7 @@ describe('CacheService', () => {
 
   let service: CacheService;
   let mockRedis: any;
+  const originalNodeEnv = process.env.NODE_ENV;
 
   const mockConfigService = {
     get: jest.fn((key: string) => {
@@ -39,6 +40,16 @@ describe('CacheService', () => {
       return config[key];
     }),
   };
+
+  // Force production mode for Redis tests
+  beforeAll(() => {
+    process.env.NODE_ENV = 'production';
+  });
+
+  // Restore original NODE_ENV after tests
+  afterAll(() => {
+    process.env.NODE_ENV = originalNodeEnv;
+  });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -258,6 +269,7 @@ describe('CacheService', () => {
 
       const result = await service.exists(key);
 
+      expect(mockRedis.exists).toHaveBeenCalledWith(key);
       expect(result).toBe(false);
     });
 
@@ -274,8 +286,8 @@ describe('CacheService', () => {
 
   describe('keys', () => {
     it('should return matching keys', async () => {
-      const pattern = 'user:*';
-      const keys = ['user:1', 'user:2'];
+      const pattern = 'test*';
+      const keys = ['test1', 'test2'];
 
       mockRedis.keys.mockResolvedValue(keys);
 
@@ -286,7 +298,7 @@ describe('CacheService', () => {
     });
 
     it('should handle keys errors gracefully', async () => {
-      const pattern = 'user:*';
+      const pattern = 'test*';
 
       mockRedis.keys.mockRejectedValue(new Error('Redis error'));
 
@@ -299,25 +311,27 @@ describe('CacheService', () => {
   describe('incr', () => {
     it('should increment by 1 by default', async () => {
       const key = 'counter';
+      const newValue = 6;
 
-      mockRedis.incr.mockResolvedValue(5);
+      mockRedis.incr.mockResolvedValue(newValue);
 
       const result = await service.incr(key);
 
       expect(mockRedis.incr).toHaveBeenCalledWith(key);
-      expect(result).toBe(5);
+      expect(result).toBe(newValue);
     });
 
     it('should increment by specified amount', async () => {
       const key = 'counter';
       const increment = 5;
+      const newValue = 10;
 
-      mockRedis.incrby.mockResolvedValue(10);
+      mockRedis.incrby.mockResolvedValue(newValue);
 
       const result = await service.incr(key, increment);
 
       expect(mockRedis.incrby).toHaveBeenCalledWith(key, increment);
-      expect(result).toBe(10);
+      expect(result).toBe(newValue);
     });
   });
 
@@ -335,6 +349,62 @@ describe('CacheService', () => {
       await service.disconnect();
 
       expect(mockRedis.quit).toHaveBeenCalled();
+    });
+  });
+
+  describe('In-memory cache in test environment', () => {
+    let testService: CacheService;
+
+    beforeEach(async () => {
+      process.env.NODE_ENV = 'test';
+
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          CacheService,
+          {
+            provide: ConfigService,
+            useValue: mockConfigService,
+          },
+        ],
+      }).compile();
+
+      testService = module.get<CacheService>(CacheService);
+    });
+
+    afterEach(() => {
+      process.env.NODE_ENV = 'production';
+    });
+
+    it('should use in-memory cache for set/get operations', async () => {
+      const key = 'test-key';
+      const value = { data: 'test-value' };
+
+      await testService.set(key, value);
+      const result = await testService.get(key);
+
+      expect(result).toEqual(value);
+    });
+
+    it('should use in-memory cache for hash operations', async () => {
+      const key = 'hash-key';
+      const field = 'field1';
+      const value = { data: 'test-value' };
+
+      await testService.hset(key, field, value);
+      const result = await testService.hget(key, field);
+
+      expect(result).toEqual(value);
+    });
+
+    it('should handle delete operations in memory', async () => {
+      const key = 'test-key';
+      const value = { data: 'test-value' };
+
+      await testService.set(key, value);
+      await testService.del(key);
+      const result = await testService.get(key);
+
+      expect(result).toBeNull();
     });
   });
 });

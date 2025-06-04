@@ -30,7 +30,7 @@ export class TicketEntity {
   seatNumber: string;
 
   @Column({
-    type: 'enum',
+    type: process.env.ENABLE_IN_MEMORY_DB === 'true' ? 'simple-enum' : 'enum',
     enum: TicketStatus,
     default: TicketStatus.OWNED,
   })
@@ -42,12 +42,22 @@ export class TicketEntity {
   @Column({ name: 'token_uri', nullable: true })
   tokenUri: string;
 
-  @Column({ name: 'minted_at', nullable: true, type: 'timestamp' })
+  @Column({
+    name: 'minted_at',
+    nullable: true,
+    type: process.env.ENABLE_IN_MEMORY_DB === 'true' ? 'datetime' : 'timestamp'
+  })
   mintedAt: Date;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({
+    name: 'created_at',
+    type: process.env.ENABLE_IN_MEMORY_DB === 'true' ? 'datetime' : 'timestamp'
+  })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({
+    name: 'updated_at',
+    type: process.env.ENABLE_IN_MEMORY_DB === 'true' ? 'datetime' : 'timestamp'
+  })
   updatedAt: Date;
 }
