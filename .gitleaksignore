@@ -8,3 +8,8 @@ README.md:sidekiq-secret:42
 README.md:aws-access-token:221
 README.md:aws-access-token:223
 README.md:aws-access-token:259
+
+# Contract addresses placeholders
+.env.example:ethereum-private-key:37
+.env.example:ethereum-private-key:38
+.env.example:ethereum-private-key:39

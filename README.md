@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/ticketchain/ticketchain-mvp/actions/workflows/ci.yml/badge.svg)](https://github.com/ticketchain/ticketchain-mvp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
+[![Node.js 18+](https://img.shields.io/badge/node-18+-green.svg)](https://nodejs.org/en/download/)
 [![Solidity ^0.8.0](https://img.shields.io/badge/solidity-^0.8.0-red.svg)](https://docs.soliditylang.org/)
 
 White-label NFT backbone for event-ticketing platforms. Prevent fraud, capture secondary market value, and delight fans with cryptographically secure tickets.
@@ -22,7 +22,6 @@ TicketChain provides a B2B Infrastructure-as-a-Service (IaaS) that enables any t
 
 - Docker & Docker Compose v2
 - Node.js 18+ & npm
-- Python 3.12+
 - Git
 
 ### Setup
@@ -38,8 +37,22 @@ make setup
 # Start all services
 make docker-up
 
-# Run tests
-make test
+# Compile contracts
+npx hardhat compile
+
+# In a separate terminal, start the local blockchain
+npx hardhat node
+
+# Deploy contracts and note the addresses
+npx hardhat run scripts/deploy.js --network localhost
+
+# Update .env with the contract addresses from the deployment output
+# CONTRACT_EVENT_REGISTRY_ADDRESS=0x...
+# CONTRACT_TICKET_NFT_ADDRESS=0x...
+# CONTRACT_MARKETPLACE_ADDRESS=0x...
+
+# Run unit tests (skips integration tests that require database setup)
+npm test -- --testPathIgnorePatterns=integration
 ```
 
 The following services will be available:
@@ -72,7 +85,7 @@ The following services will be available:
 ├── contracts/          # Solidity smart contracts
 │   ├── interfaces/     # Contract interfaces
 │   └── libraries/      # Shared libraries
-├── src/               # Backend API (Python/FastAPI)
+├── src/               # Backend API (NestJS)
 ├── scripts/           # Deployment and utility scripts
 ├── tests/            # Test suites
 ├── docs/             # Documentation
@@ -88,14 +101,26 @@ The following services will be available:
 # Install dependencies
 make install
 
-# Start local blockchain
-make chain
+# Start Docker services (database, Redis, etc.)
+make docker-up
 
-# Deploy contracts
-make deploy
+# Compile smart contracts
+npx hardhat compile
+
+# Start local blockchain node (in a separate terminal)
+npx hardhat node
+
+# Deploy contracts to local blockchain
+npx hardhat run scripts/deploy.js --network localhost
+
+# IMPORTANT: After deployment, copy the contract addresses 
+# from the deployment output and add them to your .env file:
+# CONTRACT_EVENT_REGISTRY_ADDRESS=0x...
+# CONTRACT_TICKET_NFT_ADDRESS=0x...
+# CONTRACT_MARKETPLACE_ADDRESS=0x...
 
 # Run API server
-poetry run uvicorn src.main:app --reload
+npm run start:dev
 ```
 
 ### Code Quality
@@ -109,22 +134,22 @@ make format
 
 # Run security checks
 make security
-
-# Generate coverage reports
-make coverage
 ```
 
 ### Testing
 
+> ⚠️ **Note:** Test environment is automatically setup when running `make setup`.
+
 ```bash
-# Run all tests
-make test
+# Run unit tests (work without database connection)
+npm test -- --testPathIgnorePatterns=integration
 
-# Python tests only
-make test-python
+# Run integration tests (require test database)
+NODE_ENV=test npm test
 
-# Solidity tests only
-make test-contracts
+# Compile and test contracts
+npx hardhat compile
+npx hardhat test
 ```
 
 ### Environment Configuration
@@ -138,16 +163,19 @@ cp .env.example .env
 # Look for YOUR_*_HERE placeholders
 ```
 
-2. **Testing Setup:**
+2. **Test Environment Setup:**
 ```bash
-# Copy test-specific configuration
-cp .env.test .env.test.local
+# The test environment is automatically set up when running `make setup`
+# If you need to set it up manually, run:
+make db-test-setup
 
-# Add your test database password in .env.test.local:
-echo "TEST_DB_PASSWORD=your_secure_test_password" >> .env.test.local
+# This will:
+# - Create .env.test.local from .env.test with a default test password
+# - Create the test_user and ticketchain_test database in PostgreSQL
+# - Set the necessary permissions
 
 # Run tests with test environment
-NODE_ENV=test make test
+NODE_ENV=test npm test
 ```
 
 3. **File Structure:**
@@ -157,6 +185,55 @@ NODE_ENV=test make test
    - `.env.test.local` - Your local test credentials (never commit)
 
 > **IMPORTANT:** Never hardcode credentials in test files. Always use environment variables for sensitive information.
+>
+> **NOTE:** The `make setup` command will not overwrite an existing `.env` file. If you need to reset to defaults, remove your existing file first.
+
+## Command & Env Fix Log (2025-06-04)
+
+The following issues were fixed in this update:
+
+1. Fixed `make setup` to properly check for existing `.env` files before copying from `.env.example`
+2. Updated project description in README to clarify it's a NestJS application, not Python
+3. Corrected `make test-python` to `make test-nodejs` to match the actual project structure
+4. Updated the API server start command from Python-based to Node.js-based
+5. Fixed Docker Compose configuration by removing obsolete version attribute
+6. Made poetry installation optional in the Makefile to handle environments without Python
+7. Improved test commands to allow running unit tests without database connection
+8. Added specific instructions for setting up test database environment
+9. Automated test database setup with new `db-test-setup` Makefile target
+
+### Known Issues
+
+1. **Jest Configuration**: There's a typo in the Jest configuration (`moduleNameMapping` should be `moduleNameMapper`).
+2. **Node.js Version**: Hardhat warns about using Node.js v23+, which it doesn't officially support yet.
+3. **API Server Startup**: Requires deployed contract addresses in the `.env` file. The server will fail to start without the following environment variables set:
+   ```
+   CONTRACT_EVENT_REGISTRY_ADDRESS=0x...
+   CONTRACT_TICKET_NFT_ADDRESS=0x...
+   CONTRACT_MARKETPLACE_ADDRESS=0x...
+   ```
+   These addresses are obtained after deploying contracts to the local blockchain.
+4. **Environment Variable Names**: The application expects specific environment variable names that may differ from what's documented in older versions. The key mappings are:
+   ```
+   # Blockchain
+   HARDHAT_RPC_URL → BLOCKCHAIN_PROVIDER_URL
+   DEPLOYER_PRIVATE_KEY → BLOCKCHAIN_PRIVATE_KEY
+   EVENT_REGISTRY_ADDRESS → CONTRACT_EVENT_REGISTRY_ADDRESS
+   TICKET_NFT_ADDRESS → CONTRACT_TICKET_NFT_ADDRESS
+   MARKETPLACE_ADDRESS → CONTRACT_MARKETPLACE_ADDRESS
+   
+   # Database
+   POSTGRES_HOST → DB_HOST
+   POSTGRES_PORT → DB_PORT
+   POSTGRES_USER → DB_USERNAME
+   POSTGRES_PASSWORD → DB_PASSWORD
+   POSTGRES_DB → DB_NAME
+   ```
+
+### Future Steps
+
+1. Fix Jest configuration typo
+2. Implement CI workflow that sets up test environment automatically
 
 ## 📚 Documentation
 

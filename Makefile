@@ -1,4 +1,4 @@
-.PHONY: help setup install test lint format clean docker-up docker-down chain deploy
+.PHONY: help setup install test lint format clean docker-up docker-down chain deploy compile
 
 # Default target
 help:
@@ -13,28 +13,44 @@ help:
 	@echo "  make docker-down  - Stop Docker services"
 	@echo "  make chain        - Start local Hardhat node"
 	@echo "  make deploy       - Deploy contracts to local network"
+	@echo "  make compile      - Compile smart contracts"
 
 # Initial setup
 setup: install
 	@echo "Setting up development environment..."
-	cp .env.template .env
+	@if [ -f .env ]; then \
+		echo "Warning: .env file already exists. Will not overwrite. Rename or delete it first if you want a fresh one."; \
+	else \
+		echo "Creating .env file from template..."; \
+		cp .env.example .env; \
+		echo "Created .env file. Edit it with your values."; \
+	fi
 	pre-commit install
-	@echo "Setup complete! Edit .env with your values."
+	@echo "Starting Docker services for database setup..."
+	make docker-up
+	@echo "Setting up test database..."
+	make db-test-setup
+	@echo "Setup complete!"
 
 # Install dependencies
 install:
-	@echo "Installing Python dependencies..."
-	poetry install
 	@echo "Installing Node.js dependencies..."
 	npm install
+	@echo "Installing Python tools (if available)..."
+	if command -v poetry >/dev/null 2>&1; then \
+		echo "Poetry found, installing Python dependencies..."; \
+		poetry install || echo "Poetry install failed, but continuing..."; \
+	else \
+		echo "Poetry not found, skipping Python dependencies."; \
+	fi
 	@echo "All dependencies installed!"
 
 # Run all tests
-test: test-python test-contracts
+test: test-nodejs test-contracts
 
-test-python:
-	@echo "Running Python tests..."
-	poetry run pytest -v
+test-nodejs:
+	@echo "Running Node.js tests..."
+	npm test -- --testPathIgnorePatterns=integration
 
 test-contracts:
 	@echo "Running Solidity tests..."
@@ -102,6 +118,11 @@ deploy:
 	@echo "Deploying contracts to local network..."
 	npx hardhat run scripts/deploy.js --network localhost
 
+# Compile contracts
+compile:
+	@echo "Compiling smart contracts..."
+	npx hardhat compile
+
 # Coverage reports
 coverage: coverage-python coverage-contracts
 
@@ -133,6 +154,22 @@ db-reset:
 	@echo "Resetting database..."
 	poetry run alembic downgrade base
 	poetry run alembic upgrade head
+
+# Test database setup
+db-test-setup:
+	@echo "Setting up test database..."
+	@if [ -f .env.test.local ]; then \
+		echo "Warning: .env.test.local file already exists. Will not overwrite."; \
+	else \
+		echo "Creating .env.test.local file from template..."; \
+		cp .env.test .env.test.local; \
+		echo "TEST_DB_PASSWORD=test_password" >> .env.test.local; \
+		echo "Created .env.test.local file with default test password."; \
+	fi
+	@echo "Creating test database user and database..."
+	docker exec -it ticketchain-postgres psql -U ticketchain -d ticketchain_dev -c "CREATE USER test_user WITH PASSWORD 'test_password';" || echo "User may already exist"
+	docker exec -it ticketchain-postgres psql -U ticketchain -d ticketchain_dev -c "CREATE DATABASE ticketchain_test OWNER test_user;" || echo "Database may already exist"
+	@echo "Test database setup complete!"
 
 # Pre-commit hooks
 pre-commit:
