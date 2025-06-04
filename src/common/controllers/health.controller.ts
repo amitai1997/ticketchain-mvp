@@ -32,11 +32,121 @@ export class HealthController {
   ) {}
 
   @Get()
-  check() {
+  @Public()
+  @ApiOperation({ summary: 'Comprehensive health check' })
+  @ApiResponse({
+    status: 200,
+    description: 'Complete health status with service details',
+  })
+  async check(): Promise<{ data: HealthCheckResponse }> {
+    const startTime = Date.now();
+    let dbStatus: HealthServiceStatus = {
+      status: 'unhealthy',
+      responseTime: 0,
+      details: {}
+    };
+    
+    try {
+      const dbStartTime = Date.now();
+      const healthCheck = await this.databaseService.healthCheck();
+      dbStatus = {
+        status: 'healthy',
+        responseTime: Date.now() - dbStartTime,
+        details: {
+          database: healthCheck.database || 'postgres',
+          connected: true
+        }
+      };
+    } catch (error) {
+      dbStatus = {
+        status: 'unhealthy',
+        responseTime: Date.now() - startTime,
+        details: {
+          error: error.message,
+          connected: false
+        }
+      };
+    }
+
+    const cacheStartTime = Date.now();
+    let cacheStatus: HealthServiceStatus = {
+      status: 'unhealthy',
+      responseTime: 0,
+      details: {}
+    };
+    
+    try {
+      await this.cacheService.get('test-key');
+      cacheStatus = {
+        status: 'healthy',
+        responseTime: Date.now() - cacheStartTime,
+        details: {
+          type: 'redis',
+          connected: true
+        }
+      };
+    } catch (error) {
+      cacheStatus = {
+        status: 'unhealthy',
+        responseTime: Date.now() - cacheStartTime,
+        details: {
+          error: error.message,
+          connected: false
+        }
+      };
+    }
+
+    const blockchainStartTime = Date.now();
+    let blockchainStatus: HealthServiceStatus = {
+      status: 'unhealthy',
+      responseTime: 0,
+      details: {}
+    };
+    
+    try {
+      const provider = this.blockchainService.getProvider();
+      const blockNumber = await provider.getBlockNumber();
+      const network = provider._network?.name || 'unknown';
+
+      blockchainStatus = {
+        status: 'healthy',
+        responseTime: Date.now() - blockchainStartTime,
+        details: {
+          network,
+          blockNumber,
+          connected: true
+        }
+      };
+    } catch (error) {
+      blockchainStatus = {
+        status: 'unhealthy',
+        responseTime: Date.now() - blockchainStartTime,
+        details: {
+          error: error.message,
+          connected: false
+        }
+      };
+    }
+
+    // Overall health status is healthy if all services are healthy
+    const overallStatus = 
+      dbStatus.status === 'healthy' &&
+      cacheStatus.status === 'healthy' &&
+      blockchainStatus.status === 'healthy'
+        ? 'healthy'
+        : 'unhealthy';
+
     return {
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
+      data: {
+        status: overallStatus,
+        timestamp: new Date().toISOString(),
+        version: process.env.npm_package_version || '1.0.0',
+        services: {
+          database: dbStatus,
+          cache: cacheStatus,
+          blockchain: blockchainStatus
+        }
+      }
     };
   }
 
@@ -47,7 +157,7 @@ export class HealthController {
     status: 200,
     description: 'Service readiness status',
   })
-  async getReadiness(): Promise<{ ready: boolean; services: string[] }> {
+  async getReadiness(): Promise<{ data: { ready: boolean; services: string[] } }> {
     const services: string[] = [];
     
     try {
@@ -72,8 +182,10 @@ export class HealthController {
     }
 
     return {
-      ready: services.length === 3,
-      services,
+      data: {
+        ready: services.length === 3,
+        services,
+      }
     };
   }
 
@@ -84,10 +196,12 @@ export class HealthController {
     status: 200,
     description: 'Service liveness status',
   })
-  getLiveness(): { alive: boolean; timestamp: string } {
+  getLiveness(): { data: { alive: boolean; timestamp: string } } {
     return {
-      alive: true,
-      timestamp: new Date().toISOString(),
+      data: {
+        alive: true,
+        timestamp: new Date().toISOString(),
+      }
     };
   }
 }

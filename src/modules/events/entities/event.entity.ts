@@ -8,7 +8,7 @@ export class EventEntity {
   @Column({ length: 100 })
   name: string;
 
-  @Column({ type: 'timestamp' })
+  @Column({ type: 'datetime' })
   date: Date;
 
   @Column({ length: 200 })
@@ -36,13 +36,13 @@ export class EventEntity {
   chainEventId: number;
 
   @Column({
-    type: 'enum',
+    type: 'simple-enum',
     enum: ['pending', 'active', 'cancelled'],
     default: 'pending',
   })
   status: string;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: 'simple-json', nullable: true })
   metadata: {
     description?: string;
     imageUrl?: string;
