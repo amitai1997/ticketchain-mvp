@@ -40,6 +40,17 @@ make docker-up
 # Compile contracts
 npx hardhat compile
 
+# In a separate terminal, start the local blockchain
+npx hardhat node
+
+# Deploy contracts and note the addresses
+npx hardhat run scripts/deploy.js --network localhost
+
+# Update .env with the contract addresses from the deployment output
+# EVENT_REGISTRY_ADDRESS=0x...
+# TICKET_NFT_ADDRESS=0x...
+# MARKETPLACE_ADDRESS=0x...
+
 # Run unit tests (skips integration tests that require database setup)
 npm test -- --testPathIgnorePatterns=integration
 ```
@@ -98,6 +109,15 @@ npx hardhat compile
 
 # Start local blockchain node (in a separate terminal)
 npx hardhat node
+
+# Deploy contracts to local blockchain
+npx hardhat run scripts/deploy.js --network localhost
+
+# IMPORTANT: After deployment, copy the contract addresses 
+# from the deployment output and add them to your .env file:
+# EVENT_REGISTRY_ADDRESS=0x...
+# TICKET_NFT_ADDRESS=0x...
+# MARKETPLACE_ADDRESS=0x...
 
 # Run API server
 npm run start:dev
@@ -185,6 +205,13 @@ The following issues were fixed in this update:
 1. **Integration Tests**: Require a properly configured PostgreSQL database with a `test_user` account. Instructions have been added to set this up.
 2. **Jest Configuration**: There's a typo in the Jest configuration (`moduleNameMapping` should be `moduleNameMapper`).
 3. **Node.js Version**: Hardhat warns about using Node.js v23+, which it doesn't officially support yet.
+4. **API Server Startup**: Requires deployed contract addresses in the `.env` file. The server will fail to start without the following environment variables set:
+   ```
+   EVENT_REGISTRY_ADDRESS=0x...
+   TICKET_NFT_ADDRESS=0x...
+   MARKETPLACE_ADDRESS=0x...
+   ```
+   These addresses are obtained after deploying contracts to the local blockchain.
 
 ### Future Steps
 
