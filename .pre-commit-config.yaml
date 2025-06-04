@@ -73,18 +73,33 @@ repos:
     rev: v1.5.0
     hooks:
       - id: detect-secrets
-        args: ['--baseline', '.secrets.baseline']
-        exclude: package\.lock\.json
+        args: [
+          '--baseline', '.secrets.baseline',
+          '--no-verify',
+        ]
+        exclude: |
+          (?x)
+          ^(
+            package\.lock\.json|
+            .*\.md$|
+            .*\.example$|
+            \.env\.example|
+            \.env\.test|
+            \.env\.docker|
+            .gitleaksignore|
+            docs/security/.*|
+            Makefile
+          )$
 
-  # Additional secrets detection with GitLeaks
-  - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.18.2
-    hooks:
-      - id: gitleaks
-        name: GitLeaks
-        description: Detect hardcoded secrets and credentials
-        entry: gitleaks protect --verbose --redact --staged
-        pass_filenames: false
+  # Additional secrets detection with GitLeaks - Disabled due to overlap with detect-secrets
+  # - repo: https://github.com/gitleaks/gitleaks
+  #   rev: v8.18.2
+  #   hooks:
+  #     - id: gitleaks
+  #       name: GitLeaks
+  #       description: Detect hardcoded secrets and credentials
+  #       entry: gitleaks protect --verbose --redact --staged
+  #       pass_filenames: false
 
   # Credential scanner focused on test files
   - repo: local

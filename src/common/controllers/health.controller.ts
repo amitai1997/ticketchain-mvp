@@ -45,7 +45,7 @@ export class HealthController {
       responseTime: 0,
       details: {}
     };
-    
+
     try {
       const dbStartTime = Date.now();
       const healthCheck = await this.databaseService.healthCheck();
@@ -74,7 +74,7 @@ export class HealthController {
       responseTime: 0,
       details: {}
     };
-    
+
     try {
       await this.cacheService.get('test-key');
       cacheStatus = {
@@ -102,7 +102,7 @@ export class HealthController {
       responseTime: 0,
       details: {}
     };
-    
+
     try {
       const provider = this.blockchainService.getProvider();
       const blockNumber = await provider.getBlockNumber();
@@ -129,7 +129,7 @@ export class HealthController {
     }
 
     // Overall health status is healthy if all services are healthy
-    const overallStatus = 
+    const overallStatus =
       dbStatus.status === 'healthy' &&
       cacheStatus.status === 'healthy' &&
       blockchainStatus.status === 'healthy'
@@ -159,7 +159,7 @@ export class HealthController {
   })
   async getReadiness(): Promise<{ data: { ready: boolean; services: string[] } }> {
     const services: string[] = [];
-    
+
     try {
       await this.databaseService.healthCheck();
       services.push('database');

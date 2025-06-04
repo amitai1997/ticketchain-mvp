@@ -127,8 +127,8 @@ jobs:
     steps:
     - name: Check Status
       run: |
-        if [ "${{ needs.lint-and-security.result }}" != "success" ] || 
-           [ "${{ needs.test.result }}" != "success" ] || 
+        if [ "${{ needs.lint-and-security.result }}" != "success" ] ||
+           [ "${{ needs.test.result }}" != "success" ] ||
            [ "${{ needs.docker.result }}" != "success" ]; then
           echo "CI failed"
           exit 1

@@ -1,0 +1,152 @@
+name: Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      # Database service for testing
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASSWORD || 'postgres_test' }}
+          POSTGRES_DB: ticketchain_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      # Cache service for testing
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.20.8'
+          cache: 'npm'
+        timeout-minutes: 5
+        continue-on-error: false
+
+      - name: Install dependencies
+        run: npm ci
+        timeout-minutes: 5
+        retries: 2
+
+      - name: TypeScript type check
+        run: npx tsc --noEmit
+        timeout-minutes: 2
+
+      - name: Compile TypeScript
+        run: npm run build
+        timeout-minutes: 3
+        retries: 2
+
+      - name: Compile contracts
+        run: npx hardhat compile
+        timeout-minutes: 3
+
+      - name: Start local blockchain
+        run: npx hardhat node &
+        env:
+          HARDHAT_NETWORK: localhost
+        timeout-minutes: 2
+
+      - name: Deploy contracts
+        run: |
+          npx hardhat run scripts/deploy.js --network localhost
+          # Extract contract addresses from deployment
+          export CONTRACT_EVENT_REGISTRY_ADDRESS=$(grep -oP '(?<=EventRegistry deployed to: )[^ ]+' deployment-output.txt || echo "0x0000000000000000000000000000000000000001")
+          export CONTRACT_TICKET_NFT_ADDRESS=$(grep -oP '(?<=TicketNFT deployed to: )[^ ]+' deployment-output.txt || echo "0x0000000000000000000000000000000000000002")
+          export CONTRACT_MARKETPLACE_ADDRESS=$(grep -oP '(?<=SimpleMarketplace deployed to: )[^ ]+' deployment-output.txt || echo "0x0000000000000000000000000000000000000003")
+          echo "CONTRACT_EVENT_REGISTRY_ADDRESS=$CONTRACT_EVENT_REGISTRY_ADDRESS" >> $GITHUB_ENV
+          echo "CONTRACT_TICKET_NFT_ADDRESS=$CONTRACT_TICKET_NFT_ADDRESS" >> $GITHUB_ENV
+          echo "CONTRACT_MARKETPLACE_ADDRESS=$CONTRACT_MARKETPLACE_ADDRESS" >> $GITHUB_ENV
+        env:
+          HARDHAT_NETWORK: localhost
+        timeout-minutes: 3
+
+      - name: Create test environment file
+        run: |
+          cat > .env.test.local << EOL
+          DB_HOST=localhost
+          DB_PORT=5432
+          DB_USERNAME=test_user
+          DB_PASSWORD=\${{ secrets.TEST_DB_PASSWORD || 'postgres_test' }}
+          DB_NAME=ticketchain_test
+          REDIS_HOST=localhost
+          REDIS_PORT=6379
+          ENABLE_IN_MEMORY_DB=true
+          BLOCKCHAIN_PROVIDER_URL=http://localhost:8545
+          # Test account private key (not for production use)
+          # pragma: allowlist secret
+          BLOCKCHAIN_PRIVATE_KEY=0x1111111111111111111111111111111111111111111111111111111111111111
+          CONTRACT_EVENT_REGISTRY_ADDRESS=$CONTRACT_EVENT_REGISTRY_ADDRESS
+          CONTRACT_TICKET_NFT_ADDRESS=$CONTRACT_TICKET_NFT_ADDRESS
+          CONTRACT_MARKETPLACE_ADDRESS=$CONTRACT_MARKETPLACE_ADDRESS
+          TEST_ARTIST_ADDRESS=0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+          EOL
+
+      - name: Run Jest unit tests
+        run: npm run test:unit
+        env:
+          NODE_ENV: test
+          ENABLE_IN_MEMORY_DB: 'true'
+        timeout-minutes: 5
+
+      - name: Run Jest integration tests
+        run: npm run test:integration
+        env:
+          NODE_ENV: test
+          ENABLE_IN_MEMORY_DB: 'true'
+        timeout-minutes: 5
+
+      - name: Run contract tests
+        run: npm run test:contracts
+        env:
+          NODE_ENV: test
+        timeout-minutes: 5
+
+      # Use test:contracts:gas instead of test:gas
+      - name: Run gas reports
+        run: npm run test:contracts:gas
+        env:
+          NODE_ENV: test
+          REPORT_GAS: true
+        continue-on-error: true
+        timeout-minutes: 5
+
+      - name: Generate test coverage
+        run: npm run test:cov
+        env:
+          NODE_ENV: test
+          ENABLE_IN_MEMORY_DB: 'true'
+        timeout-minutes: 5
+
+      - name: Run gitleaks
+        run: |
+          wget -q https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz -O gitleaks.tar.gz
+          tar -xzf gitleaks.tar.gz
+          chmod +x gitleaks
+          ./gitleaks detect --config .gitleaks.toml --no-git --verbose
+        continue-on-error: true

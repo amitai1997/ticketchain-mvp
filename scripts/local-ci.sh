@@ -44,23 +44,23 @@ echo -e "${YELLOW}🔐 Running GitLeaks Security Scan...${NC}"
 # Download and run GitLeaks (cross-platform)
 if [ ! -f "./gitleaks" ]; then
     echo "Downloading GitLeaks..."
-    
+
     # Detect OS and architecture
     OS=$(uname -s | tr '[:upper:]' '[:lower:]')
     ARCH=$(uname -m)
-    
+
     case $OS in
         darwin) OS="darwin" ;;
         linux) OS="linux" ;;
         *) echo "Unsupported OS: $OS"; exit 1 ;;
     esac
-    
+
     case $ARCH in
         x86_64|amd64) ARCH="x64" ;;
         arm64|aarch64) ARCH="arm64" ;;
         *) echo "Unsupported architecture: $ARCH"; exit 1 ;;
     esac
-    
+
     GITLEAKS_URL="https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_${OS}_${ARCH}.tar.gz"
     wget -O gitleaks.tar.gz "$GITLEAKS_URL"
     tar -xzf gitleaks.tar.gz

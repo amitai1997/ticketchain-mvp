@@ -18,13 +18,13 @@ TicketChain provides a B2B Infrastructure-as-a-Service (IaaS) that enables any t
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### System Requirements
 
 - Docker & Docker Compose v2
 - Node.js 18+ & npm
 - Git
 
-### Setup
+### Initial Setup
 
 ```bash
 # Clone the repository
@@ -51,8 +51,8 @@ npx hardhat run scripts/deploy.js --network localhost
 # CONTRACT_TICKET_NFT_ADDRESS=0x...
 # CONTRACT_MARKETPLACE_ADDRESS=0x...
 
-# Run unit tests (skips integration tests that require database setup)
-npm test -- --testPathIgnorePatterns=integration
+# Run unit tests
+npm run test:unit
 ```
 
 The following services will be available:
@@ -113,7 +113,7 @@ npx hardhat node
 # Deploy contracts to local blockchain
 npx hardhat run scripts/deploy.js --network localhost
 
-# IMPORTANT: After deployment, copy the contract addresses 
+# IMPORTANT: After deployment, copy the contract addresses
 # from the deployment output and add them to your .env file:
 # CONTRACT_EVENT_REGISTRY_ADDRESS=0x...
 # CONTRACT_TICKET_NFT_ADDRESS=0x...
@@ -140,27 +140,63 @@ make format
 
 # Run security checks
 make security
+
+# Run pre-commit hooks manually
+pre-commit run --all-files
 ```
 
-### Testing
+### Project Testing
 
 > ⚠️ **Note:** Test environment is automatically setup when running `make setup`.
 
 ```bash
 # Run unit tests (work without database connection)
-npm test -- --testPathIgnorePatterns=integration
+npm run test:unit
 
 # Run integration tests (require test database)
-NODE_ENV=test npm test
+npm run test:integration
 
-# Compile and test contracts
-npx hardhat compile
-npx hardhat test
+# Run all Jest tests
+npm test
+
+# Run contract unit tests
+npm run test:contracts:unit
+
+# Run contract integration tests
+npm run test:contracts:integration
+
+# Run all contract tests
+npm run test:contracts
+
+# Run all tests (Jest + contracts) with the test script
+./scripts/run-tests.sh
 ```
+
+#### Testing Architecture
+
+The project uses a comprehensive testing approach:
+
+1. **Unit Tests**: Test individual components in isolation with mocked dependencies
+   - Service units tests
+   - Controller unit tests
+   - Repository unit tests
+   - Contract function unit tests
+
+2. **Integration Tests**: Test components working together
+   - API endpoint tests with in-memory database
+   - Multiple contract interaction tests
+
+3. **Test Utilities**:
+   - `createTestingApp()`: Proper NestJS app setup/teardown
+   - Error suppression utilities
+   - Test database setup/teardown
+
+For more details on our testing strategy, see the [Testing Strategy ADR](docs/adr/001-testing-strategy.md).
 
 ### Environment Configuration
 
 1. **Development Setup:**
+
 ```bash
 # Copy the comprehensive template
 cp .env.example .env
@@ -170,6 +206,7 @@ cp .env.example .env
 ```
 
 2. **Test Environment Setup:**
+
 ```bash
 # The test environment is automatically set up when running `make setup`
 # If you need to set it up manually, run:
@@ -214,13 +251,16 @@ The following issues were fixed in this update:
 1. **Jest Configuration**: There's a typo in the Jest configuration (`moduleNameMapping` should be `moduleNameMapper`).
 2. **Node.js Version**: Hardhat warns about using Node.js v23+, which it doesn't officially support yet.
 3. **API Server Startup**: Requires deployed contract addresses in the `.env` file. The server will fail to start without the following environment variables set:
+
    ```
    CONTRACT_EVENT_REGISTRY_ADDRESS=0x...
    CONTRACT_TICKET_NFT_ADDRESS=0x...
    CONTRACT_MARKETPLACE_ADDRESS=0x...
    ```
+
    These addresses are obtained after deploying contracts to the local blockchain.
 4. **Environment Variable Names**: The application expects specific environment variable names that may differ from what's documented in older versions. The key mappings are:
+
    ```
    # Blockchain
    HARDHAT_RPC_URL → BLOCKCHAIN_PROVIDER_URL
@@ -228,7 +268,7 @@ The following issues were fixed in this update:
    EVENT_REGISTRY_ADDRESS → CONTRACT_EVENT_REGISTRY_ADDRESS
    TICKET_NFT_ADDRESS → CONTRACT_TICKET_NFT_ADDRESS
    MARKETPLACE_ADDRESS → CONTRACT_MARKETPLACE_ADDRESS
-   
+
    # Database
    POSTGRES_HOST → DB_HOST
    POSTGRES_PORT → DB_PORT
@@ -236,6 +276,7 @@ The following issues were fixed in this update:
    POSTGRES_PASSWORD → DB_PASSWORD
    POSTGRES_DB → DB_NAME
    ```
+
 5. **API Port Conflict**: Fixed in this update - If you want to run the API server locally while using Docker for other services, use `make local-dev` or `npm run start:local` which automatically stops the Docker API container to avoid port conflicts.
 
 ### Future Steps
@@ -385,3 +426,114 @@ make api-status
 # Stop all Docker services
 make docker-down
 ```
+
+## Development Setup
+
+### Prerequisites
+
+- Node.js v18+
+- Docker and Docker Compose
+- PostgreSQL (or use Docker)
+- Redis (or use Docker)
+
+### Installation
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/yourusername/ticketchain-mvp.git
+   cd ticketchain-mvp
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables:
+
+   ```bash
+   cp .env.example .env
+   # Edit .env file with your configuration
+   ```
+
+### Running with Docker
+
+The easiest way to run the application is using Docker:
+
+```bash
+# Start all services (PostgreSQL, Redis, Hardhat node, API)
+make docker-up
+
+# Check the API health
+make api-health
+
+# Stop all services
+make docker-down
+```
+
+Services available:
+
+- API: <http://localhost:3000>
+- PostgreSQL: localhost:5432
+- Redis: localhost:6379
+- Hardhat Node: <http://localhost:8545>
+- MailHog (Email testing): <http://localhost:8025>
+
+### Running Locally (Development)
+
+To run the API locally while using Docker for other services:
+
+```bash
+# Start required services (PostgreSQL, Redis, Hardhat)
+make docker-up
+
+# Stop the API container (since we'll run it locally)
+docker stop ticketchain-api
+
+# Run the API locally
+npm run start:dev
+```
+
+### Testing
+
+```bash
+# Run all tests
+npm test
+
+# Run unit tests
+npm run test:unit
+
+# Run integration tests
+npm run test:integration
+
+# Run with test environment variables
+NODE_ENV=test npm test
+```
+
+## Smart Contracts
+
+### Compiling Contracts
+
+```bash
+npx hardhat compile
+```
+
+### Deploying Contracts
+
+```bash
+# Deploy to local Hardhat node
+npx hardhat run scripts/deploy.js --network localhost
+
+# Deploy to testnet
+npx hardhat run scripts/deploy.js --network goerli
+```
+
+## API Documentation
+
+API documentation is available at `/api/docs` when the server is running.
+
+## License
+
+[MIT](LICENSE)

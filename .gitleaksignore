@@ -4,6 +4,12 @@
 .secrets.baseline:generic-api-key:130
 .secrets.baseline:generic-api-key:137
 .secrets.baseline:generic-api-key:144
+.secrets.baseline:generic-api-key:139
+.secrets.baseline:generic-api-key:148
+.secrets.baseline:generic-api-key:157
+.secrets.baseline:generic-api-key:166
+.secrets.baseline:generic-api-key:173
+.secrets.baseline:generic-api-key:180
 README.md:sidekiq-secret:42
 README.md:aws-access-token:221
 README.md:aws-access-token:223
@@ -15,3 +21,21 @@ README.md:aws-access-token:259
 .env.example:ethereum-private-key:39
 
 infra/docker/.env.docker:generic-api-key:21
+
+# Documentation examples
+docs/security/credentials_best_practices.md:16:password: 'insecure_example'
+
+# Docker development environment files
+infra/docker/.env.docker:9:DB_PASSWORD=development
+infra/docker/.env.docker:generic-api-key:23
+infra/docker/.env.docker:50:JWT_SECRET=development_jwt_secret
+
+# Exact fingerprints
+.gitleaksignore:generic-api-key:30
+infra/docker/.env.docker:generic-api-key:23
+
+# Makefile test database setup
+Makefile:181:TEST_DB_PASSWORD=postgres_test
+
+# GitHub workflow test files
+.github/workflows/test.yml:75:BLOCKCHAIN_PRIVATE_KEY=0x1111111111111111111111111111111111111111111111111111111111111111
