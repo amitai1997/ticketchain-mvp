@@ -178,7 +178,6 @@ export class EventsService {
       artistAddress: event.artistAddress,
       contractAddress: event.contractAddress,
       status: event.status,
-      artistAddress: event.artistAddress,
       metadata: event.metadata,
       createdAt: event.createdAt.toISOString(),
       updatedAt: event.updatedAt.toISOString(),
