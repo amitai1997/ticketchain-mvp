@@ -49,13 +49,13 @@ describe("Gas Reports", function () {
   it("Gas report: List ticket", async function () {
     await eventRegistry.createEvent(EVENT_URI_BYTES32, MAX_TICKETS);
     await ticketNFT.mintTicket(await owner.getAddress(), 1, 1);
-    await marketplace.listTicket(1, ethers.parseEther("0.1"));
+    await marketplace.listForSale(1, ethers.parseEther("0.1"));
   });
 
   it("Gas report: Buy ticket", async function () {
     await eventRegistry.createEvent(EVENT_URI_BYTES32, MAX_TICKETS);
     await ticketNFT.mintTicket(await owner.getAddress(), 1, 1);
-    await marketplace.listTicket(1, ethers.parseEther("0.1"));
+    await marketplace.listForSale(1, ethers.parseEther("0.1"));
     await marketplace.connect(buyer).buy(1, { value: ethers.parseEther("0.1") });
   });
 });
