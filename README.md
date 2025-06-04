@@ -119,7 +119,10 @@ npx hardhat run scripts/deploy.js --network localhost
 # CONTRACT_TICKET_NFT_ADDRESS=0x...
 # CONTRACT_MARKETPLACE_ADDRESS=0x...
 
-# Run API server
+# Run API server (Docker - recommended)
+make docker-up  # Starts all services including the API server
+
+# Run API server (Manual - for development)
 npm run start:dev
 ```
 
@@ -356,3 +359,24 @@ npx hardhat compile
 ```
 
 Note: Tests and deployment scripts are deferred to the next phase of development.
+
+### Docker Services
+
+```bash
+# Start all Docker services
+make docker-up
+
+# Services started:
+# - PostgreSQL: localhost:5432
+# - Redis: localhost:6379
+# - Hardhat Node: localhost:8545
+# - MailHog: localhost:1025 (SMTP) / localhost:8025 (Web UI)
+# - API Server: localhost:3000
+
+# Test API connectivity
+make api-health
+make api-status
+
+# Stop all Docker services
+make docker-down
+```
