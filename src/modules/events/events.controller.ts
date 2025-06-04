@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, Put, Patch, HttpStatus, HttpCode, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 
 import { EventsService } from './events.service';
@@ -51,6 +51,7 @@ export class EventsController {
   }
 
   @Patch(':id/status')
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update event status' })
   @ApiParam({ name: 'id', description: 'Event ID' })
   @ApiResponse({
@@ -59,10 +60,15 @@ export class EventsController {
     type: EventResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Event not found' })
+  @ApiResponse({ status: 400, description: 'Invalid status value' })
   async updateStatus(
     @Param('id') id: string,
-    @Body() updateStatusDto: { status: 'active' | 'cancelled' },
+    @Body() body: { status: string },
   ): Promise<EventResponseDto> {
-    return this.eventsService.updateStatus(id, updateStatusDto.status);
+    const validStatuses = ['active', 'pending', 'cancelled'];
+    if (!validStatuses.includes(body.status)) {
+      throw new BadRequestException(`Status must be one of: ${validStatuses.join(', ')}`);
+    }
+    return this.eventsService.updateStatus(id, body.status as any);
   }
 }

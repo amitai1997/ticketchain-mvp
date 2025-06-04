@@ -57,6 +57,7 @@ export class BlockchainService {
   private retryConfig: RetryConfig;
 
   constructor(private readonly configService: ConfigService) {
+    // Check if running in test mode
     this.isTestEnvironment = process.env.NODE_ENV === 'test';
 
     // Initialize retry configuration
@@ -335,9 +336,9 @@ export class BlockchainService {
    * @param name Event name
    * @param date Event date as unix timestamp
    * @param venue Event venue
-   * @param capacity Maximum number of tickets
-   * @param royaltyBps Royalty basis points (100 = 1%)
-   * @param maxResalePriceBps Maximum resale price increase as basis points
+   * @param capacity Event capacity
+   * @param royaltyBps Royalty basis points (e.g. 500 = 5%)
+   * @param maxResalePriceBps Maximum resale price basis points (e.g. 15000 = 150%)
    * @param artistAddress Optional artist address for royalties
    * @returns Transaction response
    */
@@ -350,13 +351,12 @@ export class BlockchainService {
     maxResalePriceBps: number,
     artistAddress?: string,
   ): Promise<ethers.TransactionResponse> {
-    try {
-      // If in test environment, return mock data
-      if (this.isTestEnvironment) {
-        this.logger.log('Test environment: Returning mock createEvent response');
-        return this.getMockResponseForOperation('createEvent') as ethers.TransactionResponse;
-      }
+    if (this.isTestEnvironment) {
+      this.logger.log('Test environment: Returning mock createEvent response');
+      return this.getMockResponseForOperation('createEvent') as ethers.TransactionResponse;
+    }
 
+    try {
       if (!this.signer) {
         throw new Error('No signer available for write operations');
       }
@@ -423,7 +423,6 @@ export class BlockchainService {
     price: string,
   ): Promise<ethers.TransactionResponse> {
     try {
-      // If in test environment, return mock data
       if (this.isTestEnvironment) {
         this.logger.log('Test environment: Returning mock mintTicket response');
         return this.getMockResponseForOperation('mintTicket') as ethers.TransactionResponse;
@@ -466,7 +465,6 @@ export class BlockchainService {
    */
   async getEvent(eventId: number): Promise<EventData> {
     try {
-      // If in test environment, return mock data
       if (this.isTestEnvironment) {
         this.logger.log('Test environment: Returning mock getEvent response');
         return this.getMockResponseForOperation('getEvent') as EventData;
@@ -517,7 +515,6 @@ export class BlockchainService {
    */
   async getTicket(tokenId: number): Promise<TicketData> {
     try {
-      // If in test environment, return mock data
       if (this.isTestEnvironment) {
         this.logger.log('Test environment: Returning mock getTicket response');
         return this.getMockResponseForOperation('getTicket') as TicketData;

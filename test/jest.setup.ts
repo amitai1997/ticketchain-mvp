@@ -16,6 +16,7 @@ if (fs.existsSync(envPath)) {
 
 // Set test environment
 process.env.NODE_ENV = 'test';
+process.env.ENABLE_IN_MEMORY_DB = 'true';
 
 // Store original logger methods
 const originalLoggerError = Logger.error;

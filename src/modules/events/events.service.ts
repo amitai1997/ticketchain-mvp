@@ -175,6 +175,7 @@ export class EventsService {
       availableCount,
       royaltyBps: event.royaltyBps,
       maxResalePriceBps: event.maxResalePriceBps,
+      artistAddress: event.artistAddress,
       contractAddress: event.contractAddress,
       status: event.status,
       artistAddress: event.artistAddress,
