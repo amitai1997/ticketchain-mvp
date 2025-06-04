@@ -91,7 +91,7 @@ repos:
     hooks:
       - id: test-credentials-check
         name: Test Credentials Check
-        entry: bash -c 'grep -r "password.*=.*['\''\\"]" --include="*.spec.ts" --include="*.test.ts" --include="*.spec.js" --include="*.test.js" . || true | grep -v "process.env" && echo "ERROR: Hardcoded credentials found in test files" && exit 1 || exit 0'
+        entry: bash -c "grep -r 'password.*=.*[\"'\\'']\'' --include='*.spec.ts' --include='*.test.ts' --include='*.spec.js' --include='*.test.js' . || true | grep -v 'process.env' && echo 'ERROR: Hardcoded credentials found in test files' && exit 1 || exit 0"
         language: system
         pass_filenames: false
 
