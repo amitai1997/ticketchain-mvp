@@ -15,3 +15,17 @@ README.md:aws-access-token:259
 .env.example:ethereum-private-key:39
 
 infra/docker/.env.docker:generic-api-key:21
+
+# Documentation examples
+docs/security/credentials_best_practices.md:16:password: 'insecure_example'
+
+# Docker development environment files
+infra/docker/.env.docker:9:DB_PASSWORD=development
+infra/docker/.env.docker:23:BLOCKCHAIN_PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+infra/docker/.env.docker:50:JWT_SECRET=development_jwt_secret
+
+# Makefile test database setup
+Makefile:181:TEST_DB_PASSWORD=postgres_test
+
+# GitHub workflow test files
+.github/workflows/test.yml:75:BLOCKCHAIN_PRIVATE_KEY=0x1111111111111111111111111111111111111111111111111111111111111111
