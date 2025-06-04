@@ -6,7 +6,9 @@ describe("Gas Reports", function () {
   let ticketNFT;
   let marketplace;
   let owner, artist, buyer;
-  const EVENT_URI = "ipfs://QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco/1";
+
+  // Use ethers utils to convert a string to bytes32
+  const EVENT_URI_BYTES32 = ethers.encodeBytes32String("event-uri");
   const MAX_TICKETS = 100;
 
   beforeEach(async function () {
@@ -36,22 +38,22 @@ describe("Gas Reports", function () {
   });
 
   it("Gas report: Create event", async function () {
-    await eventRegistry.createEvent(EVENT_URI, MAX_TICKETS);
+    await eventRegistry.createEvent(EVENT_URI_BYTES32, MAX_TICKETS);
   });
 
   it("Gas report: Mint ticket", async function () {
-    await eventRegistry.createEvent(EVENT_URI, MAX_TICKETS);
+    await eventRegistry.createEvent(EVENT_URI_BYTES32, MAX_TICKETS);
     await ticketNFT.mintTicket(await artist.getAddress(), 1, 1);
   });
 
   it("Gas report: List ticket", async function () {
-    await eventRegistry.createEvent(EVENT_URI, MAX_TICKETS);
+    await eventRegistry.createEvent(EVENT_URI_BYTES32, MAX_TICKETS);
     await ticketNFT.mintTicket(await owner.getAddress(), 1, 1);
     await marketplace.listTicket(1, ethers.parseEther("0.1"));
   });
 
   it("Gas report: Buy ticket", async function () {
-    await eventRegistry.createEvent(EVENT_URI, MAX_TICKETS);
+    await eventRegistry.createEvent(EVENT_URI_BYTES32, MAX_TICKETS);
     await ticketNFT.mintTicket(await owner.getAddress(), 1, 1);
     await marketplace.listTicket(1, ethers.parseEther("0.1"));
     await marketplace.connect(buyer).buy(1, { value: ethers.parseEther("0.1") });
