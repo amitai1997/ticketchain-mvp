@@ -22,19 +22,33 @@ import { CacheModule } from './modules/cache/cache.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get('database.host'),
-        port: configService.get('database.port'),
-        username: configService.get('database.username'),
-        password: configService.get('database.password'),
-        database: configService.get('database.name'),
-        entities: [join(__dirname, '**', '*.entity.{ts,js}')],
-        migrations: [join(__dirname, 'modules/database/migrations/*.{ts,js}')],
-        synchronize: configService.get('database.synchronize'),
-        logging: configService.get('database.logging'),
-        migrationsRun: process.env.NODE_ENV === 'production',
-      }),
+      useFactory: (configService: ConfigService) => {
+        // Use in-memory SQLite for tests if enabled
+        if (process.env.ENABLE_IN_MEMORY_DB === 'true') {
+          return {
+            type: 'better-sqlite3',
+            database: ':memory:',
+            entities: [join(__dirname, '**', '*.entity.{ts,js}')],
+            synchronize: true,
+            logging: configService.get('database.logging'),
+          };
+        }
+        
+        // Default PostgreSQL configuration for production/development
+        return {
+          type: 'postgres',
+          host: configService.get('database.host'),
+          port: configService.get('database.port'),
+          username: configService.get('database.username'),
+          password: configService.get('database.password'),
+          database: configService.get('database.name'),
+          entities: [join(__dirname, '**', '*.entity.{ts,js}')],
+          migrations: [join(__dirname, 'modules/database/migrations/*.{ts,js}')],
+          synchronize: configService.get('database.synchronize'),
+          logging: configService.get('database.logging'),
+          migrationsRun: process.env.NODE_ENV === 'production',
+        };
+      },
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,

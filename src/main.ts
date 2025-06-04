@@ -45,6 +45,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, document);
 
+  // Set global prefix for all routes
+  app.setGlobalPrefix('api');
+  
   // Enable CORS
   app.enableCors();
 

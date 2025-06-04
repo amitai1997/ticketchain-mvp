@@ -1,15 +1,19 @@
+import * as dotenv from 'dotenv';
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
 import request from 'supertest';
-
-import { EventsModule } from '../../../src/modules/events/events.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { EventEntity } from '../../../src/modules/events/entities/event.entity';
-import { BlockchainModule } from '../../../src/modules/blockchain/blockchain.module';
 import { BlockchainService } from '../../../src/modules/blockchain/blockchain.service';
 import { DatabaseModule } from '../../../src/modules/database/database.module';
+import { BlockchainModule } from '../../../src/modules/blockchain/blockchain.module';
+import { EventsModule } from '../../../src/modules/events/events.module';
 import configuration from '../../../src/config/configuration';
+import { join } from 'path';
+
+// Load environment variables from .env.test.local file
+dotenv.config({ path: '.env.test.local' });
 
 // Mock blockchain service for integration tests
 class MockBlockchainService {
@@ -81,36 +85,25 @@ class MockBlockchainService {
   }
 }
 
-// Define test database configuration
-const testDbConfig = {
-  type: 'postgres' as const,
-  host: process.env.TEST_DB_HOST || process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.TEST_DB_PORT || process.env.DB_PORT || '5432'),
-  username: process.env.TEST_DB_USER || process.env.DB_USERNAME || 'test_user',
-  password: process.env.TEST_DB_PASSWORD || process.env.DB_PASSWORD,
-  database: process.env.TEST_DB_NAME || 'ticketchain_test',
-  entities: [EventEntity],
-  synchronize: true,
-  dropSchema: true, // Clean database for each test run
-};
-
 describe('Events Integration (e2e)', () => {
   let app: INestApplication;
   let eventId: string;
 
   beforeAll(async () => {
-    // Validate required environment variables
-    if (!testDbConfig.password) {
-      throw new Error('TEST_DB_PASSWORD or DB_PASSWORD environment variable must be set');
-    }
-
+    // Create a test module with in-memory database for testing
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
           isGlobal: true,
           load: [configuration],
         }),
-        TypeOrmModule.forRoot(testDbConfig),
+        TypeOrmModule.forRoot({
+          type: 'better-sqlite3',
+          database: ':memory:',
+          entities: [EventEntity],
+          synchronize: true,
+          logging: false,
+        }),
         DatabaseModule,
         BlockchainModule,
         EventsModule,
@@ -121,14 +114,17 @@ describe('Events Integration (e2e)', () => {
     .compile();
 
     app = moduleFixture.createNestApplication();
+    app.setGlobalPrefix('api');
     await app.init();
   });
 
   afterAll(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
-  describe('/events (POST)', () => {
+  describe('/api/events (POST)', () => {
     it('should create a new event', async () => {
       const createEventDto = {
         name: 'Test Concert',
@@ -143,14 +139,20 @@ describe('Events Integration (e2e)', () => {
         },
       };
 
-      // Just test that the endpoint doesn't throw an error
       const response = await request(app.getHttpServer())
-        .post('/events')
-        .send(createEventDto);
+        .post('/api/events')
+        .send(createEventDto)
+        .expect(201);
       
-      // We're just testing the endpoint is reachable, not the specific response
-      expect(response.status).toBeDefined();
-      eventId = '550e8400-e29b-41d4-a716-446655440000'; // Use a mock ID
+      // Store event ID from response for later tests
+      expect(response.body).toBeDefined();
+      // Check if we have a direct eventId or if it's within data.id
+      if (response.body.data && response.body.data.id) {
+        eventId = response.body.data.id;
+      } else if (response.body.eventId) {
+        eventId = response.body.eventId;
+      }
+      expect(eventId).toBeDefined();
     });
 
     it('should validate required fields', async () => {
@@ -162,14 +164,18 @@ describe('Events Integration (e2e)', () => {
     });
   });
 
-  describe('/events (GET)', () => {
+  describe('/api/events (GET)', () => {
     it('should return paginated list of events', async () => {
       const response = await request(app.getHttpServer())
-        .get('/events')
-        .query({ limit: 10, page: 1 });
+        .get('/api/events')
+        .query({ limit: 10, page: 1 })
+        .expect(200);
       
-      // We're just testing the endpoint is reachable, not the specific response
-      expect(response.status).toBeDefined();
+      // Check structure of response
+      expect(response.body).toBeDefined();
+      // The response could be { data: [...] } or { items: [...] }
+      const events = response.body.data || response.body.items || [];
+      expect(Array.isArray(events) || (response.body.items && Array.isArray(response.body.items))).toBeTruthy();
     });
 
     it('should respect pagination parameters', async () => {
@@ -177,9 +183,18 @@ describe('Events Integration (e2e)', () => {
     });
   });
 
-  describe('/events/:id (GET)', () => {
+  describe('/api/events/:id (GET)', () => {
     it('should return a specific event', async () => {
-      // Skip test for now - mock ID won't work
+      // Only run if eventId is valid
+      if (eventId) {
+        const response = await request(app.getHttpServer())
+          .get(`/api/events/${eventId}`)
+          .expect(200);
+        
+        expect(response.body).toBeDefined();
+        const event = response.body.data || response.body;
+        expect(event.id || event.eventId).toBeDefined();
+      }
     });
 
     it('should return 404 for non-existent event', async () => {
@@ -191,7 +206,7 @@ describe('Events Integration (e2e)', () => {
     });
   });
 
-  describe('/events/:id/status (PUT)', () => {
+  describe('/api/events/:id/status (PUT)', () => {
     it('should update event status', async () => {
       // Skip test for now - mock ID won't work
     });
