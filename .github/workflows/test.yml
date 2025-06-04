@@ -1,0 +1,112 @@
+name: Test
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ticketchain_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:6
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile TypeScript
+        run: npm run build
+
+      - name: Compile contracts
+        run: npx hardhat compile
+
+      - name: Start local blockchain
+        run: npx hardhat node &
+        env:
+          HARDHAT_NETWORK: localhost
+
+      - name: Deploy contracts
+        run: |
+          npx hardhat run scripts/deploy.js --network localhost
+          # Extract contract addresses from deployment
+          export CONTRACT_EVENT_REGISTRY_ADDRESS=$(grep -oP '(?<=EventRegistry deployed to: )[^ ]+' deployment-output.txt || echo "0x0000000000000000000000000000000000000001")
+          export CONTRACT_TICKET_NFT_ADDRESS=$(grep -oP '(?<=TicketNFT deployed to: )[^ ]+' deployment-output.txt || echo "0x0000000000000000000000000000000000000002")
+          export CONTRACT_MARKETPLACE_ADDRESS=$(grep -oP '(?<=SimpleMarketplace deployed to: )[^ ]+' deployment-output.txt || echo "0x0000000000000000000000000000000000000003")
+          echo "CONTRACT_EVENT_REGISTRY_ADDRESS=$CONTRACT_EVENT_REGISTRY_ADDRESS" >> $GITHUB_ENV
+          echo "CONTRACT_TICKET_NFT_ADDRESS=$CONTRACT_TICKET_NFT_ADDRESS" >> $GITHUB_ENV
+          echo "CONTRACT_MARKETPLACE_ADDRESS=$CONTRACT_MARKETPLACE_ADDRESS" >> $GITHUB_ENV
+        env:
+          HARDHAT_NETWORK: localhost
+
+      - name: Create .env.test.local file
+        run: |
+          echo "DB_HOST=localhost" >> .env.test.local
+          echo "DB_PORT=5432" >> .env.test.local
+          echo "DB_USERNAME=postgres" >> .env.test.local
+          echo "DB_PASSWORD=postgres" >> .env.test.local
+          echo "DB_NAME=ticketchain_test" >> .env.test.local
+          echo "REDIS_HOST=localhost" >> .env.test.local
+          echo "REDIS_PORT=6379" >> .env.test.local
+          echo "ENABLE_IN_MEMORY_DB=true" >> .env.test.local
+          echo "BLOCKCHAIN_PROVIDER_URL=http://localhost:8545" >> .env.test.local
+          echo "BLOCKCHAIN_PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80" >> .env.test.local
+          echo "CONTRACT_EVENT_REGISTRY_ADDRESS=$CONTRACT_EVENT_REGISTRY_ADDRESS" >> .env.test.local
+          echo "CONTRACT_TICKET_NFT_ADDRESS=$CONTRACT_TICKET_NFT_ADDRESS" >> .env.test.local
+          echo "CONTRACT_MARKETPLACE_ADDRESS=$CONTRACT_MARKETPLACE_ADDRESS" >> .env.test.local
+          echo "TEST_ARTIST_ADDRESS=0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266" >> .env.test.local
+
+      - name: Run Jest unit tests
+        run: npm run test:unit
+        env:
+          NODE_ENV: test
+          ENABLE_IN_MEMORY_DB: 'true'
+
+      - name: Run Jest integration tests
+        run: npm run test:integration
+        env:
+          NODE_ENV: test
+          ENABLE_IN_MEMORY_DB: 'true'
+
+      - name: Run contract tests
+        run: npm run test:contracts
+        env:
+          NODE_ENV: test
+
+      - name: Generate test coverage
+        run: npm run test:cov
+        env:
+          NODE_ENV: test
+          ENABLE_IN_MEMORY_DB: 'true' 

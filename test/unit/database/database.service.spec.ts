@@ -2,8 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getDataSourceToken } from '@nestjs/typeorm';
 import { DataSource, Repository, EntityManager, QueryRunner } from 'typeorm';
 import { DatabaseService } from '../../../src/modules/database/database.service';
+import { suppressAllLogOutput } from '../../utils/suppress-errors';
 
 describe('DatabaseService', () => {
+  // Suppress all log output for this test suite
+  suppressAllLogOutput();
+  
   let service: DatabaseService;
   let mockDataSource: Partial<DataSource>;
   let mockEntityManager: Partial<EntityManager>;

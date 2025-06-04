@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { CacheService } from '../../../src/modules/cache/cache.service';
+import { suppressAllLogOutput } from '../../utils/suppress-errors';
 
 // Mock Redis
 jest.mock('ioredis', () => {
@@ -23,6 +24,9 @@ jest.mock('ioredis', () => {
 });
 
 describe('CacheService', () => {
+  // Suppress all log output for this test suite
+  suppressAllLogOutput();
+
   let service: CacheService;
   let mockRedis: any;
 

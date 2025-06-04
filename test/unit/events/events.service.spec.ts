@@ -6,6 +6,7 @@ import { EventEntity } from '../../../src/modules/events/entities/event.entity';
 import { BlockchainService } from '../../../src/modules/blockchain/blockchain.service';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CreateEventDto } from '../../../src/modules/events/dto/create-event.dto';
+import { suppressAllLogOutput } from '../../utils/suppress-errors';
 import {
   TEST_ARTIST_ADDRESS,
   TEST_EVENT_REGISTRY_ADDRESS
@@ -46,6 +47,9 @@ const mockEventRegistry = {
 const mockPaginate = paginate as jest.MockedFunction<typeof paginate>;
 
 describe('EventsService', () => {
+  // Suppress all log output for this test suite
+  suppressAllLogOutput();
+  
   let service: EventsService;
   let eventRepository: Repository<EventEntity>;
   let blockchainService: BlockchainService;

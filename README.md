@@ -148,15 +148,47 @@ make security
 
 ```bash
 # Run unit tests (work without database connection)
-npm test -- --testPathIgnorePatterns=integration
+npm run test:unit
 
 # Run integration tests (require test database)
-NODE_ENV=test npm test
+npm run test:integration
 
-# Compile and test contracts
-npx hardhat compile
-npx hardhat test
+# Run all Jest tests
+npm test
+
+# Run contract unit tests
+npm run test:contracts:unit
+
+# Run contract integration tests
+npm run test:contracts:integration
+
+# Run all contract tests
+npm run test:contracts
+
+# Run all tests (Jest + contracts) with the test script
+./scripts/run-tests.sh
 ```
+
+#### Testing Architecture
+
+The project uses a comprehensive testing approach:
+
+1. **Unit Tests**: Test individual components in isolation with mocked dependencies
+   - Service units tests
+   - Controller unit tests
+   - Repository unit tests
+   - Contract function unit tests
+
+2. **Integration Tests**: Test components working together
+   - API endpoint tests with in-memory database
+   - Multiple contract interaction tests
+
+3. **Test Utilities**:
+   - `createTestingApp()`: Proper NestJS app setup/teardown
+   - Error suppression utilities
+   - Test database setup/teardown
+
+For more details on our testing strategy, see the [Testing Strategy ADR](docs/adr/001-testing-strategy.md).
 
 ### Environment Configuration
 
@@ -385,3 +417,110 @@ make api-status
 # Stop all Docker services
 make docker-down
 ```
+
+## Development Setup
+
+### Prerequisites
+
+- Node.js v18+
+- Docker and Docker Compose
+- PostgreSQL (or use Docker)
+- Redis (or use Docker)
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/ticketchain-mvp.git
+   cd ticketchain-mvp
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables:
+   ```bash
+   cp .env.example .env
+   # Edit .env file with your configuration
+   ```
+
+### Running with Docker
+
+The easiest way to run the application is using Docker:
+
+```bash
+# Start all services (PostgreSQL, Redis, Hardhat node, API)
+make docker-up
+
+# Check the API health
+make api-health
+
+# Stop all services
+make docker-down
+```
+
+Services available:
+- API: http://localhost:3000
+- PostgreSQL: localhost:5432
+- Redis: localhost:6379
+- Hardhat Node: http://localhost:8545
+- MailHog (Email testing): http://localhost:8025
+
+### Running Locally (Development)
+
+To run the API locally while using Docker for other services:
+
+```bash
+# Start required services (PostgreSQL, Redis, Hardhat)
+make docker-up
+
+# Stop the API container (since we'll run it locally)
+docker stop ticketchain-api
+
+# Run the API locally
+npm run start:dev
+```
+
+### Testing
+
+```bash
+# Run all tests
+npm test
+
+# Run unit tests
+npm run test:unit
+
+# Run integration tests
+npm run test:integration
+
+# Run with test environment variables
+NODE_ENV=test npm test
+```
+
+## Smart Contracts
+
+### Compiling Contracts
+
+```bash
+npx hardhat compile
+```
+
+### Deploying Contracts
+
+```bash
+# Deploy to local Hardhat node
+npx hardhat run scripts/deploy.js --network localhost
+
+# Deploy to testnet
+npx hardhat run scripts/deploy.js --network goerli
+```
+
+## API Documentation
+
+API documentation is available at `/api/docs` when the server is running.
+
+## License
+
+[MIT](LICENSE)
