@@ -132,6 +132,7 @@ npx hardhat test
 ### Environment Configuration
 
 1. **Development Setup:**
+
 ```bash
 # Copy the comprehensive template
 cp .env.example .env
@@ -141,6 +142,7 @@ cp .env.example .env
 ```
 
 2. **Test Environment Setup:**
+
 ```bash
 # Copy test-specific configuration
 cp .env.test .env.test.local
