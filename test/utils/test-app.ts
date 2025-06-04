@@ -24,10 +24,12 @@ export function loadTestEnv(): void {
 /**
  * Create a NestJS application for testing with proper cleanup
  * @param moduleMetadata Module metadata for test module
+ * @param options Additional options for test app
  * @returns A promise resolving to the test app with cleanup function
  */
 export async function createTestingApp(
-  moduleMetadata: any
+  moduleMetadata: any,
+  options: { globalPrefix?: string } = {}
 ): Promise<{
   app: INestApplication;
   moduleRef: TestingModule;
@@ -41,6 +43,11 @@ export async function createTestingApp(
 
   // Create the app
   const app = moduleRef.createNestApplication();
+
+  // Set global prefix if provided or default to 'api'
+  const globalPrefix = options.globalPrefix || 'api';
+  app.setGlobalPrefix(globalPrefix);
+
   await app.init();
 
   // Return app with cleanup function
