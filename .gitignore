@@ -46,8 +46,9 @@ gas-report.txt
 
 # Hardhat
 cache/
-deployments/localhost/
-deployments/hardhat/
+# Exclude all deployment files except README
+deployments/*
+!deployments/README.md
 
 # Docker
 .docker/
