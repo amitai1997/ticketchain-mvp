@@ -101,8 +101,15 @@ The following services will be available:
 # Install dependencies
 make install
 
-# Start Docker services (database, Redis, etc.)
+# IMPORTANT: Start Docker services first (database, Redis, etc.)
 make docker-up
+
+# Option 1: Run API server in Docker (RECOMMENDED)
+# This is already included in 'make docker-up' command above
+
+# Option 2: Run API server manually (for development with hot reload)
+# Only use this if you need to debug the API outside of Docker
+npm run start:dev  # Requires Docker services to be running
 
 # Compile smart contracts
 npx hardhat compile
@@ -118,12 +125,6 @@ npx hardhat run scripts/deploy.js --network localhost
 # CONTRACT_EVENT_REGISTRY_ADDRESS=0x...
 # CONTRACT_TICKET_NFT_ADDRESS=0x...
 # CONTRACT_MARKETPLACE_ADDRESS=0x...
-
-# Run API server (Docker - recommended)
-make docker-up  # Starts all services including the API server
-
-# Run API server (Manual - for development)
-npm run start:dev
 ```
 
 ### Code Quality
@@ -209,7 +210,9 @@ The following issues were fixed in this update:
 
 1. **Jest Configuration**: There's a typo in the Jest configuration (`moduleNameMapping` should be `moduleNameMapper`).
 2. **Node.js Version**: Hardhat warns about using Node.js v23+, which it doesn't officially support yet.
-3. **API Server Startup**: Requires deployed contract addresses in the `.env` file. The server will fail to start without the following environment variables set:
+3. **API Server Startup**: Requires Docker services and deployed contract addresses in the `.env` file.
+   - Docker services (PostgreSQL, Redis) must be running via `make docker-up` before starting the API server
+   - The following environment variables must be set after contract deployment:
    ```
    CONTRACT_EVENT_REGISTRY_ADDRESS=0x...
    CONTRACT_TICKET_NFT_ADDRESS=0x...
