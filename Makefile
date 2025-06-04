@@ -17,28 +17,39 @@ help:
 # Initial setup
 setup: install
 	@echo "Setting up development environment..."
-	cp .env.template .env
+	@if [ -f .env ]; then \
+		echo "Warning: .env file already exists. Will not overwrite. Rename or delete it first if you want a fresh one."; \
+	else \
+		echo "Creating .env file from template..."; \
+		cp .env.example .env; \
+		echo "Created .env file. Edit it with your values."; \
+	fi
 	pre-commit install
-	@echo "Setup complete! Edit .env with your values."
+	@echo "Setup complete!"
 
 # Install dependencies
 install:
-	@echo "Installing Python dependencies..."
-	poetry install
 	@echo "Installing Node.js dependencies..."
 	npm install
+	@echo "Installing Python tools (if available)..."
+	if command -v poetry >/dev/null 2>&1; then \
+		echo "Poetry found, installing Python dependencies..."; \
+		poetry install || echo "Poetry install failed, but continuing..."; \
+	else \
+		echo "Poetry not found, skipping Python dependencies."; \
+	fi
 	@echo "All dependencies installed!"
 
 # Run all tests
-test: test-python test-contracts
+test: test-nodejs test-contracts
 
-test-python:
-	@echo "Running Python tests..."
-	poetry run pytest -v
+test-nodejs:
+	@echo "Running Node.js tests..."
+	npm test
 
 test-contracts:
 	@echo "Running Solidity tests..."
-	npx hardhat test
+	npm run test:contracts
 
 # Linting
 lint: lint-python lint-contracts

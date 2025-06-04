@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/ticketchain/ticketchain-mvp/actions/workflows/ci.yml/badge.svg)](https://github.com/ticketchain/ticketchain-mvp/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
+[![Node.js 18+](https://img.shields.io/badge/node-18+-green.svg)](https://nodejs.org/en/download/)
 [![Solidity ^0.8.0](https://img.shields.io/badge/solidity-^0.8.0-red.svg)](https://docs.soliditylang.org/)
 
 White-label NFT backbone for event-ticketing platforms. Prevent fraud, capture secondary market value, and delight fans with cryptographically secure tickets.
@@ -22,7 +22,6 @@ TicketChain provides a B2B Infrastructure-as-a-Service (IaaS) that enables any t
 
 - Docker & Docker Compose v2
 - Node.js 18+ & npm
-- Python 3.12+
 - Git
 
 ### Setup
@@ -72,7 +71,7 @@ The following services will be available:
 ├── contracts/          # Solidity smart contracts
 │   ├── interfaces/     # Contract interfaces
 │   └── libraries/      # Shared libraries
-├── src/               # Backend API (Python/FastAPI)
+├── src/               # Backend API (NestJS)
 ├── scripts/           # Deployment and utility scripts
 ├── tests/            # Test suites
 ├── docs/             # Documentation
@@ -95,7 +94,7 @@ make chain
 make deploy
 
 # Run API server
-poetry run uvicorn src.main:app --reload
+npm run start:dev
 ```
 
 ### Code Quality
@@ -120,8 +119,8 @@ make coverage
 # Run all tests
 make test
 
-# Python tests only
-make test-python
+# Node.js tests only
+make test-nodejs
 
 # Solidity tests only
 make test-contracts
@@ -157,6 +156,19 @@ NODE_ENV=test make test
    - `.env.test.local` - Your local test credentials (never commit)
 
 > **IMPORTANT:** Never hardcode credentials in test files. Always use environment variables for sensitive information.
+>
+> **NOTE:** The `make setup` command will not overwrite an existing `.env` file. If you need to reset to defaults, remove your existing file first.
+
+## Command & Env Fix Log (2025-06-04)
+
+The following issues were fixed in this update:
+
+1. Fixed `make setup` to properly check for existing `.env` files before copying from `.env.example`
+2. Updated project description in README to clarify it's a NestJS application, not Python
+3. Corrected `make test-python` to `make test-nodejs` to match the actual project structure
+4. Updated the API server start command from Python-based to Node.js-based
+5. Fixed Docker Compose configuration by removing obsolete version attribute
+6. Made poetry installation optional in the Makefile to handle environments without Python
 
 ## 📚 Documentation
 

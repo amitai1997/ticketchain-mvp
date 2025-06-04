@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   # PostgreSQL database
   postgres:
@@ -74,3 +72,4 @@ networks:
   default:
     name: ticketchain-network
     driver: bridge
+    external: false

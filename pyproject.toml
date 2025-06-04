@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Blockchain Ticketing Infrastructure SaaS"
 authors = ["TicketChain Team <dev@ticketchain.io>"]
 readme = "README.md"
-packages = [{include = "ticketchain", from = "src"}]
+packages = [{include = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
