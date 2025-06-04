@@ -7,15 +7,18 @@ This document outlines the best practices for handling credentials and sensitive
 ## Never Hardcode Credentials
 
 ❌ **Incorrect:**
+
 ```typescript
+// pragma: allowlist secret
 const dbConfig = {
   host: 'localhost',
   user: 'admin',
-  password: 'password123', // NEVER DO THIS
+  password: 'insecure_example',
 };
 ```
 
 ✅ **Correct:**
+
 ```typescript
 const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
@@ -98,4 +101,4 @@ if (!dbConfig.password) {
 
 - [OWASP Cheat Sheet: Password Storage](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
 - [The Twelve-Factor App: Config](https://12factor.net/config)
-- [NIST Guidelines for Credentials Management](https://pages.nist.gov/800-63-3/sp800-63b.html) 
+- [NIST Guidelines for Credentials Management](https://pages.nist.gov/800-63-3/sp800-63b.html)

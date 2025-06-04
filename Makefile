@@ -173,11 +173,13 @@ db-test-setup:
 	else \
 		echo "Creating .env.test.local file from template..."; \
 		cp .env.test .env.test.local; \
-		echo "TEST_DB_PASSWORD=test_password" >> .env.test.local; \
+		echo "# pragma: allowlist secret" >> .env.test.local; \
+		echo "TEST_DB_PASSWORD=postgres_test" >> .env.test.local; \
 		echo "Created .env.test.local file with default test password."; \
 	fi
 	@echo "Creating test database user and database..."
-	docker exec -it ticketchain-postgres psql -U ticketchain -d ticketchain_dev -c "CREATE USER test_user WITH PASSWORD 'test_password';" || echo "User may already exist"
+	# pragma: allowlist secret
+	docker exec -it ticketchain-postgres psql -U ticketchain -d ticketchain_dev -c "CREATE USER test_user WITH PASSWORD 'postgres_test';" || echo "User may already exist"
 	docker exec -it ticketchain-postgres psql -U ticketchain -d ticketchain_dev -c "CREATE DATABASE ticketchain_test OWNER test_user;" || echo "Database may already exist"
 	@echo "Test database setup complete!"
 

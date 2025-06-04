@@ -122,7 +122,7 @@ export class CacheService {
     try {
       const hash = await this.redis.hgetall(key);
       const result: Record<string, T> = {};
-      
+
       for (const [field, value] of Object.entries(hash)) {
         try {
           result[field] = JSON.parse(value);
@@ -131,7 +131,7 @@ export class CacheService {
           result[field] = value as unknown as T;
         }
       }
-      
+
       return result;
     } catch (error) {
       this.logger.error(`Failed to get all hash values for key ${key}:`, error);

@@ -139,8 +139,8 @@ export class CreateEventsTable1717344000000 implements MigrationInterface {
     `);
 
     await queryRunner.query(`
-      CREATE TRIGGER update_events_updated_at 
-      BEFORE UPDATE ON events 
+      CREATE TRIGGER update_events_updated_at
+      BEFORE UPDATE ON events
       FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
     `);
   }

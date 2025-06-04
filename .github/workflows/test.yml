@@ -11,11 +11,12 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
+      # Database service for testing
       postgres:
         image: postgres:14
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASSWORD || 'postgres_test' }}
           POSTGRES_DB: ticketchain_test
         ports:
           - 5432:5432
@@ -25,6 +26,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
 
+      # Cache service for testing
       redis:
         image: redis:6
         ports:
@@ -71,22 +73,26 @@ jobs:
         env:
           HARDHAT_NETWORK: localhost
 
-      - name: Create .env.test.local file
+      - name: Create test environment file
         run: |
-          echo "DB_HOST=localhost" >> .env.test.local
-          echo "DB_PORT=5432" >> .env.test.local
-          echo "DB_USERNAME=postgres" >> .env.test.local
-          echo "DB_PASSWORD=postgres" >> .env.test.local
-          echo "DB_NAME=ticketchain_test" >> .env.test.local
-          echo "REDIS_HOST=localhost" >> .env.test.local
-          echo "REDIS_PORT=6379" >> .env.test.local
-          echo "ENABLE_IN_MEMORY_DB=true" >> .env.test.local
-          echo "BLOCKCHAIN_PROVIDER_URL=http://localhost:8545" >> .env.test.local
-          echo "BLOCKCHAIN_PRIVATE_KEY=0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80" >> .env.test.local
-          echo "CONTRACT_EVENT_REGISTRY_ADDRESS=$CONTRACT_EVENT_REGISTRY_ADDRESS" >> .env.test.local
-          echo "CONTRACT_TICKET_NFT_ADDRESS=$CONTRACT_TICKET_NFT_ADDRESS" >> .env.test.local
-          echo "CONTRACT_MARKETPLACE_ADDRESS=$CONTRACT_MARKETPLACE_ADDRESS" >> .env.test.local
-          echo "TEST_ARTIST_ADDRESS=0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266" >> .env.test.local
+          cat > .env.test.local << EOL
+          DB_HOST=localhost
+          DB_PORT=5432
+          DB_USERNAME=test_user
+          DB_PASSWORD=\${{ secrets.TEST_DB_PASSWORD || 'postgres_test' }}
+          DB_NAME=ticketchain_test
+          REDIS_HOST=localhost
+          REDIS_PORT=6379
+          ENABLE_IN_MEMORY_DB=true
+          BLOCKCHAIN_PROVIDER_URL=http://localhost:8545
+          # Test account private key (not for production use)
+          # pragma: allowlist secret
+          BLOCKCHAIN_PRIVATE_KEY=0x1111111111111111111111111111111111111111111111111111111111111111
+          CONTRACT_EVENT_REGISTRY_ADDRESS=$CONTRACT_EVENT_REGISTRY_ADDRESS
+          CONTRACT_TICKET_NFT_ADDRESS=$CONTRACT_TICKET_NFT_ADDRESS
+          CONTRACT_MARKETPLACE_ADDRESS=$CONTRACT_MARKETPLACE_ADDRESS
+          TEST_ARTIST_ADDRESS=0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266
+          EOL
 
       - name: Run Jest unit tests
         run: npm run test:unit

@@ -49,7 +49,7 @@ const mockPaginate = paginate as jest.MockedFunction<typeof paginate>;
 describe('EventsService', () => {
   // Suppress all log output for this test suite
   suppressAllLogOutput();
-  
+
   let service: EventsService;
   let eventRepository: Repository<EventEntity>;
   let blockchainService: BlockchainService;

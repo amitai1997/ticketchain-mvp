@@ -18,13 +18,13 @@ TicketChain provides a B2B Infrastructure-as-a-Service (IaaS) that enables any t
 
 ## 🚀 Quick Start
 
-### Prerequisites
+### System Requirements
 
 - Docker & Docker Compose v2
 - Node.js 18+ & npm
 - Git
 
-### Setup
+### Initial Setup
 
 ```bash
 # Clone the repository
@@ -52,7 +52,7 @@ npx hardhat run scripts/deploy.js --network localhost
 # CONTRACT_MARKETPLACE_ADDRESS=0x...
 
 # Run unit tests (skips integration tests that require database setup)
-npm test -- --testPathIgnorePatterns=integration
+npm run test:unit
 ```
 
 The following services will be available:
@@ -142,7 +142,7 @@ make format
 make security
 ```
 
-### Testing
+### Project Testing
 
 > ⚠️ **Note:** Test environment is automatically setup when running `make setup`.
 

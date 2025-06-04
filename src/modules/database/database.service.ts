@@ -77,7 +77,7 @@ export class DatabaseService {
       const startTime = Date.now();
       await this.dataSource.query('SELECT 1');
       const uptime = Date.now() - startTime;
-      
+
       return {
         status: 'healthy',
         database: this.dataSource.options.database as string,
@@ -106,7 +106,7 @@ export class DatabaseService {
     try {
       const database = this.dataSource.options.database as string;
       const isConnected = this.dataSource.isInitialized;
-      
+
       // Get connection count (PostgreSQL specific)
       let connectionCount = 0;
       try {
