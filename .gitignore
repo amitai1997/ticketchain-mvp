@@ -67,3 +67,7 @@ contract-sizes.txt
 # Package lock files (optional - remove if you want to commit them)
 # package-lock.json
 # yarn.lock
+
+# Gitleaks binary files
+gitleaks
+gitleaks.tar.gz

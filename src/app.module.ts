@@ -33,7 +33,7 @@ import { CacheModule } from './modules/cache/cache.module';
             logging: configService.get('database.logging'),
           };
         }
-        
+
         // Default PostgreSQL configuration for production/development
         return {
           type: 'postgres',

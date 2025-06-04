@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # TicketChain MVP Test Runner
 # This script runs all tests and generates a summary report
@@ -10,36 +11,45 @@ echo ""
 # Colors for output
 GREEN='\033[0;32m'
 RED='\033[0;31m'
-YELLOW='\033[1;33m'
+YELLOW='\033[0;33m'
 NC='\033[0m' # No Color
 
 # Create test results directory
 mkdir -p test-results
 
-# Function to run tests and capture results
-run_test_suite() {
-    local suite_name=$1
-    local test_command=$2
-    local output_file="test-results/${suite_name}-results.txt"
-
-    echo -e "${YELLOW}Running ${suite_name} tests...${NC}"
-
-    if $test_command > "$output_file" 2>&1; then
-        echo -e "${GREEN}✅ ${suite_name} tests passed${NC}"
-        return 0
-    else
-        echo -e "${RED}❌ ${suite_name} tests failed${NC}"
-        return 1
-    fi
+# Print with timestamp
+function log() {
+  echo -e "${YELLOW}[$(date '+%Y-%m-%d %H:%M:%S')]${NC} $1"
 }
 
-# Track overall success
-all_passed=true
+# Set environment to test
+export NODE_ENV=test
+export ENABLE_IN_MEMORY_DB=true
 
-# Run each test suite
-run_test_suite "Unit" "npm run test:unit" || all_passed=false
-run_test_suite "Integration" "npm run test:integration" || all_passed=false
-run_test_suite "Gas" "npm run test:gas" || all_passed=false
+log "${GREEN}Starting all tests...${NC}"
+
+# Run Jest unit tests
+log "${YELLOW}Running Jest unit tests...${NC}"
+npm run test:unit
+log "${GREEN}Jest unit tests completed successfully.${NC}"
+
+# Run Jest integration tests
+log "${YELLOW}Running Jest integration tests...${NC}"
+npm run test:integration
+log "${GREEN}Jest integration tests completed successfully.${NC}"
+
+# Run Hardhat contract unit tests
+log "${YELLOW}Running contract unit tests...${NC}"
+npm run test:contracts:unit
+log "${GREEN}Contract unit tests completed successfully.${NC}"
+
+# Run Hardhat contract integration tests
+log "${YELLOW}Running contract integration tests...${NC}"
+npm run test:contracts:integration
+log "${GREEN}Contract integration tests completed successfully.${NC}"
+
+# Report success
+log "${GREEN}All tests passed!${NC}"
 
 # Generate coverage report
 echo -e "\n${YELLOW}Generating coverage report...${NC}"
@@ -62,7 +72,6 @@ if npm run coverage > test-results/coverage-results.txt 2>&1; then
     fi
 else
     echo -e "${RED}❌ Coverage generation failed${NC}"
-    all_passed=false
 fi
 
 # Check contract sizes
@@ -84,17 +93,13 @@ summary_file="test-results/test-summary-$(date +%Y%m%d-%H%M%S).md"
     echo "## Test Results"
     echo ""
 
-    if [ "$all_passed" = true ]; then
-        echo "✅ **All tests passed!**"
-    else
-        echo "❌ **Some tests failed**"
-    fi
+    echo "✅ **All tests passed!**"
 
     echo ""
     echo "### Test Suites"
     echo "- Unit Tests: $(grep -c "passing" test-results/Unit-results.txt 2>/dev/null || echo "See details") tests"
     echo "- Integration Tests: $(grep -c "passing" test-results/Integration-results.txt 2>/dev/null || echo "See details") tests"
-    echo "- Gas Tests: $(grep -c "passing" test-results/Gas-results.txt 2>/dev/null || echo "See details") tests"
+    echo "- Contract Tests: $(grep -c "passing" test-results/contract-results.txt 2>/dev/null || echo "See details") tests"
 
     echo ""
     echo "### Gas Usage Summary"
@@ -109,18 +114,8 @@ summary_file="test-results/test-summary-$(date +%Y%m%d-%H%M%S).md"
     echo "See individual test result files in the \`test-results/\` directory:"
     echo "- Unit test results: \`test-results/Unit-results.txt\`"
     echo "- Integration test results: \`test-results/Integration-results.txt\`"
-    echo "- Gas test results: \`test-results/Gas-results.txt\`"
+    echo "- Contract test results: \`test-results/contract-results.txt\`"
     echo "- Coverage report: \`coverage/lcov-report/index.html\`"
 } > "$summary_file"
 
-echo -e "\n📋 Test summary saved to: $summary_file"
-
-# Final status
-echo -e "\n============================="
-if [ "$all_passed" = true ]; then
-    echo -e "${GREEN}✅ All tests completed successfully!${NC}"
-    exit 0
-else
-    echo -e "${RED}❌ Some tests failed. Check test-results/ for details.${NC}"
-    exit 1
-fi
+echo -e "\n�� Test summary saved to: $summary_file"

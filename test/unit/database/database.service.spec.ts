@@ -2,8 +2,12 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getDataSourceToken } from '@nestjs/typeorm';
 import { DataSource, Repository, EntityManager, QueryRunner } from 'typeorm';
 import { DatabaseService } from '../../../src/modules/database/database.service';
+import { suppressAllLogOutput } from '../../utils/suppress-errors';
 
 describe('DatabaseService', () => {
+  // Suppress all log output for this test suite
+  suppressAllLogOutput();
+
   let service: DatabaseService;
   let mockDataSource: Partial<DataSource>;
   let mockEntityManager: Partial<EntityManager>;
@@ -59,7 +63,7 @@ describe('DatabaseService', () => {
     it('should return a repository for the given entity', () => {
       class TestEntity {}
       const mockRepository = {} as Repository<TestEntity>;
-      
+
       (mockDataSource.getRepository as jest.Mock).mockReturnValue(mockRepository);
 
       const result = service.getRepository(TestEntity);

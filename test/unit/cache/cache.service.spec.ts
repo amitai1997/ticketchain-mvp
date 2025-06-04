@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { CacheService } from '../../../src/modules/cache/cache.service';
+import { suppressAllLogOutput } from '../../utils/suppress-errors';
 
 // Mock Redis
 jest.mock('ioredis', () => {
@@ -23,6 +24,9 @@ jest.mock('ioredis', () => {
 });
 
 describe('CacheService', () => {
+  // Suppress all log output for this test suite
+  suppressAllLogOutput();
+
   let service: CacheService;
   let mockRedis: any;
 
@@ -59,7 +63,7 @@ describe('CacheService', () => {
     it('should set a value without TTL', async () => {
       const key = 'test-key';
       const value = { data: 'test' };
-      
+
       mockRedis.set.mockResolvedValue('OK');
 
       await service.set(key, value);
@@ -72,7 +76,7 @@ describe('CacheService', () => {
       const key = 'test-key';
       const value = { data: 'test' };
       const ttl = 300;
-      
+
       mockRedis.setex.mockResolvedValue('OK');
 
       await service.set(key, value, ttl);
@@ -84,7 +88,7 @@ describe('CacheService', () => {
     it('should handle set errors', async () => {
       const key = 'test-key';
       const value = { data: 'test' };
-      
+
       mockRedis.set.mockRejectedValue(new Error('Redis error'));
 
       await expect(service.set(key, value)).rejects.toThrow('Redis error');
@@ -95,7 +99,7 @@ describe('CacheService', () => {
     it('should get a value and parse JSON', async () => {
       const key = 'test-key';
       const value = { data: 'test' };
-      
+
       mockRedis.get.mockResolvedValue(JSON.stringify(value));
 
       const result = await service.get(key);
@@ -106,7 +110,7 @@ describe('CacheService', () => {
 
     it('should return null for non-existent key', async () => {
       const key = 'non-existent-key';
-      
+
       mockRedis.get.mockResolvedValue(null);
 
       const result = await service.get(key);
@@ -116,7 +120,7 @@ describe('CacheService', () => {
 
     it('should handle get errors gracefully', async () => {
       const key = 'test-key';
-      
+
       mockRedis.get.mockRejectedValue(new Error('Redis error'));
 
       const result = await service.get(key);
@@ -128,7 +132,7 @@ describe('CacheService', () => {
   describe('del', () => {
     it('should delete a key', async () => {
       const key = 'test-key';
-      
+
       mockRedis.del.mockResolvedValue(1);
 
       await service.del(key);
@@ -138,7 +142,7 @@ describe('CacheService', () => {
 
     it('should handle delete errors', async () => {
       const key = 'test-key';
-      
+
       mockRedis.del.mockRejectedValue(new Error('Redis error'));
 
       await expect(service.del(key)).rejects.toThrow('Redis error');
@@ -150,7 +154,7 @@ describe('CacheService', () => {
       const key = 'hash-key';
       const field = 'field1';
       const value = { data: 'test' };
-      
+
       mockRedis.hset.mockResolvedValue(1);
 
       await service.hset(key, field, value);
@@ -164,7 +168,7 @@ describe('CacheService', () => {
       const key = 'hash-key';
       const field = 'field1';
       const value = { data: 'test' };
-      
+
       mockRedis.hget.mockResolvedValue(JSON.stringify(value));
 
       const result = await service.hget(key, field);
@@ -176,7 +180,7 @@ describe('CacheService', () => {
     it('should return null for non-existent hash field', async () => {
       const key = 'hash-key';
       const field = 'field1';
-      
+
       mockRedis.hget.mockResolvedValue(null);
 
       const result = await service.hget(key, field);
@@ -192,7 +196,7 @@ describe('CacheService', () => {
         field1: JSON.stringify({ data: 'test1' }),
         field2: JSON.stringify({ data: 'test2' }),
       };
-      
+
       mockRedis.hgetall.mockResolvedValue(hashData);
 
       const result = await service.hgetall(key);
@@ -210,7 +214,7 @@ describe('CacheService', () => {
         field1: JSON.stringify({ data: 'test1' }),
         field2: 'invalid-json',
       };
-      
+
       mockRedis.hgetall.mockResolvedValue(hashData);
 
       const result = await service.hgetall(key);
@@ -226,7 +230,7 @@ describe('CacheService', () => {
     it('should set expiration for a key', async () => {
       const key = 'test-key';
       const ttl = 300;
-      
+
       mockRedis.expire.mockResolvedValue(1);
 
       await service.expire(key, ttl);
@@ -238,7 +242,7 @@ describe('CacheService', () => {
   describe('exists', () => {
     it('should return true if key exists', async () => {
       const key = 'test-key';
-      
+
       mockRedis.exists.mockResolvedValue(1);
 
       const result = await service.exists(key);
@@ -249,7 +253,7 @@ describe('CacheService', () => {
 
     it('should return false if key does not exist', async () => {
       const key = 'test-key';
-      
+
       mockRedis.exists.mockResolvedValue(0);
 
       const result = await service.exists(key);
@@ -259,7 +263,7 @@ describe('CacheService', () => {
 
     it('should handle exists errors gracefully', async () => {
       const key = 'test-key';
-      
+
       mockRedis.exists.mockRejectedValue(new Error('Redis error'));
 
       const result = await service.exists(key);
@@ -272,7 +276,7 @@ describe('CacheService', () => {
     it('should return matching keys', async () => {
       const pattern = 'user:*';
       const keys = ['user:1', 'user:2'];
-      
+
       mockRedis.keys.mockResolvedValue(keys);
 
       const result = await service.keys(pattern);
@@ -283,7 +287,7 @@ describe('CacheService', () => {
 
     it('should handle keys errors gracefully', async () => {
       const pattern = 'user:*';
-      
+
       mockRedis.keys.mockRejectedValue(new Error('Redis error'));
 
       const result = await service.keys(pattern);
@@ -295,7 +299,7 @@ describe('CacheService', () => {
   describe('incr', () => {
     it('should increment by 1 by default', async () => {
       const key = 'counter';
-      
+
       mockRedis.incr.mockResolvedValue(5);
 
       const result = await service.incr(key);
@@ -307,7 +311,7 @@ describe('CacheService', () => {
     it('should increment by specified amount', async () => {
       const key = 'counter';
       const increment = 5;
-      
+
       mockRedis.incrby.mockResolvedValue(10);
 
       const result = await service.incr(key, increment);
