@@ -13,5 +13,7 @@
   "moduleNameMapper": {
     "^@/(.*)$": "<rootDir>/src/$1"
   },
-  "setupFilesAfterEnv": ["<rootDir>/test/jest.setup.ts"]
+  "setupFilesAfterEnv": ["<rootDir>/test/jest.setup.ts"],
+  "globalTeardown": "<rootDir>/test/jest.teardown.ts",
+  "forceExit": true
 }
