@@ -109,4 +109,4 @@ jobs:
         run: npm run test:cov
         env:
           NODE_ENV: test
-          ENABLE_IN_MEMORY_DB: 'true' 
+          ENABLE_IN_MEMORY_DB: 'true'

@@ -8,11 +8,11 @@ import { EventEntity } from '../../../src/modules/events/entities/event.entity';
 import configuration from '../../../src/config/configuration';
 import { createTestingApp } from '../../utils/test-app';
 import { suppressAllLogOutput } from '../../utils/suppress-errors';
-import { 
-  TEST_ARTIST_ADDRESS, 
+import {
+  TEST_ARTIST_ADDRESS,
   TEST_EVENT_REGISTRY_ADDRESS,
   TEST_TICKET_NFT_ADDRESS,
-  TEST_MARKETPLACE_ADDRESS 
+  TEST_MARKETPLACE_ADDRESS
 } from '../../test-config';
 
 // Assuming you have these modules and entities in your project
@@ -28,7 +28,7 @@ describe('Marketplace Controller (Integration)', () => {
 
   let app: INestApplication;
   let cleanup: () => Promise<void>;
-  
+
   // Test user addresses
   const buyer1Address = '0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266';
   const buyer2Address = '0x70997970c51812dc3a010c7d01b50e0d17dc79c8';
@@ -112,11 +112,11 @@ describe('Marketplace Controller (Integration)', () => {
     });
 
     app = testApp.app;
-    
+
     // Set global prefix to match the main application
     app.setGlobalPrefix('api');
     await app.init();
-    
+
     cleanup = testApp.cleanup;
   });
 
@@ -169,7 +169,7 @@ describe('Marketplace Controller (Integration)', () => {
       expect(response.body).toHaveProperty('success', true);
       expect(response.body).toHaveProperty('ticketIds');
       expect(response.body.ticketIds).toHaveLength(5);
-      
+
       // Verify tickets were minted by getting the event tickets
       const ticketsResponse = await request(app.getHttpServer())
         .get(`/api/marketplace/event/${eventId}/tickets`)
@@ -343,4 +343,4 @@ describe('Marketplace Controller (Integration)', () => {
         .expect(400); // Should fail with a 400 Bad Request
     });
   });
-}); 
+});

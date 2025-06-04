@@ -68,11 +68,11 @@ describe('Events Controller (Integration)', () => {
     });
 
     app = testApp.app;
-    
+
     // Set global prefix to match the main application
     app.setGlobalPrefix('api');
     await app.init();
-    
+
     cleanup = testApp.cleanup;
   });
 
@@ -159,7 +159,7 @@ describe('Events Controller (Integration)', () => {
 
     it('should return 404 for non-existent event ID', async () => {
       const nonExistentId = 'non-existent-id';
-      
+
       await request(app.getHttpServer())
         .get(`/api/events/${nonExistentId}`)
         .expect(404);
@@ -203,7 +203,7 @@ describe('Events Controller (Integration)', () => {
 
     it('should return 404 when updating status for non-existent event', async () => {
       const nonExistentId = 'non-existent-id';
-      
+
       await request(app.getHttpServer())
         .patch(`/api/events/${nonExistentId}/status`)
         .send({ status: 'active' })
