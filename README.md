@@ -122,11 +122,10 @@ npx hardhat run scripts/deploy.js --network localhost
 # Option 1: Run API server in Docker (production-like environment)
 make docker-up  # Starts all services including the API server
 
-# Option 2: Run API server locally (development with auto-reload)
-make local-dev  # Stops Docker API container and runs API locally
-
-# Option 3: Run API server manually
-npm run start:local  # Same as make local-dev
+# Option 2: Run API server locally with auto-reload (all these options automatically stop Docker API container)
+npm run start:dev    # Stops Docker API container and runs local server with auto-reload
+npm run start:local  # Same as start:dev (included for clarity)
+make local-dev      # Same functionality via Makefile
 ```
 
 ### Code Quality
@@ -207,7 +206,7 @@ The following issues were fixed in this update:
 7. Improved test commands to allow running unit tests without database connection
 8. Added specific instructions for setting up test database environment
 9. Automated test database setup with new `db-test-setup` Makefile target
-10. Added improved local development workflow with `make local-dev` and `npm run start:local` commands that automatically stop the Docker API container to prevent port conflicts
+10. Added improved local development workflow with `make local-dev`, `npm run start:local`, and `npm run start:dev` commands that automatically stop the Docker API container to prevent port conflicts
 
 ### Known Issues
 

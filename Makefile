@@ -197,5 +197,4 @@ api-status:
 # Local development
 local-dev:
 	@echo "Stopping Docker API container and starting local dev server..."
-	docker stop ticketchain-api 2>/dev/null || true
-	npm run start:local
+	npm run start:dev
