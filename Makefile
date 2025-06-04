@@ -1,4 +1,4 @@
-.PHONY: help setup install test lint format clean docker-up docker-down chain deploy compile api-health api-status
+.PHONY: help setup install test lint format clean docker-up docker-down chain deploy compile api-health api-status local-dev
 
 # Default target
 help:
@@ -16,6 +16,7 @@ help:
 	@echo "  make compile      - Compile smart contracts"
 	@echo "  make api-health   - Check API health status"
 	@echo "  make api-status   - Check API service status"
+	@echo "  make local-dev    - Run API locally while using Docker services"
 
 # Initial setup
 setup: install
@@ -192,3 +193,9 @@ api-health:
 api-status:
 	@echo "Checking API service status..."
 	curl -H "X-API-KEY: development" http://localhost:3000/health/live
+
+# Local development
+local-dev:
+	@echo "Stopping Docker API container and starting local dev server..."
+	docker stop ticketchain-api 2>/dev/null || true
+	npm run start:local

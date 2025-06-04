@@ -119,11 +119,14 @@ npx hardhat run scripts/deploy.js --network localhost
 # CONTRACT_TICKET_NFT_ADDRESS=0x...
 # CONTRACT_MARKETPLACE_ADDRESS=0x...
 
-# Run API server (Docker - recommended)
+# Option 1: Run API server in Docker (production-like environment)
 make docker-up  # Starts all services including the API server
 
-# Run API server (Manual - for development)
-npm run start:dev
+# Option 2: Run API server locally (development with auto-reload)
+make local-dev  # Stops Docker API container and runs API locally
+
+# Option 3: Run API server manually
+npm run start:local  # Same as make local-dev
 ```
 
 ### Code Quality
@@ -204,6 +207,7 @@ The following issues were fixed in this update:
 7. Improved test commands to allow running unit tests without database connection
 8. Added specific instructions for setting up test database environment
 9. Automated test database setup with new `db-test-setup` Makefile target
+10. Added improved local development workflow with `make local-dev` and `npm run start:local` commands that automatically stop the Docker API container to prevent port conflicts
 
 ### Known Issues
 
@@ -232,6 +236,7 @@ The following issues were fixed in this update:
    POSTGRES_PASSWORD → DB_PASSWORD
    POSTGRES_DB → DB_NAME
    ```
+5. **API Port Conflict**: Fixed in this update - If you want to run the API server locally while using Docker for other services, use `make local-dev` or `npm run start:local` which automatically stops the Docker API container to avoid port conflicts.
 
 ### Future Steps
 
