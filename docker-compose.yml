@@ -64,6 +64,33 @@ services:
       MH_SMTP_BIND_ADDR: 0.0.0.0:1025
       MH_UI_BIND_ADDR: 0.0.0.0:8025
 
+  # API server
+  api:
+    build:
+      context: .
+      dockerfile: ./infra/docker/api.Dockerfile
+    container_name: ticketchain-api
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src:/app/src
+      - ./config:/app/config
+      - ./infra/docker/.env.docker:/app/.env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      hardhat-node:
+        condition: service_started
+    command: npm run start:dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
 volumes:
   postgres_data:
   redis_data:

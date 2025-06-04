@@ -13,3 +13,5 @@ README.md:aws-access-token:259
 .env.example:ethereum-private-key:37
 .env.example:ethereum-private-key:38
 .env.example:ethereum-private-key:39
+
+infra/docker/.env.docker:generic-api-key:21

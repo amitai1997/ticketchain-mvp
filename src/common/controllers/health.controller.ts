@@ -23,7 +23,7 @@ interface HealthCheckResponse {
 }
 
 @ApiTags('health')
-@Controller('api/health')
+@Controller('health')
 export class HealthController {
   constructor(
     private readonly databaseService: DatabaseService,
@@ -32,91 +32,11 @@ export class HealthController {
   ) {}
 
   @Get()
-  @Public()
-  @ApiOperation({ summary: 'Health check endpoint' })
-  @ApiResponse({
-    status: 200,
-    description: 'Service health status',
-  })
-  async getHealth(): Promise<HealthCheckResponse> {
-    const timestamp = new Date().toISOString();
-    const version = process.env.npm_package_version || '1.0.0';
-    
-    // Check database health
-    const databaseStart = Date.now();
-    let databaseHealth;
-    try {
-      const dbCheck = await this.databaseService.healthCheck();
-      databaseHealth = {
-        status: 'healthy' as const,
-        responseTime: Date.now() - databaseStart,
-        details: dbCheck,
-      };
-    } catch (error) {
-      databaseHealth = {
-        status: 'unhealthy' as const,
-        responseTime: Date.now() - databaseStart,
-        details: { error: (error as Error).message },
-      };
-    }
-
-    // Check cache health
-    const cacheStart = Date.now();
-    let cacheHealth;
-    try {
-      await this.cacheService.set('health-check', { timestamp }, 30);
-      const testValue = await this.cacheService.get('health-check');
-      cacheHealth = {
-        status: testValue ? 'healthy' as const : 'unhealthy' as const,
-        responseTime: Date.now() - cacheStart,
-        details: { connected: !!testValue },
-      };
-    } catch (error) {
-      cacheHealth = {
-        status: 'unhealthy' as const,
-        responseTime: Date.now() - cacheStart,
-        details: { error: (error as Error).message },
-      };
-    }
-
-    // Check blockchain health
-    const blockchainStart = Date.now();
-    let blockchainHealth;
-    try {
-      const provider = this.blockchainService.getProvider();
-      const blockNumber = await provider.getBlockNumber();
-      blockchainHealth = {
-        status: 'healthy' as const,
-        responseTime: Date.now() - blockchainStart,
-        details: {
-          blockNumber,
-          network: provider._network?.name || 'unknown',
-        },
-      };
-    } catch (error) {
-      blockchainHealth = {
-        status: 'unhealthy' as const,
-        responseTime: Date.now() - blockchainStart,
-        details: { error: (error as Error).message },
-      };
-    }
-
-    // Determine overall health
-    const allHealthy = [
-      databaseHealth.status,
-      cacheHealth.status,
-      blockchainHealth.status,
-    ].every(status => status === 'healthy');
-
+  check() {
     return {
-      status: allHealthy ? 'healthy' : 'unhealthy',
-      timestamp,
-      version,
-      services: {
-        database: databaseHealth,
-        cache: cacheHealth,
-        blockchain: blockchainHealth,
-      },
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
     };
   }
 
