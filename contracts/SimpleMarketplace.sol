@@ -39,7 +39,7 @@ contract SimpleMarketplace is Ownable, ReentrancyGuard, ISimpleMarketplace {
     IEventRegistry public immutable EVENT_REGISTRY;
 
     // Platform fee in basis points (100 = 1%)
-    uint256 public immutable override PLATFORM_FEE_BPS;
+    uint256 public immutable PLATFORM_FEE_BPS;
 
     // Maximum platform fee allowed (10%)
     uint256 public constant MAX_PLATFORM_FEE = 1000;
@@ -74,6 +74,14 @@ contract SimpleMarketplace is Ownable, ReentrancyGuard, ISimpleMarketplace {
         TICKET_NFT = ITicketNFT(_ticketNFT);
         EVENT_REGISTRY = IEventRegistry(_eventRegistry);
         PLATFORM_FEE_BPS = _platformFeeBps;
+    }
+
+    /**
+     * @notice Get the platform fee in basis points
+     * @return The platform fee in basis points
+     */
+    function platformFeeBps() external view override returns (uint256) {
+        return PLATFORM_FEE_BPS;
     }
 
     /**
