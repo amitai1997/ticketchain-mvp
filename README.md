@@ -48,8 +48,8 @@ The following services will be available:
 
 - API Server: <http://localhost:3000>
 - Hardhat Node: <http://localhost:8545>
-- PostgreSQL: localhost:5432
-- Redis: localhost:6379
+- PostgreSQL: <http://localhost:5432>
+- Redis: <http://localhost:6379>
 - MailHog UI: <http://localhost:8025>
 
 ## 🏗️ Architecture
@@ -65,21 +65,6 @@ The following services will be available:
               ┌─────▼─────┐ ┌────▼────┐
               │ PostgreSQL │ │  Redis  │
               └───────────┘ └─────────┘
-```
-
-## 📁 Project Structure
-
-```
-.
-├── contracts/          # Solidity smart contracts
-│   ├── interfaces/     # Contract interfaces
-│   └── libraries/      # Shared libraries
-├── src/               # Backend API (NestJS)
-├── scripts/           # Deployment and utility scripts
-├── tests/            # Test suites
-├── docs/             # Documentation
-├── infra/            # Infrastructure as Code
-└── config/           # Configuration files
 ```
 
 ## 🛠️ Development
@@ -160,7 +145,7 @@ NODE_ENV=test npm test
 ```
 
 3. **File Structure:**
-   - `.env.example` - Complete documentation of all environment variables
+   - `.env.example` - Complete documentation of all environment variables (safe to commit)
    - `.env.test` - Test-specific configuration (safe to commit)
    - `.env` - Your local development environment (never commit)
    - `.env.test.local` - Your local test credentials (never commit)
@@ -168,48 +153,6 @@ NODE_ENV=test npm test
 > **IMPORTANT:** Never hardcode credentials in test files. Always use environment variables for sensitive information.
 >
 > **NOTE:** The `make setup` command will not overwrite an existing `.env` file. If you need to reset to defaults, remove your existing file first.
-
-## Command & Env Fix Log (2025-06-04)
-
-The following issues were fixed in this update:
-
-1. Fixed `make setup` to properly check for existing `.env` files before copying from `.env.example`
-2. Updated project description in README to clarify it's a NestJS application, not Python
-3. Corrected `make test-python` to `make test-nodejs` to match the actual project structure
-4. Updated the API server start command from Python-based to Node.js-based
-5. Fixed Docker Compose configuration by removing obsolete version attribute
-6. Made poetry installation optional in the Makefile to handle environments without Python
-7. Improved test commands to allow running unit tests without database connection
-8. Added specific instructions for setting up test database environment
-
-## Security Dependency Updates (2025-06-05)
-
-The following security issues were addressed:
-
-1. Updated Python dependencies:
-   - Upgraded `python-multipart` to 0.0.18+ to address CVE-2024-53981
-   - Upgraded `pyjwt` to 2.10.1+ to address CVE-2024-53861
-   - Replaced `python-jose` with `authlib` to address CVE-2024-33663 and CVE-2024-33664
-   - Upgraded `cryptography` to 44.0.1+ to address CVE-2024-12797
-   - Manually installed `starlette` 0.40.0 to address CVE-2024-47874
-
-2. Updated JavaScript dependencies:
-   - Added overrides for `multer` (2.0.1+) to fix DoS vulnerability
-   - Added overrides for `cookie` (0.7.0+) to fix out-of-bounds issue
-
-3. Updated `safety` command in Makefile to use new `scan` command instead of deprecated `check` command
-
-## Test Fixes (2025-06-05)
-
-1. Fixed SQLite compatibility issue with timestamp data types in the EventEntity model. Changed date field to use 'datetime' type when running with in-memory database during tests.
-2. All unit and integration tests now pass successfully with `NODE_ENV=test npm test`.
-
-### Known Issues
-
-1. **Integration Tests**: Require a properly configured PostgreSQL database with a `test_user` account. Instructions have been added to set this up.
-2. **Jest Configuration**: There's a typo in the Jest configuration (`moduleNameMapping` should be `moduleNameMapper`).
-3. **Node.js Version**: Hardhat warns about using Node.js v23+, which it doesn't officially support yet.
-4. **TypeORM and SQLite**: When using SQLite for testing (better-sqlite3 driver), timestamp data types need to be configured as 'datetime' type. This has been fixed in entity models.
 
 ### Future Steps
 
