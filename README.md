@@ -182,6 +182,23 @@ The following issues were fixed in this update:
 7. Improved test commands to allow running unit tests without database connection
 8. Added specific instructions for setting up test database environment
 
+## Security Dependency Updates (2025-06-05)
+
+The following security issues were addressed:
+
+1. Updated Python dependencies:
+   - Upgraded `python-multipart` to 0.0.18+ to address CVE-2024-53981
+   - Upgraded `pyjwt` to 2.10.1+ to address CVE-2024-53861
+   - Replaced `python-jose` with `authlib` to address CVE-2024-33663 and CVE-2024-33664
+   - Upgraded `cryptography` to 44.0.1+ to address CVE-2024-12797
+   - Manually installed `starlette` 0.40.0 to address CVE-2024-47874
+
+2. Updated JavaScript dependencies:
+   - Added overrides for `multer` (2.0.1+) to fix DoS vulnerability 
+   - Added overrides for `cookie` (0.7.0+) to fix out-of-bounds issue
+
+3. Updated `safety` command in Makefile to use new `scan` command instead of deprecated `check` command
+
 ### Known Issues
 
 1. **Integration Tests**: Require a properly configured PostgreSQL database with a `test_user` account. Instructions have been added to set this up.

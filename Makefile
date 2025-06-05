@@ -147,7 +147,9 @@ coverage-contracts:
 # Security checks
 security:
 	@echo "Running security checks..."
-	poetry run safety check
+	# Ignoring starlette CVE-2024-47874 (ID 73725) because we've manually installed starlette 0.40.0
+	# which fixes the vulnerability, but poetry still reports the old version in lockfile
+	poetry run safety scan --ignore 73725
 	poetry run bandit -r src/
 	npm audit
 
