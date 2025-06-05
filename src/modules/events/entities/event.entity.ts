@@ -8,7 +8,7 @@ export class EventEntity {
   @Column({ length: 100 })
   name: string;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'timestamp' })
   date: Date;
 
   @Column({ length: 200 })
