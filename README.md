@@ -194,16 +194,22 @@ The following security issues were addressed:
    - Manually installed `starlette` 0.40.0 to address CVE-2024-47874
 
 2. Updated JavaScript dependencies:
-   - Added overrides for `multer` (2.0.1+) to fix DoS vulnerability 
+   - Added overrides for `multer` (2.0.1+) to fix DoS vulnerability
    - Added overrides for `cookie` (0.7.0+) to fix out-of-bounds issue
 
 3. Updated `safety` command in Makefile to use new `scan` command instead of deprecated `check` command
+
+## Test Fixes (2025-06-05)
+
+1. Fixed SQLite compatibility issue with timestamp data types in the EventEntity model. Changed date field to use 'datetime' type when running with in-memory database during tests.
+2. All unit and integration tests now pass successfully with `NODE_ENV=test npm test`.
 
 ### Known Issues
 
 1. **Integration Tests**: Require a properly configured PostgreSQL database with a `test_user` account. Instructions have been added to set this up.
 2. **Jest Configuration**: There's a typo in the Jest configuration (`moduleNameMapping` should be `moduleNameMapper`).
 3. **Node.js Version**: Hardhat warns about using Node.js v23+, which it doesn't officially support yet.
+4. **TypeORM and SQLite**: When using SQLite for testing (better-sqlite3 driver), timestamp data types need to be configured as 'datetime' type. This has been fixed in entity models.
 
 ### Future Steps
 
