@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query, Put, Patch, HttpStatus, HttpCode, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Query, Patch, HttpStatus, HttpCode, BadRequestException } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 
 import { EventsService } from './events.service';
@@ -69,6 +69,6 @@ export class EventsController {
     if (!validStatuses.includes(body.status)) {
       throw new BadRequestException(`Status must be one of: ${validStatuses.join(', ')}`);
     }
-    return this.eventsService.updateStatus(id, body.status as any);
+    return this.eventsService.updateStatus(id, body.status);
   }
 }

@@ -41,6 +41,12 @@ interface TicketData {
   used: boolean;
 }
 
+// Add this type definition after the existing interfaces
+interface MockTransactionResponse {
+  hash: string;
+  wait: () => Promise<{ status: number }>;
+}
+
 @Injectable()
 export class BlockchainService {
   private readonly logger = new Logger(BlockchainService.name);
@@ -280,7 +286,7 @@ export class BlockchainService {
   /**
    * Provide mock responses for different blockchain operations in test environments
    */
-  private getMockResponseForOperation(operationName: string): any {
+  private getMockResponseForOperation(operationName: string): MockTransactionResponse | EventData | TicketData | Record<string, never> {
     // Generate a random hash for transaction hashes
     const mockTxHash = `0x${Array.from({length: 64}, () => Math.floor(Math.random() * 16).toString(16)).join('')}`;
 
@@ -289,22 +295,22 @@ export class BlockchainService {
         return {
           hash: mockTxHash,
           wait: async () => ({ status: 1 }),
-        };
+        } as MockTransactionResponse;
       case 'mintTicket':
         return {
           hash: mockTxHash,
           wait: async () => ({ status: 1 }),
-        };
+        } as MockTransactionResponse;
       case 'listTicket':
         return {
           hash: mockTxHash,
           wait: async () => ({ status: 1 }),
-        };
+        } as MockTransactionResponse;
       case 'buyTicket':
         return {
           hash: mockTxHash,
           wait: async () => ({ status: 1 }),
-        };
+        } as MockTransactionResponse;
       case 'getEvent':
         return {
           ipfsHash: 'QmTestIpfsHash',

@@ -42,7 +42,7 @@ export class CacheService {
    * @param value Value to store
    * @param ttlSeconds Time to live in seconds
    */
-  async set(key: string, value: any, ttlSeconds?: number): Promise<void> {
+  async set<T>(key: string, value: T, ttlSeconds?: number): Promise<void> {
     try {
       const serializedValue = JSON.stringify(value);
       if (this.isTestEnvironment) {
@@ -74,7 +74,7 @@ export class CacheService {
    * @param key Cache key
    * @returns Cached value or null if not found
    */
-  async get<T = any>(key: string): Promise<T | null> {
+  async get<T>(key: string): Promise<T | null> {
     try {
       if (this.isTestEnvironment) {
         const value = this.inMemoryCache.get(key);
@@ -131,7 +131,7 @@ export class CacheService {
    * @param field Hash field
    * @param value Value to store
    */
-  async hset(key: string, field: string, value: any): Promise<void> {
+  async hset<T>(key: string, field: string, value: T): Promise<void> {
     try {
       const serializedValue = JSON.stringify(value);
 
@@ -167,7 +167,7 @@ export class CacheService {
    * @param field Hash field
    * @returns Cached value or null if not found
    */
-  async hget<T = any>(key: string, field: string): Promise<T | null> {
+  async hget<T>(key: string, field: string): Promise<T | null> {
     try {
       if (this.isTestEnvironment) {
         const hash = this.inMemoryHashes.get(key);
@@ -201,7 +201,7 @@ export class CacheService {
    * @param key Hash key
    * @returns Hash object or empty object if not found
    */
-  async hgetall<T = any>(key: string): Promise<Record<string, T>> {
+  async hgetall<T>(key: string): Promise<Record<string, T>> {
     try {
       if (this.isTestEnvironment) {
         const result: Record<string, T> = {};
