@@ -37,11 +37,11 @@ describe("SimpleMarketplace", function () {
     });
 
     it("Should set the correct ticket NFT address", async function () {
-      expect(await marketplace.ticketNFT()).to.equal(await ticketNFT.getAddress());
+      expect(await marketplace.TICKET_NFT()).to.equal(await ticketNFT.getAddress());
     });
 
     it("Should set the correct event registry address", async function () {
-      expect(await marketplace.eventRegistry()).to.equal(await eventRegistry.getAddress());
+      expect(await marketplace.EVENT_REGISTRY()).to.equal(await eventRegistry.getAddress());
     });
   });
 

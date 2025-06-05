@@ -11,11 +11,11 @@ import {IEventRegistry} from "./interfaces/IEventRegistry.sol";
  */
 contract EventRegistry is Ownable, IEventRegistry {
     // Custom errors
-    error InvalidIPFSHash();
-    error InvalidSupply();
+    error InvalidIpfsHash();
+    error InvalidMaxSupply();
     error InvalidMinterAddress();
     error EventDoesNotExist();
-    error NotAuthorized();
+    error NotAuthorizedToPauseEvent();
 
     // Counter for event IDs
     uint256 private _eventIdCounter;
@@ -37,8 +37,8 @@ contract EventRegistry is Ownable, IEventRegistry {
      * @return eventId The ID of the created event
      */
     function createEvent(bytes32 ipfsHash, uint256 maxSupply) external override returns (uint256 eventId) {
-        if (ipfsHash == bytes32(0)) revert InvalidIPFSHash();
-        if (maxSupply == 0) revert InvalidSupply();
+        if (ipfsHash == bytes32(0)) revert InvalidIpfsHash();
+        if (maxSupply == 0) revert InvalidMaxSupply();
 
         // Increment counter and get new event ID
         _eventIdCounter++;
@@ -76,7 +76,7 @@ contract EventRegistry is Ownable, IEventRegistry {
         EventData storage eventData = _events[eventId];
         if (eventData.ipfsHash == bytes32(0)) revert EventDoesNotExist();
         if (msg.sender != eventData.creator && msg.sender != owner())
-            revert NotAuthorized();
+            revert NotAuthorizedToPauseEvent();
 
         eventData.isPaused = !eventData.isPaused;
         emit EventPaused(eventId, eventData.isPaused);
@@ -109,8 +109,8 @@ contract EventRegistry is Ownable, IEventRegistry {
         EventData storage eventData = _events[eventId];
         if (eventData.ipfsHash == bytes32(0)) revert EventDoesNotExist();
         if (msg.sender != eventData.creator && msg.sender != owner())
-            revert NotAuthorized();
-        if (newIpfsHash == bytes32(0)) revert InvalidIPFSHash();
+            revert NotAuthorizedToPauseEvent();
+        if (newIpfsHash == bytes32(0)) revert InvalidIpfsHash();
 
         eventData.ipfsHash = newIpfsHash;
 

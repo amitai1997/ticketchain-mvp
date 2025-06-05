@@ -69,7 +69,7 @@ describe("EventRegistry", function () {
 
       await expect(
         eventRegistry.createEvent(emptyHash, eventData.totalTickets)
-      ).to.be.revertedWith("Invalid IPFS hash");
+      ).to.be.revertedWithCustomError(eventRegistry, "InvalidIpfsHash");
     });
 
     it("Should revert if max supply is zero", async function () {
@@ -77,7 +77,7 @@ describe("EventRegistry", function () {
 
       await expect(
         eventRegistry.createEvent(ipfsHash, 0)
-      ).to.be.revertedWith("Max supply must be greater than 0");
+      ).to.be.revertedWithCustomError(eventRegistry, "InvalidMaxSupply");
     });
   });
 
@@ -129,12 +129,12 @@ describe("EventRegistry", function () {
       // Non-creator, non-owner trying to pause
       await expect(
         eventRegistry.connect(user2).pauseEvent(eventId)
-      ).to.be.revertedWith("Not authorized to pause event");
+      ).to.be.revertedWithCustomError(eventRegistry, "NotAuthorizedToPauseEvent");
     });
 
     it("Should revert if trying to pause non-existent event", async function () {
       await expect(eventRegistry.pauseEvent(999))
-        .to.be.revertedWith("Event does not exist");
+        .to.be.revertedWithCustomError(eventRegistry, "EventDoesNotExist");
     });
   });
 
