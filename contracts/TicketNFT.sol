@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 import {ITicketNFT} from "./interfaces/ITicketNFT.sol";
 import {IEventRegistry} from "./interfaces/IEventRegistry.sol";
 
