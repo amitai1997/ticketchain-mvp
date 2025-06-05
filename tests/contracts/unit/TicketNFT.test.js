@@ -28,7 +28,7 @@ describe("TicketNFT", function () {
     });
 
     it("Should set correct EventRegistry address", async function () {
-      expect(await ticketNFT.eventRegistry()).to.equal(await eventRegistry.getAddress());
+      expect(await ticketNFT.EVENT_REGISTRY()).to.equal(await eventRegistry.getAddress());
     });
   });
 
@@ -79,7 +79,7 @@ describe("TicketNFT", function () {
     it("Should revert if non-authorized minter tries to mint", async function () {
       await expect(
         ticketNFT.connect(buyer).mintTicket(buyer.address, eventId, 1)
-      ).to.be.revertedWith("Not authorized minter");
+      ).to.be.revertedWithCustomError(ticketNFT, "NotAuthorizedMinter");
     });
 
     it("Should allow authorized minter to mint", async function () {
@@ -95,7 +95,7 @@ describe("TicketNFT", function () {
 
       await expect(
         ticketNFT.mintTicket(buyer.address, 999, 1)
-      ).to.be.revertedWith("Event does not exist");
+      ).to.be.revertedWithCustomError(ticketNFT, "EventDoesNotExist");
     });
 
     it("Should revert if minting duplicate seat for same event", async function () {
@@ -106,7 +106,7 @@ describe("TicketNFT", function () {
 
       await expect(
         ticketNFT.mintTicket(buyer2.address, eventId, seatNumber)
-      ).to.be.revertedWith("Seat already minted");
+      ).to.be.revertedWithCustomError(ticketNFT, "SeatAlreadyMinted");
     });
 
     it("Should allow same seat number for different events", async function () {

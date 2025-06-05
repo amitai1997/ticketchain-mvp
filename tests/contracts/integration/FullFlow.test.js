@@ -31,7 +31,7 @@ describe("Full Flow Integration Tests", function () {
       // Non-authorized user cannot mint
       await expect(
         ticketNFT.connect(buyer).mintTicket(buyer.address, eventId, 1)
-      ).to.be.revertedWith("Not authorized minter");
+      ).to.be.revertedWithCustomError(ticketNFT, "NotAuthorizedMinter");
 
       // Authorize user
       await eventRegistry.setMinter(buyer.address, true);
@@ -49,7 +49,7 @@ describe("Full Flow Integration Tests", function () {
       // Cannot mint for paused event
       await expect(
         ticketNFT.mintTicket(buyer.address, eventId, 1)
-      ).to.be.revertedWith("Event is paused");
+      ).to.be.revertedWithCustomError(ticketNFT, "EventIsPaused");
     });
   });
 

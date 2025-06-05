@@ -58,13 +58,13 @@ describe("Edge Cases and Security Tests", function () {
     it("Should reject invalid IPFS hash", async function () {
       await expect(
         eventRegistry.createEvent(ethers.ZeroHash, 100)
-      ).to.be.revertedWith("Invalid IPFS hash");
+      ).to.be.revertedWithCustomError(eventRegistry, "InvalidIpfsHash");
     });
 
     it("Should reject zero supply", async function () {
       await expect(
         eventRegistry.createEvent(ethers.keccak256(ethers.toUtf8Bytes("Test Event")), 0)
-      ).to.be.revertedWith("Max supply must be greater than 0");
+      ).to.be.revertedWithCustomError(eventRegistry, "InvalidMaxSupply");
     });
   });
 

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "./interfaces/IEventRegistry.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {IEventRegistry} from "./interfaces/IEventRegistry.sol";
 
 /**
  * @title EventRegistry
@@ -10,6 +10,13 @@ import "./interfaces/IEventRegistry.sol";
  * @dev Manages event creation, minter authorization, and event state
  */
 contract EventRegistry is Ownable, IEventRegistry {
+    // Custom errors
+    error InvalidIpfsHash();
+    error InvalidMaxSupply();
+    error InvalidMinterAddress();
+    error EventDoesNotExist();
+    error NotAuthorizedToPauseEvent();
+
     // Counter for event IDs
     uint256 private _eventIdCounter;
 
@@ -30,8 +37,8 @@ contract EventRegistry is Ownable, IEventRegistry {
      * @return eventId The ID of the created event
      */
     function createEvent(bytes32 ipfsHash, uint256 maxSupply) external override returns (uint256 eventId) {
-        require(ipfsHash != bytes32(0), "Invalid IPFS hash");
-        require(maxSupply > 0, "Max supply must be greater than 0");
+        if (ipfsHash == bytes32(0)) revert InvalidIpfsHash();
+        if (maxSupply == 0) revert InvalidMaxSupply();
 
         // Increment counter and get new event ID
         _eventIdCounter++;
@@ -55,7 +62,7 @@ contract EventRegistry is Ownable, IEventRegistry {
      * @param allowed Whether the minter should be allowed to mint
      */
     function setMinter(address minter, bool allowed) external override onlyOwner {
-        require(minter != address(0), "Invalid minter address");
+        if (minter == address(0)) revert InvalidMinterAddress();
         _minters[minter] = allowed;
         emit MinterUpdated(minter, allowed);
     }
@@ -67,11 +74,9 @@ contract EventRegistry is Ownable, IEventRegistry {
      */
     function pauseEvent(uint256 eventId) external override {
         EventData storage eventData = _events[eventId];
-        require(eventData.ipfsHash != bytes32(0), "Event does not exist");
-        require(
-            msg.sender == eventData.creator || msg.sender == owner(),
-            "Not authorized to pause event"
-        );
+        if (eventData.ipfsHash == bytes32(0)) revert EventDoesNotExist();
+        if (msg.sender != eventData.creator && msg.sender != owner())
+            revert NotAuthorizedToPauseEvent();
 
         eventData.isPaused = !eventData.isPaused;
         emit EventPaused(eventId, eventData.isPaused);
@@ -102,12 +107,10 @@ contract EventRegistry is Ownable, IEventRegistry {
      */
     function updateEventMetadata(uint256 eventId, bytes32 newIpfsHash) external {
         EventData storage eventData = _events[eventId];
-        require(eventData.ipfsHash != bytes32(0), "Event does not exist");
-        require(
-            msg.sender == eventData.creator || msg.sender == owner(),
-            "Not authorized to update event"
-        );
-        require(newIpfsHash != bytes32(0), "Invalid IPFS hash");
+        if (eventData.ipfsHash == bytes32(0)) revert EventDoesNotExist();
+        if (msg.sender != eventData.creator && msg.sender != owner())
+            revert NotAuthorizedToPauseEvent();
+        if (newIpfsHash == bytes32(0)) revert InvalidIpfsHash();
 
         eventData.ipfsHash = newIpfsHash;
 
