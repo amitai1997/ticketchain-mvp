@@ -8,7 +8,9 @@ packages = [{include = "src"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
-fastapi = "^0.110.0"
+# Using the latest FastAPI to get starlette 0.40.0+ (fixes CVE-2024-47874)
+fastapi = {version = "^0.114.0", allow-prereleases = true, extras = ["all"]}
+# starlette = "^0.40.0"
 uvicorn = {extras = ["standard"], version = "^0.29.0"}
 pydantic = "^2.6.0"
 pydantic-settings = "^2.2.0"
@@ -19,12 +21,20 @@ redis = "^5.0.3"
 web3 = "^6.16.0"
 eth-account = "^0.11.0"
 httpx = "^0.27.0"
-python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+# Replaced vulnerable python-jose with authlib
+# python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+authlib = "^1.3.0"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
-python-multipart = "^0.0.9"
+# Updated to address CVE-2024-53981
+python-multipart = "^0.0.18"
+# Known vulnerability: CVE-2024-23342, PVE-2024-64396 - Consider cryptography alternatives
 emails = "^0.6"
 celery = "^5.3.6"
 flower = "^2.0.1"
+# Added to replace vulnerable pyjwt dependency
+pyjwt = "^2.10.1"
+# Updated to fix CVE-2024-12797
+cryptography = "^44.0.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.1.1"
