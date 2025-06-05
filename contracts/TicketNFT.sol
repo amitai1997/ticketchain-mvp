@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "./interfaces/ITicketNFT.sol";
-import "./interfaces/IEventRegistry.sol";
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {ITicketNFT} from "./interfaces/ITicketNFT.sol";
+import {IEventRegistry} from "./interfaces/IEventRegistry.sol";
 
 /**
  * @title TicketNFT
@@ -12,11 +12,20 @@ import "./interfaces/IEventRegistry.sol";
  * @dev Implements ERC721 with custom ticket-specific functionality
  */
 contract TicketNFT is ERC721, Ownable, ITicketNFT {
+    // Custom errors
+    error InvalidRegistryAddress();
+    error NotAuthorizedMinter();
+    error EventDoesNotExist();
+    error EventIsPaused();
+    error SeatAlreadyMinted();
+    error NotOwnerOrApproved();
+    error TokenDoesNotExist();
+
     // Counter for token IDs
     uint256 private _tokenIdCounter;
 
     // Reference to the EventRegistry contract
-    IEventRegistry public immutable eventRegistry;
+    IEventRegistry public immutable EVENT_REGISTRY;
 
     // Mapping from token ID to event ID
     mapping(uint256 => uint256) private _tokenToEvent;
@@ -32,8 +41,8 @@ contract TicketNFT is ERC721, Ownable, ITicketNFT {
      * @param _eventRegistry Address of the EventRegistry contract
      */
     constructor(address _eventRegistry) ERC721("TicketNFT", "TICK") Ownable(msg.sender) {
-        require(_eventRegistry != address(0), "Invalid registry address");
-        eventRegistry = IEventRegistry(_eventRegistry);
+        if (_eventRegistry == address(0)) revert InvalidRegistryAddress();
+        EVENT_REGISTRY = IEventRegistry(_eventRegistry);
     }
 
     /**
@@ -46,15 +55,15 @@ contract TicketNFT is ERC721, Ownable, ITicketNFT {
      */
     function mintTicket(address to, uint256 eventId, uint256 seatId) external override returns (uint256 tokenId) {
         // Check if caller is authorized minter
-        require(eventRegistry.isMinter(msg.sender), "Not authorized minter");
+        if (!EVENT_REGISTRY.isMinter(msg.sender)) revert NotAuthorizedMinter();
 
         // Get event data to validate
-        IEventRegistry.EventData memory eventData = eventRegistry.events(eventId);
-        require(eventData.ipfsHash != bytes32(0), "Event does not exist");
-        require(!eventData.isPaused, "Event is paused");
+        IEventRegistry.EventData memory eventData = EVENT_REGISTRY.events(eventId);
+        if (eventData.ipfsHash == bytes32(0)) revert EventDoesNotExist();
+        if (eventData.isPaused) revert EventIsPaused();
 
         // Check if seat is already taken for this event
-        require(_eventSeatToToken[eventId][seatId] == 0, "Seat already minted");
+        if (_eventSeatToToken[eventId][seatId] != 0) revert SeatAlreadyMinted();
 
         // TODO: Add check for max supply when ticket count tracking is implemented
 
@@ -79,7 +88,7 @@ contract TicketNFT is ERC721, Ownable, ITicketNFT {
      * @param tokenId The ID of the ticket to burn
      */
     function burn(uint256 tokenId) external override {
-        require(_isAuthorized(msg.sender, address(0), tokenId), "Not owner or approved");
+        if (!_isAuthorized(msg.sender, address(0), tokenId)) revert NotOwnerOrApproved();
 
         uint256 eventId = _tokenToEvent[tokenId];
         uint256 seatId = _tokenToSeat[tokenId];
@@ -100,7 +109,7 @@ contract TicketNFT is ERC721, Ownable, ITicketNFT {
      * @return eventId The ID of the event
      */
     function eventOf(uint256 tokenId) external view override returns (uint256 eventId) {
-        require(_exists(tokenId), "Token does not exist");
+        if (!_exists(tokenId)) revert TokenDoesNotExist();
         return _tokenToEvent[tokenId];
     }
 
@@ -110,7 +119,7 @@ contract TicketNFT is ERC721, Ownable, ITicketNFT {
      * @return seatId The seat ID
      */
     function seatOf(uint256 tokenId) external view returns (uint256 seatId) {
-        require(_exists(tokenId), "Token does not exist");
+        if (!_exists(tokenId)) revert TokenDoesNotExist();
         return _tokenToSeat[tokenId];
     }
 

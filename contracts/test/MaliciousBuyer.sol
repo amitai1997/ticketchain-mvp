@@ -3,6 +3,9 @@ pragma solidity ^0.8.20;
 
 // Mock contract for testing re-entrancy protection
 contract MaliciousBuyer {
+    // Custom errors
+    error AttackFailed();
+
     address public marketplace;
     bool public attacking;
     uint256 public attackCount;
@@ -19,7 +22,7 @@ contract MaliciousBuyer {
         (bool success,) = marketplace.call{value: msg.value}(
             abi.encodeWithSignature("purchaseListing(uint256)", listingId)
         );
-        require(success, "Attack failed");
+        if (!success) revert AttackFailed();
     }
 
     // Receive function that attempts re-entrancy
