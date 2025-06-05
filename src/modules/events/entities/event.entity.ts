@@ -8,7 +8,9 @@ export class EventEntity {
   @Column({ length: 100 })
   name: string;
 
-  @Column({ type: 'timestamp' })
+  @Column({
+    type: process.env.ENABLE_IN_MEMORY_DB === 'true' ? 'datetime' : 'timestamp'
+  })
   date: Date;
 
   @Column({ length: 200 })
